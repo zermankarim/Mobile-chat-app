@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { TextStyle } from "react-native";
 import { Text } from "react-native-paper";
+import { theme } from "../theme";
 
 type MyAppTextProps = {
   children: React.ReactNode;
@@ -17,7 +18,8 @@ const TextWithFont: FC<MyAppTextProps> = ({
     <Text
       numberOfLines={numberOfLines}
       style={{
-        fontFamily: "cabin-regular",
+        fontFamily: theme.fontFamily,
+        color: theme.colors.main[100],
         ...styleProps,
       }}
     >
