@@ -76,16 +76,10 @@ export interface IMessage {
   sender: string;
 }
 
-export interface IButtonsList {
+export interface IButtonDrawer {
   title: string;
   icon: React.ReactNode | null;
   onPress: () => void;
-}
-
-export interface IBottomSheetComponentProps {
-  buttonsList: IButtonsList[];
-  name: string;
-  icon?: React.ReactNode;
 }
 
 export interface IPalette {
