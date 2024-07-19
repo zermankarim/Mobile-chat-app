@@ -12,6 +12,9 @@ export const theme = {
       400: "#182330",
       500: "#0B1116",
     },
+    blue: {
+      100: "#368CCC",
+    },
   },
   spacing: (space: number) => space * 4,
   fontFamily: "cabin-regular",
