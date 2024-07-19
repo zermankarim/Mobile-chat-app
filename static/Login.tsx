@@ -7,9 +7,9 @@ import {
 } from "react-native";
 import { FC, SetStateAction, useState } from "react";
 import { useDispatch } from "react-redux";
-import { loginUser } from "../core/reducers/user";
+import { setUser } from "../core/reducers/user";
 import { auth, database } from "../core/firebase/firebase";
-import { IUserState, RouteProps } from "../shared/types";
+import { IUserState, LoginRouteProps } from "../shared/types";
 import { doc, getDoc } from "firebase/firestore";
 import TextWithFont from "../shared/components/TextWithFont";
 import {
@@ -21,7 +21,7 @@ import { Button } from "react-native-paper";
 import { theme } from "../shared/theme";
 import { TextInput } from "react-native-gesture-handler";
 
-const Login: FC<RouteProps> = ({ navigation }) => {
+const Login: FC<LoginRouteProps> = ({ navigation }) => {
   // Redux states and dispatch
   const dispatch = useDispatch();
 
@@ -85,7 +85,7 @@ const Login: FC<RouteProps> = ({ navigation }) => {
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         const userData: IUserState = userSnap.data() as IUserState;
-        dispatch(loginUser(userData));
+        dispatch(setUser(userData));
       } else {
         console.error("No such document!");
       }
