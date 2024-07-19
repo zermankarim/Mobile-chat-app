@@ -8,6 +8,9 @@ import Chats from "./static/Chats";
 import Profile from "./static/Profile";
 import Login from "./static/Login";
 import SearchBarComponent from "./shared/components/SearchBar";
+import { Ionicons } from "@expo/vector-icons";
+import { View } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const Drawer = createDrawerNavigator();
 
@@ -17,7 +20,7 @@ const RootNavigator: FC = () => {
   return user.uid ? (
     <Drawer.Navigator
       initialRouteName="Chats"
-      drawerContent={() => <DrawerContent></DrawerContent>}
+      drawerContent={(props) => <DrawerContent {...props}></DrawerContent>}
       screenOptions={{
         headerStyle: {
           backgroundColor: theme.colors.main[300],
@@ -31,7 +34,13 @@ const RootNavigator: FC = () => {
       }}
     >
       <Drawer.Screen name="Chats" component={Chats} />
-      <Drawer.Screen name="Profile" component={Profile} />
+      <Drawer.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          headerTitle: undefined,
+        }}
+      />
     </Drawer.Navigator>
   ) : (
     <Drawer.Navigator
