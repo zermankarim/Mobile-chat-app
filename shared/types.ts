@@ -1,3 +1,4 @@
+import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 export interface IUserState {
@@ -6,7 +7,7 @@ export interface IUserState {
   lastName: string | null;
   dateOfBirth: string | null;
   email: string | null;
-  avatar: string | null;
+  avatars: string[];
   friends: string[];
 }
 
@@ -17,11 +18,10 @@ export interface ILoginInputsState {
 
 export type RootStackParamList = {
   Chat: undefined;
-  Home: undefined;
+  Chats: undefined;
   Login: undefined;
   SignUp: undefined;
-  CreateChat: undefined;
-  Profile: undefined;
+  Profile: { owner: IUserState };
 };
 
 export type LoginScreenNavigationProp = StackNavigationProp<
@@ -32,20 +32,16 @@ export type ChatScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "Chat"
 >;
-export type CreateChatScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "CreateChat"
->;
 export type SignUpScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "SignUp"
 >;
-export type HomeScreenNavigationProp = StackNavigationProp<
+export type ChatsScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
-  "Home"
+  "Chats"
 >;
 
-export type RouteProps = {
+export type LoginRouteProps = {
   navigation: LoginScreenNavigationProp;
 };
 
@@ -53,6 +49,13 @@ export type ProfileScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   "Profile"
 >;
+
+type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;
+
+export type ProfileRouteProps = {
+  route: ProfileRouteProp;
+  navigation: ProfileScreenNavigationProp;
+};
 
 export interface IChatClient {
   id: string;

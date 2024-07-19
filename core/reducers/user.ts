@@ -7,7 +7,7 @@ const initialState: IUserState = {
   lastName: null,
   dateOfBirth: null,
   email: null,
-  avatar: null,
+  avatars: [],
   friends: [],
 };
 
@@ -15,7 +15,7 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    loginUser: (state, action: PayloadAction<IUserState>) => {
+    setUser: (state, action: PayloadAction<IUserState>) => {
       state.uid = action.payload.uid;
       state.email = action.payload.email;
       state.firstName = action.payload.firstName;
@@ -24,7 +24,7 @@ const userSlice = createSlice({
 
       state.friends = action.payload.friends;
 
-      state.avatar = action.payload.avatar;
+      state.avatars = action.payload.avatars;
     },
     logoutUser: (state) => {
       state.uid = null;
@@ -35,11 +35,11 @@ const userSlice = createSlice({
 
       state.friends = [];
 
-      state.avatar = null;
+      state.avatars = [];
     },
   },
 });
 
-export const { loginUser, logoutUser } = userSlice.actions;
+export const { setUser, logoutUser } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -51,7 +51,7 @@ function DrawerContent({ ...props }) {
         />
       ),
       onPress: () => {
-        props.navigation.jumpTo("Profile");
+        props.navigation.jumpTo("Profile", { owner: user });
         props.navigation.closeDrawer();
       },
     },
@@ -80,7 +80,6 @@ function DrawerContent({ ...props }) {
       ),
       onPress: () => {
         props.navigation.closeDrawer();
-        handleLogountButton();
       },
     },
     {
@@ -94,6 +93,7 @@ function DrawerContent({ ...props }) {
       ),
       onPress: () => {
         props.navigation.closeDrawer();
+        handleLogountButton();
       },
     },
   ];
@@ -111,7 +111,7 @@ function DrawerContent({ ...props }) {
           alignItems: "center",
           gap: theme.spacing(2),
           backgroundColor: theme.colors.main[300],
-          padding: theme.spacing(2),
+          padding: theme.spacing(3),
           paddingTop: theme.spacing(10),
         }}
       >
@@ -123,13 +123,13 @@ function DrawerContent({ ...props }) {
           <TouchableOpacity // Inner container for user avatar
             onPress={() => {
               props.navigation.closeDrawer();
-              props.navigation.jumpTo("Profile");
+              props.navigation.jumpTo("Profile", { owner: user });
             }}
           >
-            {user.avatar ? (
+            {user.avatars.length ? (
               <Avatar.Image
                 size={64}
-                source={{ uri: user.avatar }}
+                source={{ uri: user.avatars[user.avatars.length - 1] }}
               ></Avatar.Image>
             ) : (
               <Avatar.Text
@@ -184,7 +184,8 @@ function DrawerContent({ ...props }) {
               alignItems: "center",
               gap: theme.spacing(4),
               width: "100%",
-              padding: theme.spacing(2),
+              paddingHorizontal: theme.spacing(2),
+              paddingVertical: theme.spacing(3),
             }}
           >
             {buttonData.icon}
