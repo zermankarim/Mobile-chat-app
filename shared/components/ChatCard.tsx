@@ -11,7 +11,6 @@ import { setMessages } from "../../core/reducers/messages";
 import { setCurrentChat } from "../../core/reducers/currentChat";
 import { Avatar, Badge } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Feather } from "@expo/vector-icons";
 
 interface IChatCartProps {
   chat: IChatClient;
