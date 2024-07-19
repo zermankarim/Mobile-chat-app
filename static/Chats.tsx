@@ -102,7 +102,7 @@ const Chats: FC = () => {
         color={theme.colors.main[200]}
         style={{
           flex: 1,
-          backgroundColor: theme.colors.main[300],
+          backgroundColor: theme.colors.main[400],
         }}
       ></ActivityIndicator>
     );
@@ -112,7 +112,7 @@ const Chats: FC = () => {
       style={{
         flex: 1,
         alignItems: "center",
-        backgroundColor: theme.colors.main[300],
+        backgroundColor: theme.colors.main[400],
         paddingVertical: theme.spacing(4),
       }}
     >
@@ -128,7 +128,7 @@ const Chats: FC = () => {
             color={theme.colors.main[200]}
             style={{
               flex: 1,
-              backgroundColor: theme.colors.main[300],
+              backgroundColor: theme.colors.main[400],
             }}
           ></ActivityIndicator>
         ) : (
