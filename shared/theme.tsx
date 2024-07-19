@@ -19,4 +19,5 @@ export const theme = {
   spacing: (space: number) => space * 4,
   fontFamily: "cabin-regular",
   fontSize: (fSize: number) => fSize * 4,
+  borderRadius: (bRadius: number) => bRadius * 4,
 };
