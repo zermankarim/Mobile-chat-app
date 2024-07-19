@@ -70,7 +70,7 @@ const ChatCard: FC<IChatCartProps> = ({
         gap: theme.spacing(3),
         width: "100%",
         paddingVertical: theme.spacing(2),
-        borderColor: theme.colors.main[400],
+        borderColor: theme.colors.main[500],
         borderBottomWidth: 0.6,
         paddingHorizontal: theme.spacing(4),
       }}
@@ -93,10 +93,12 @@ const ChatCard: FC<IChatCartProps> = ({
         }}
       >
         {oneRecipient ? (
-          oneRecipient.avatar ? (
+          oneRecipient.avatars.length ? (
             <Avatar.Image
               size={64}
-              source={{ uri: oneRecipient.avatar }}
+              source={{
+                uri: oneRecipient.avatars[oneRecipient.avatars.length - 1],
+              }}
             ></Avatar.Image>
           ) : (
             <Avatar.Text
