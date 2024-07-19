@@ -32,7 +32,7 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
         onChangeText={updateSearchFunction}
         value={""}
         style={{
-          backgroundColor: theme.colors.main[400],
+          backgroundColor: theme.colors.main[500],
           width: "100%",
         }}
       />
