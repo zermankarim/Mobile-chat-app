@@ -126,7 +126,7 @@ function DrawerContent({ ...props }) {
               props.navigation.jumpTo("Profile", { owner: user });
             }}
           >
-            {user.avatars.length ? (
+            {user?.avatars.length ? (
               <Avatar.Image
                 size={64}
                 source={{ uri: user.avatars[user.avatars.length - 1] }}
