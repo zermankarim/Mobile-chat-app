@@ -22,6 +22,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import TextWithFont from "./shared/components/TextWithFont";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SignUp from "./static/SignUp";
+import CreateChat from "./static/CreateChat";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -122,6 +123,26 @@ const RootNavigator: FC = () => {
       }}
     >
       <Drawer.Screen name="Chats" component={Chats} />
+      <Drawer.Screen
+        name="CreateChat"
+        component={CreateChat}
+        options={{
+          headerLeft: () => (
+            <Button
+              style={{
+                minWidth: 0,
+              }}
+            >
+              <Ionicons
+                name="arrow-back-outline"
+                size={24}
+                color={theme.colors.main[200]}
+                onPress={() => navigation.navigate("Chats")}
+              />
+            </Button>
+          ),
+        }}
+      />
       <Drawer.Screen
         name="Profile"
         component={Profile}
