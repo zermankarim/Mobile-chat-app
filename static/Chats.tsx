@@ -4,7 +4,12 @@ import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { setChats } from "../core/reducers/chats";
 import { ActivityIndicator } from "react-native-paper";
-import { IChatClient, IChatDB, IUserState } from "../shared/types";
+import {
+  ChatsRouteProps,
+  IChatClient,
+  IChatDB,
+  IUserState,
+} from "../shared/types";
 import {
   collection,
   getDocs,
@@ -17,8 +22,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import ChatCard from "../shared/components/ChatCard";
 import uuid from "react-native-uuid";
+import { MaterialIcons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
-const Chats: FC = () => {
+const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   // Redux states and dispatch
   const chats = useSelector((state: RootState) => state.chats);
   const user = useSelector((state: RootState) => state.user);
@@ -110,8 +117,8 @@ const Chats: FC = () => {
   return (
     <View
       style={{
+        position: "relative",
         flex: 1,
-        alignItems: "center",
         backgroundColor: theme.colors.main[400],
         paddingVertical: theme.spacing(4),
       }}
@@ -149,6 +156,19 @@ const Chats: FC = () => {
           ))
         )}
       </ScrollView>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("CreateChat")}
+        style={{
+          position: "absolute",
+          bottom: 12,
+          right: 12,
+          backgroundColor: theme.colors.blue[100],
+          padding: theme.spacing(4),
+          borderRadius: 50,
+        }}
+      >
+        <MaterialIcons name="create" size={24} color={theme.colors.main[100]} />
+      </TouchableOpacity>
     </View>
   );
 };
