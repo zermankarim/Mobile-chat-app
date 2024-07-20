@@ -17,7 +17,7 @@ import Chat from "./static/Chat";
 import { Dimensions, Image, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { Avatar, Button } from "react-native-paper";
+import { ActivityIndicator, Avatar, Button } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import TextWithFont from "./shared/components/TextWithFont";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -35,6 +35,7 @@ const RootNavigator: FC = () => {
 
   // States
   const [oneRecipient, setOneRecipient] = useState<IUserState | null>(null);
+  const [chatLoading, setChatLoading] = useState<boolean>(false);
 
   const HeaderUserInfo = () => {
     return (
@@ -80,11 +81,31 @@ const RootNavigator: FC = () => {
             </TextWithFont>
           </TouchableOpacity>
         ) : (
-          <MaterialIcons
-            name="groups"
-            size={64}
-            color={theme.colors.main[200]}
-          />
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.spacing(2),
+            }}
+          >
+            <MaterialIcons
+              name="groups"
+              size={48}
+              color={theme.colors.main[200]}
+            />
+            <TextWithFont>
+              {currentChat.participants
+                .filter(
+                  (participant, index) =>
+                    participant.uid !== user.uid && index < 3
+                )
+                .map(
+                  (participant) =>
+                    participant.firstName + " " + participant.lastName
+                )
+                .join(", ") + " and other.."}
+            </TextWithFont>
+          </View>
         )}
       </View>
     );
@@ -92,6 +113,7 @@ const RootNavigator: FC = () => {
 
   //Effects
   useEffect(() => {
+    setChatLoading(true);
     if (currentChat.id && currentChat.participants.length === 2) {
       const oneRecipientData: IUserState | undefined =
         currentChat.participants.find(
@@ -100,8 +122,24 @@ const RootNavigator: FC = () => {
       if (oneRecipientData) {
         setOneRecipient(oneRecipientData);
       }
+    } else {
+      setOneRecipient(null);
     }
+    setChatLoading(false);
   }, [currentChat]);
+
+  if (chatLoading) {
+    return (
+      <ActivityIndicator
+        size={"large"}
+        color={theme.colors.main[100]}
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.main[500],
+        }}
+      ></ActivityIndicator>
+    );
+  }
 
   return user.uid ? (
     <Drawer.Navigator

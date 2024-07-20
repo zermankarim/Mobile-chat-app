@@ -25,7 +25,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import uuid from "react-native-uuid";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
-import { setCurrentChat } from "../core/reducers/currentChat";
+import currentChat, { setCurrentChat } from "../core/reducers/currentChat";
+import { setMessages } from "../core/reducers/messages";
 
 const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
   // Redux states and dispatch
@@ -35,20 +36,23 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
   // States
   const [usersForChat, setUsersForChat] = useState<IUserState[]>([]);
   const [usersLoading, setUsersLoading] = useState<boolean>(true);
+  const [chatLoading, setChatLoading] = useState<boolean>(false);
 
   // Functions
   const handleCreateChatWithUser = async (userForChat: IUserState) => {
+    setChatLoading(true);
     setUsersLoading(true);
     try {
+      const chatId = uuid.v4().toLocaleString();
       const newChatForDB: IChatDB = {
-        id: uuid.v4().toLocaleString(),
+        id: chatId,
         createdAt: new Date().toISOString(),
         messages: [],
         createdBy: user.uid!,
         participants: [user.uid!, userForChat.uid!],
       };
       const newChatForClient: IChatClient = {
-        id: uuid.v4().toLocaleString(),
+        id: chatId,
         createdAt: new Date().toISOString(),
         messages: [],
         createdBy: user.uid!,
@@ -57,65 +61,87 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
       await setDoc(doc(database, "chats", newChatForDB.id), newChatForDB);
 
       dispatch(setCurrentChat(newChatForClient));
+      dispatch(setMessages([]));
       navigation.navigate("Chat");
       setUsersLoading(false);
+      setChatLoading(false);
 
       console.log("Chat was created!");
     } catch (e: any) {
       console.error("Error during creating chat: ", e.message);
       Alert.alert("Error during creating chat: ", e.message);
       setUsersLoading(false);
+      setChatLoading(false);
     }
   };
 
   // Effects
   useEffect(() => {
     setUsersLoading(true);
-    try {
+
+    const updateUsersForChat = async () => {
       // Query users for searching
       const usersQ = query(
         collection(database, "users"),
         where("uid", "!=", user.uid)
       );
-      const unsubscribe = onSnapshot(usersQ, async (snaphot) => {
-        if (!snaphot.empty) {
-          const usersData: IUserState[] = [];
-          for (const doc of snaphot.docs) {
-            const userForChatData: IUserState = doc.data() as IUserState;
 
-            // Create chat query for each user
-            const chatsQ = query(
-              collection(database, "chats"),
-              where("participants", "array-contains", userForChatData.uid)
-            );
+      const chatsQ = query(collection(database, "chats"));
 
-            const querySnapshot = await getDocs(chatsQ);
-            // If chats with this user not found - add to array
-            if (!querySnapshot.docs.length) {
-              usersData.push(userForChatData);
-            }
-            // Else search in all chats which have more than 2 participants
-            else {
-              querySnapshot.docs.forEach((doc) => {
-                const chatData: IChatDB = doc.data() as IChatDB;
-                if (chatData.participants.length > 2) {
-                  usersData.push(userForChatData);
-                }
-              });
-            }
+      // Listener for chats DB for updating it state at Chat Page
+      const unsubscribeChats = onSnapshot(chatsQ, async (chatsSnapshot) => {
+        const usersData: IUserState[] = [];
+        const usersSnapshot = await getDocs(usersQ);
+        for (const doc of usersSnapshot.docs) {
+          const userForChatData: IUserState = doc.data() as IUserState;
+
+          const chatDocs = chatsSnapshot.docs.filter((doc) => {
+            const chatData: IChatDB = doc.data() as IChatDB;
+            return chatData.participants.includes(userForChatData.uid!);
+          });
+
+          if (
+            !chatDocs.length ||
+            chatDocs.some((doc) => doc.data().participants.length > 2)
+          ) {
+            usersData.push(userForChatData);
           }
-          setUsersForChat(usersData);
-          setUsersLoading(false);
+        }
+        setUsersForChat(usersData);
+      });
+
+      // Listener for users DB for updating it state at CreateChat Page
+      const unsubscribeUsers = onSnapshot(usersQ, async (usersSnapshot) => {
+        if (!usersSnapshot.empty) {
+          const usersData: IUserState[] = [];
+          for (const doc of usersSnapshot.docs) {
+            const userForChatData: IUserState = doc.data() as IUserState;
+            usersData.push(userForChatData);
+          }
+          setUsersForChat((prevUsers) =>
+            prevUsers.filter((user) =>
+              usersData.some((u) => u.uid === user.uid)
+            )
+          );
         }
       });
-      return unsubscribe;
+
+      return () => {
+        unsubscribeChats();
+        unsubscribeUsers();
+      };
+    };
+
+    try {
+      updateUsersForChat();
+      setUsersLoading(false);
     } catch (e: any) {
       console.error(e.message);
       setUsersLoading(false);
     }
-  }, []);
+  }, [currentChat]);
 
-  if (usersLoading) {
+  if (usersLoading || chatLoading) {
     return (
       <ActivityIndicator
         size={"large"}
