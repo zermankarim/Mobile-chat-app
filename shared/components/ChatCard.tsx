@@ -95,14 +95,14 @@ const ChatCard: FC<IChatCartProps> = ({
         {oneRecipient ? (
           oneRecipient.avatars.length ? (
             <Avatar.Image
-              size={64}
+              size={48}
               source={{
                 uri: oneRecipient.avatars[oneRecipient.avatars.length - 1],
               }}
             ></Avatar.Image>
           ) : (
             <Avatar.Text
-              size={64}
+              size={48}
               label={oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
               style={{
                 backgroundColor: theme.colors.main[200],
@@ -112,7 +112,7 @@ const ChatCard: FC<IChatCartProps> = ({
         ) : (
           <MaterialIcons
             name="groups"
-            size={64}
+            size={48}
             color={theme.colors.main[200]}
           />
         )}
