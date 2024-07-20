@@ -21,6 +21,7 @@ import { Avatar, Button } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import TextWithFont from "./shared/components/TextWithFont";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import SignUp from "./static/SignUp";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -105,6 +106,7 @@ const RootNavigator: FC = () => {
     <Drawer.Navigator
       initialRouteName="Chats"
       drawerContent={(props) => <DrawerContent {...props}></DrawerContent>}
+      backBehavior="initialRoute"
       screenOptions={{
         swipeEdgeWidth: Dimensions.get("window").width,
         headerStyle: {
@@ -114,6 +116,7 @@ const RootNavigator: FC = () => {
         headerTitleStyle: {
           fontFamily: theme.fontFamily,
         },
+        drawerType: "slide",
         headerShadowVisible: false,
         headerTitle: () => <SearchBarComponent></SearchBarComponent>,
       }}
@@ -123,6 +126,7 @@ const RootNavigator: FC = () => {
         name="Profile"
         component={Profile}
         options={{
+          swipeEdgeWidth: Dimensions.get("window").width * 0.3,
           headerTitle: undefined,
           headerTransparent: true,
           headerStyle: {
@@ -170,6 +174,7 @@ const RootNavigator: FC = () => {
       }}
     >
       <Drawer.Screen name="Login" component={Login} />
+      <Drawer.Screen name="SignUp" component={SignUp} />
     </Drawer.Navigator>
   );
 };
