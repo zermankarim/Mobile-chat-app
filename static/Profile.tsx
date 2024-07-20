@@ -1,7 +1,7 @@
 import {
-  Alert,
   Dimensions,
   Image,
+  NativeScrollEvent,
   Platform,
   TouchableOpacity,
   View,
@@ -35,6 +35,11 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
   // States
   const [avatarUploading, setAvatarUploading] = useState<boolean>(false);
   const [ownerState, setOwnerState] = useState<IUserState>(owner);
+  const [activeImage, setActiveImage] = useState<number>(
+    owner.avatars.length - 1
+  );
+
+  console.log(owner.avatars.length - 1);
 
   const windowWidth = Dimensions.get("window").width;
 
@@ -67,7 +72,6 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
       setAvatarUploading(false);
     }
   };
-
   const handleImagePicker = async () => {
     // If user doesn't get permission for camera and gallery
     if (Platform.OS !== "web") {
@@ -95,13 +99,26 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
     }
   };
 
+  const handleScrollAvatar = (nativeEvent: NativeScrollEvent) => {
+    if (nativeEvent) {
+      const slide = Math.floor(
+        nativeEvent.contentOffset.x / nativeEvent.layoutMeasurement.width
+      );
+      const correctedIndex = ownerState.avatars.length - 1 - slide;
+
+      if (correctedIndex !== activeImage) {
+        setActiveImage(correctedIndex);
+      }
+    }
+  };
+
   // Effects
   useEffect(() => {
     setOwnerState(owner);
+    setActiveImage(owner.avatars.length - 1);
   }, [owner]);
   useEffect(() => {
     if (!avatarUploading && owner.uid === user.uid) {
-      console.log(owner);
       try {
         const q = query(
           collection(database, "users"),
@@ -112,6 +129,7 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
             const newUser: IUserState = snapshot.docs[0].data() as IUserState;
             dispatch(setUser(newUser));
             setOwnerState(newUser);
+            setActiveImage(newUser.avatars.length - 1);
           }
         });
 
@@ -125,7 +143,6 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
   return (
     <ScrollView
       style={{
-        flex: 1,
         flexDirection: "column",
         backgroundColor: theme.colors.main[500],
       }}
@@ -140,11 +157,42 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
       >
         <View // Inner container for avatar
           style={{
-            position: "relative",
             width: "100%",
             height: windowWidth,
           }}
         >
+          <View
+            style={{
+              position: "absolute",
+              display: "flex",
+              top: 20,
+              flexDirection: "row",
+              alignSelf: "center",
+              zIndex: 1,
+              width: "100%",
+            }}
+          >
+            {ownerState.avatars
+              .map((avatar, index) => {
+                console.log("ActiveImage: ", activeImage);
+                console.log("Index: ", index);
+                return (
+                  <View
+                    key={uuid.v4() + "avatarsDots"}
+                    style={{
+                      flex: 1,
+                      height: 1,
+                      backgroundColor:
+                        activeImage === index
+                          ? theme.colors.main[100]
+                          : theme.colors.main[200],
+                      margin: theme.spacing(1),
+                    }}
+                  />
+                );
+              })
+              .reverse()}
+          </View>
           {avatarUploading ? (
             <ActivityIndicator
               size={"large"}
@@ -155,18 +203,34 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
               }}
             ></ActivityIndicator>
           ) : ownerState.avatars.length ? (
-            <Image
-              // size={64}
-              source={{
-                uri: ownerState.avatars[ownerState.avatars.length - 1],
-              }}
+            <ScrollView
+              onScroll={({ nativeEvent }) => handleScrollAvatar(nativeEvent)}
+              showsHorizontalScrollIndicator={false}
+              pagingEnabled
+              horizontal
               style={{
-                borderRadius: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                position: "relative",
+                width: windowWidth,
+                height: windowWidth,
               }}
-            ></Image>
+            >
+              {ownerState.avatars
+                .map((avatar, index) => (
+                  <Image
+                    key={uuid.v4() + "-userAvatar"}
+                    source={{
+                      uri: avatar, // Используем avatar напрямую
+                    }}
+                    style={{
+                      borderRadius: 0,
+                      width: windowWidth,
+                      height: windowWidth,
+                      resizeMode: "cover",
+                    }}
+                  />
+                ))
+                .reverse()}
+            </ScrollView>
           ) : (
             <Avatar.Text
               size={128}
@@ -186,7 +250,6 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
               bottom: theme.spacing(5),
               left: theme.spacing(5),
               fontSize: theme.fontSize(8),
-              zIndex: 1,
             }}
           >
             {ownerState.firstName + " " + ownerState.lastName}

@@ -146,71 +146,89 @@ const Chat: FC = () => {
         backgroundColor: theme.colors.main[500],
       }}
     >
-      <ScrollView // Container for messages
-        ref={scrollViewRef}
-        style={{
-          flexDirection: "column",
-        }}
-        contentContainerStyle={{
-          justifyContent: "flex-end",
-          flex: 1,
-          padding: theme.spacing(3),
-          gap: theme.spacing(3),
-        }}
-      >
-        {currentChat.messages.map((message) => (
-          <View // Container for message row
-            key={uuid.v4() + "-containerRowMessage"}
-            style={{
-              flexDirection: "row",
-              justifyContent:
-                message.sender === user.uid ? "flex-end" : "flex-start",
-              width: "100%",
-            }}
-          >
-            <TouchableOpacity // Container for message
-              onLongPress={() => handleLongPressMessage(message)}
+      {currentChat.messages.length ? (
+        <ScrollView // Container for messages
+          ref={scrollViewRef}
+          style={{
+            flexDirection: "column",
+          }}
+          contentContainerStyle={{
+            justifyContent: "flex-end",
+            // flex: 1,
+            padding: theme.spacing(3),
+            gap: theme.spacing(3),
+          }}
+        >
+          {currentChat.messages.map((message) => (
+            <View // Container for message row
+              key={uuid.v4() + "-containerRowMessage"}
               style={{
-                backgroundColor:
-                  message.sender === user.uid
-                    ? theme.colors.blue[100]
-                    : theme.colors.main[300],
-                paddingVertical: theme.spacing(2),
-                paddingHorizontal: theme.spacing(3),
-                borderTopLeftRadius: theme.borderRadius(2),
-                borderTopRightRadius: theme.borderRadius(2),
-                borderBottomLeftRadius:
-                  message.sender === user.uid ? theme.borderRadius(2) : 0,
-                borderBottomRightRadius:
-                  message.sender === user.uid ? 0 : theme.borderRadius(2),
-                minWidth: 72,
+                flexDirection: "row",
+                justifyContent:
+                  message.sender === user.uid ? "flex-end" : "flex-start",
+                width: "100%",
               }}
             >
-              <TextWithFont
-                styleProps={{
-                  width: "100%",
-                  textAlign: "left",
-                }}
-              >
-                {message.text}
-              </TextWithFont>
-              <TextWithFont
-                styleProps={{
-                  textAlign: "right",
-                  width: "100%",
-                  fontSize: theme.fontSize(3),
-                  color:
+              <TouchableOpacity // Container for message
+                onLongPress={() => handleLongPressMessage(message)}
+                style={{
+                  backgroundColor:
                     message.sender === user.uid
-                      ? theme.colors.main[100]
-                      : theme.colors.main[200],
+                      ? theme.colors.blue[100]
+                      : theme.colors.main[300],
+                  paddingVertical: theme.spacing(2),
+                  paddingHorizontal: theme.spacing(3),
+                  borderTopLeftRadius: theme.borderRadius(2),
+                  borderTopRightRadius: theme.borderRadius(2),
+                  borderBottomLeftRadius:
+                    message.sender === user.uid ? theme.borderRadius(2) : 0,
+                  borderBottomRightRadius:
+                    message.sender === user.uid ? 0 : theme.borderRadius(2),
+                  minWidth: 72,
                 }}
               >
-                {formatMessageDate(message.createdAt)}
-              </TextWithFont>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
+                <TextWithFont
+                  styleProps={{
+                    width: "100%",
+                    textAlign: "left",
+                  }}
+                >
+                  {message.text}
+                </TextWithFont>
+                <TextWithFont
+                  styleProps={{
+                    textAlign: "right",
+                    width: "100%",
+                    fontSize: theme.fontSize(3),
+                    color:
+                      message.sender === user.uid
+                        ? theme.colors.main[100]
+                        : theme.colors.main[200],
+                  }}
+                >
+                  {formatMessageDate(message.createdAt)}
+                </TextWithFont>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </ScrollView>
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <TextWithFont
+            styleProps={{
+              color: theme.colors.main[200],
+            }}
+          >
+            Enter Your first message!
+          </TextWithFont>
+        </View>
+      )}
       <View // Container for input message and send message button
         style={{
           flexDirection: "row",
