@@ -17,9 +17,8 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Button } from "react-native-paper";
+import { Button, TextInput } from "react-native-paper";
 import { theme } from "../shared/theme";
-import { TextInput } from "react-native-gesture-handler";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
   // Redux states and dispatch
@@ -150,7 +149,7 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
         style={{
           justifyContent: "center",
           alignItems: "center",
-          gap: theme.spacing(2),
+          gap: theme.spacing(3),
           padding: theme.spacing(3),
           backgroundColor: theme.colors.main[400],
           borderColor: theme.colors.main[300],
@@ -174,20 +173,22 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
         >
           Log In
         </TextWithFont>
-        <View
+        <View // Container for inputs
           style={{
             display: "flex",
             flexDirection: "column",
             marginTop: theme.spacing(5),
-            gap: theme.spacing(2),
+            gap: theme.spacing(3),
             width: "100%",
           }}
         >
           <TextInput
             placeholder="Email"
             placeholderTextColor={theme.colors.main[200]}
+            textColor={theme.colors.main[100]}
             style={{
               color: theme.colors.main[100],
+              backgroundColor: theme.colors.main[500],
             }}
             onChange={handleEmailChange}
             value={email || undefined}
@@ -195,8 +196,10 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
           <TextInput
             placeholder="Password"
             placeholderTextColor={theme.colors.main[200]}
+            textColor={theme.colors.main[100]}
             style={{
               color: theme.colors.main[100],
+              backgroundColor: theme.colors.main[500],
             }}
             onChange={handlePasswordChange}
             value={password || undefined}
