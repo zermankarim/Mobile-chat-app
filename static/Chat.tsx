@@ -31,6 +31,7 @@ const Chat: FC = () => {
   // Redux states and dispatch
   const currentChat = useSelector((state: RootState) => state.currentChat);
   const user = useSelector((state: RootState) => state.user);
+  const messages = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
 
   // Ref
@@ -80,6 +81,7 @@ const Chat: FC = () => {
       text: messageText!,
     };
     setMessageText("");
+
     try {
       // Updating document (add a new message)
       const chatDocRef = doc(database, "chats", currentChat.id);
@@ -98,6 +100,7 @@ const Chat: FC = () => {
 
   // Effects
   useEffect(() => {
+    scrollToBottom();
     if (currentChat) {
       const q = query(
         collection(database, "chats"),
@@ -146,7 +149,7 @@ const Chat: FC = () => {
         backgroundColor: theme.colors.main[500],
       }}
     >
-      {currentChat.messages.length ? (
+      {messages.length ? (
         <ScrollView // Container for messages
           ref={scrollViewRef}
           style={{
@@ -154,12 +157,12 @@ const Chat: FC = () => {
           }}
           contentContainerStyle={{
             justifyContent: "flex-end",
-            // flex: 1,
+            minHeight: "100%",
             padding: theme.spacing(3),
             gap: theme.spacing(3),
           }}
         >
-          {currentChat.messages.map((message) => (
+          {messages.map((message) => (
             <View // Container for message row
               key={uuid.v4() + "-containerRowMessage"}
               style={{
@@ -185,12 +188,14 @@ const Chat: FC = () => {
                   borderBottomRightRadius:
                     message.sender === user.uid ? 0 : theme.borderRadius(2),
                   minWidth: 72,
+                  maxWidth: "80%",
                 }}
               >
                 <TextWithFont
                   styleProps={{
                     width: "100%",
                     textAlign: "left",
+                    maxWidth: "100%",
                   }}
                 >
                   {message.text}
@@ -232,13 +237,15 @@ const Chat: FC = () => {
       <View // Container for input message and send message button
         style={{
           flexDirection: "row",
-          alignItems: "center",
+          alignItems: "flex-end",
           width: "100%",
           backgroundColor: theme.colors.main[400],
         }}
       >
         <TextInput
           placeholder="Message"
+          multiline
+          // numberOfLines={4}
           value={messageText}
           placeholderTextColor={theme.colors.main[200]}
           onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) => {
@@ -247,11 +254,19 @@ const Chat: FC = () => {
           textColor={theme.colors.main[100]}
           style={{
             flex: 1,
+            maxHeight: 128,
             backgroundColor: theme.colors.main[400],
           }}
         ></TextInput>
         {!disabledSendButton ? (
-          <Button onPress={onSend}>
+          <Button
+            onPress={onSend}
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              height: 48,
+            }}
+          >
             <MaterialIcons
               name="send"
               size={24}
