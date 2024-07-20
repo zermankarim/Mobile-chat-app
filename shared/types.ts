@@ -22,6 +22,7 @@ export type RootStackParamList = {
   Login: undefined;
   SignUp: undefined;
   Profile: { owner: IUserState };
+  CreateChat: undefined;
 };
 
 export type LoginScreenNavigationProp = StackNavigationProp<
@@ -41,8 +42,21 @@ export type ChatsScreenNavigationProp = StackNavigationProp<
   "Chats"
 >;
 
+export type CreateChatScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "CreateChat"
+>;
+
 export type LoginRouteProps = {
   navigation: LoginScreenNavigationProp;
+};
+
+export type ChatsRouteProps = {
+  navigation: ChatsScreenNavigationProp;
+};
+
+export type CreateChatRouteProps = {
+  navigation: ChatsScreenNavigationProp;
 };
 
 export type ProfileScreenNavigationProp = StackNavigationProp<
