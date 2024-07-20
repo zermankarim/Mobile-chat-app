@@ -39,8 +39,6 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
     owner.avatars.length - 1
   );
 
-  console.log(owner.avatars.length - 1);
-
   const windowWidth = Dimensions.get("window").width;
 
   // Functions
@@ -174,8 +172,6 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
           >
             {ownerState.avatars
               .map((avatar, index) => {
-                console.log("ActiveImage: ", activeImage);
-                console.log("Index: ", index);
                 return (
                   <View
                     key={uuid.v4() + "avatarsDots"}
