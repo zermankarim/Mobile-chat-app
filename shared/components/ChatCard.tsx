@@ -144,26 +144,35 @@ const ChatCard: FC<IChatCartProps> = ({
           </TextWithFont>
         ) : (
           <TextWithFont // Text field for name
-            numberOfLines={2}
+            numberOfLines={1}
             styleProps={{
               color: theme.colors.main[100],
               fontSize: theme.fontSize(4),
             }}
           >
             {chat.participants
-              .filter((participant) => participant.uid !== user.uid)
+              .filter(
+                (participant, index) =>
+                  participant.uid !== user.uid && index < 3
+              )
               .map(
                 (participant) =>
                   participant.firstName + " " + participant.lastName
               )
-              .join(" ")}
+              .join(", ") + " and other.."}
           </TextWithFont>
         )}
-        <TextWithFont>
+        <View
+          style={{
+            flexDirection: "row",
+            gap: theme.spacing(1),
+          }}
+        >
           {messages.length ? (
             <>
               {messages[messages.length - 1].sender === user.uid && (
                 <TextWithFont
+                  numberOfLines={1}
                   styleProps={{
                     color: theme.colors.main[200],
                   }}
@@ -191,7 +200,7 @@ const ChatCard: FC<IChatCartProps> = ({
               Enter first message!
             </TextWithFont>
           )}
-        </TextWithFont>
+        </View>
       </View>
       <View
         style={{
