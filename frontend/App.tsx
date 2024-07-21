@@ -11,13 +11,15 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Text } from "react-native-paper";
 import RootNavigator from "./RootNavigator";
 import { Provider as StoreProvider } from "react-redux";
+import { GlobalContext } from "./core/context/Context";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
 const App: FC = () => {
   // States
-  const [appIsReady, setAppIsReady] = useState(false);
+  const [appIsReady, setAppIsReady] = useState<boolean>(false);
+  const [chatsLoading, setChatsLoading] = useState<boolean>(false);
 
   // Effects
   useEffect(() => {
@@ -48,11 +50,13 @@ const App: FC = () => {
   }
   return (
     <StoreProvider store={store}>
-      <NavigationContainer>
-        <SafeAreaProvider onLayout={onLayoutRootView}>
-          <RootNavigator></RootNavigator>
-        </SafeAreaProvider>
-      </NavigationContainer>
+      <GlobalContext.Provider value={{ chatsLoading, setChatsLoading }}>
+        <NavigationContainer>
+          <SafeAreaProvider onLayout={onLayoutRootView}>
+            <RootNavigator></RootNavigator>
+          </SafeAreaProvider>
+        </NavigationContainer>
+      </GlobalContext.Provider>
     </StoreProvider>
   );
 };

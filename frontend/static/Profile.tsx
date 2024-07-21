@@ -22,6 +22,7 @@ import uuid from "react-native-uuid";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { setUser } from "../core/reducers/user";
 import { doc, updateDoc } from "firebase/firestore";
+import { LinearGradient } from "expo-linear-gradient";
 
 const Profile: FC<ProfileRouteProps> = ({ route }) => {
   // Redux states and dispatch
@@ -228,16 +229,22 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
                 .reverse()}
             </ScrollView>
           ) : (
-            <Avatar.Text
-              size={128}
-              label={ownerState?.firstName![0] + ownerState?.lastName![0]}
+            <LinearGradient
+              colors={ownerState.backgroundColors}
               style={{
-                backgroundColor: theme.colors.main[200],
-                borderRadius: 0,
-                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
                 height: "100%",
               }}
-            />
+            >
+              <TextWithFont
+                styleProps={{
+                  fontSize: theme.fontSize(20),
+                }}
+              >
+                {ownerState?.firstName![0] + ownerState?.lastName![0]}
+              </TextWithFont>
+            </LinearGradient>
           )}
 
           <TextWithFont

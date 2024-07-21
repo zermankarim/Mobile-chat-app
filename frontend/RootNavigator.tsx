@@ -14,7 +14,7 @@ import {
   RootStackParamList,
 } from "./shared/types";
 import Chat from "./static/Chat";
-import { Dimensions, Image, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, Avatar, Button } from "react-native-paper";
@@ -23,6 +23,7 @@ import TextWithFont from "./shared/components/TextWithFont";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SignUp from "./static/SignUp";
 import CreateChat from "./static/CreateChat";
+import { LinearGradient } from "expo-linear-gradient";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -64,13 +65,24 @@ const RootNavigator: FC = () => {
                 }}
               ></Avatar.Image>
             ) : (
-              <Avatar.Text
-                size={36}
-                label={oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
+              <LinearGradient
+                colors={oneRecipient.backgroundColors}
                 style={{
-                  backgroundColor: theme.colors.main[200],
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: 36,
+                  width: 36,
+                  borderRadius: 50,
                 }}
-              />
+              >
+                <TextWithFont
+                  styleProps={{
+                    fontSize: theme.fontSize(3),
+                  }}
+                >
+                  {oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
+                </TextWithFont>
+              </LinearGradient>
             )}
             <TextWithFont
               styleProps={{
@@ -157,7 +169,9 @@ const RootNavigator: FC = () => {
         },
         drawerType: "slide",
         headerShadowVisible: false,
-        headerTitle: () => <SearchBarComponent></SearchBarComponent>,
+        headerTitle: () => (
+          <SearchBarComponent searchType={"Chats"}></SearchBarComponent>
+        ),
       }}
     >
       <Drawer.Screen name="Chats" component={Chats} />

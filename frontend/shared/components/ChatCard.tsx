@@ -6,11 +6,12 @@ import { ChatScreenNavigationProp, IChatClient, IUserState } from "../types";
 import { useNavigation } from "@react-navigation/native";
 import { RootState } from "../../core/store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { format, isThisWeek, isToday, parseISO } from "date-fns";
 import { setMessages } from "../../core/reducers/messages";
 import { setCurrentChat } from "../../core/reducers/currentChat";
 import { Avatar, Badge } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
+import { formatMessageDate, getRandomColor } from "../functions";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface IChatCartProps {
   chat: IChatClient;
@@ -52,17 +53,6 @@ const ChatCard: FC<IChatCartProps> = ({
     }
   };
 
-  const formatMessageDate = (isoString: string): string => {
-    const date = parseISO(isoString);
-
-    if (isToday(date)) {
-      return format(date, "HH:mm");
-    } else if (isThisWeek(date)) {
-      return format(date, "EEE");
-    } else {
-      return format(date, "dd MMM");
-    }
-  };
   return (
     <TouchableOpacity
       style={{
@@ -101,13 +91,20 @@ const ChatCard: FC<IChatCartProps> = ({
               }}
             ></Avatar.Image>
           ) : (
-            <Avatar.Text
-              size={48}
-              label={oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
+            <LinearGradient
+              colors={oneRecipient.backgroundColors}
               style={{
-                backgroundColor: theme.colors.main[200],
+                justifyContent: "center",
+                alignItems: "center",
+                width: 48,
+                height: 48,
+                borderRadius: 50,
               }}
-            />
+            >
+              <TextWithFont>
+                {oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
+              </TextWithFont>
+            </LinearGradient>
           )
         ) : (
           <MaterialIcons

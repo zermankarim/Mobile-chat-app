@@ -9,6 +9,7 @@ export interface IUserState {
   email: string | null;
   avatars: string[];
   friends: string[];
+  backgroundColors: string[];
 }
 
 export interface ILoginInputsState {

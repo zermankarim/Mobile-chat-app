@@ -24,6 +24,7 @@ import ChatCard from "../shared/components/ChatCard";
 import uuid from "react-native-uuid";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { useGlobalContext } from "../core/context/Context";
 
 const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   // Redux states and dispatch
@@ -32,9 +33,7 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   const dispatch = useDispatch();
 
   // States
-  const [pageIndex, setPageIndex] = useState<number>(0);
-  const [chatsLoading, setChatsLoading] = useState<boolean>(true);
-  const [search, setSearch] = useState<string>("");
+  const { chatsLoading, setChatsLoading } = useGlobalContext();
   const [searchLoading, setSearchLoading] = useState<boolean>(true);
   const [selectedChats, setSelectedChats] = useState<IChatClient[]>([]);
 
@@ -80,27 +79,6 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
       console.error("Error during update chats on Home page: ", e);
     }
   }, []);
-
-  // Functions
-  const updateSearchChats = async (searchReq: string) => {
-    setSearchLoading(true);
-    setSearch(searchReq);
-    try {
-      if (searchReq) {
-        const filteredChats = chats.filter((chat) =>
-          chat.participants.some((participant: IUserState) =>
-            participant.email?.includes(searchReq.toLocaleLowerCase())
-          )
-        );
-        dispatch(setChats(filteredChats));
-      }
-      setSearchLoading(false);
-    } catch (error: any) {
-      Alert.alert("Error during finding user: ", error.message);
-      console.error("Error during finding user: ", error.message);
-      setSearchLoading(false);
-    }
-  };
 
   if (chatsLoading) {
     return (

@@ -15,6 +15,7 @@ import { doc, setDoc } from "firebase/firestore";
 import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { Button, TextInput } from "react-native-paper";
+import { getRandomColor } from "../shared/functions";
 
 const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
   // Redux dispatch
@@ -66,6 +67,7 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
         dateOfBirth: null,
         email: email.toLocaleLowerCase(),
         avatars: [],
+        backgroundColors: [getRandomColor(), getRandomColor()],
         friends: [],
       };
       await setDoc(doc(database, "users", user.uid), newUserState);

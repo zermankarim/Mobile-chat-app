@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import currentChat, { setCurrentChat } from "../core/reducers/currentChat";
 import { setMessages } from "../core/reducers/messages";
+import { LinearGradient } from "expo-linear-gradient";
 
 const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
   // Redux states and dispatch
@@ -190,15 +191,20 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
                       }}
                     ></Avatar.Image>
                   ) : (
-                    <Avatar.Text
-                      size={48}
-                      label={
-                        userForChat?.firstName![0] + userForChat?.lastName![0]
-                      }
+                    <LinearGradient
+                      colors={userForChat.backgroundColors}
                       style={{
-                        backgroundColor: theme.colors.main[200],
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: 48,
+                        height: 48,
+                        borderRadius: 50,
                       }}
-                    />
+                    >
+                      <TextWithFont>
+                        {userForChat?.firstName![0] + userForChat?.lastName![0]}
+                      </TextWithFont>
+                    </LinearGradient>
                   )}
                   <View // Container for user names and email
                     style={{

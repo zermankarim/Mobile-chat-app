@@ -13,7 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import uuid from "react-native-uuid";
 import TextWithFont from "../shared/components/TextWithFont";
-import { format, isThisWeek, isToday, parseISO } from "date-fns";
 import { IChatDB, IMessage } from "../shared/types";
 import {
   collection,
@@ -26,6 +25,7 @@ import {
 import { database } from "../core/firebase/firebase";
 import { setCurrentChat } from "../core/reducers/currentChat";
 import { setMessages } from "../core/reducers/messages";
+import { formatMessageDate } from "../shared/functions";
 
 const Chat: FC = () => {
   // Redux states and dispatch
@@ -43,18 +43,6 @@ const Chat: FC = () => {
   const [disabledSendButton, setDisabledSendButton] = useState<boolean>(true);
 
   // Functions
-  const formatMessageDate = (isoString: string): string => {
-    const date = parseISO(isoString);
-
-    if (isToday(date)) {
-      return format(date, "HH:mm");
-    } else if (isThisWeek(date)) {
-      return format(date, "EEE");
-    } else {
-      return format(date, "dd MMM");
-    }
-  };
-
   const handleLongPressMessage = (message: IMessage) => {};
 
   // Scroll when user send a new message
