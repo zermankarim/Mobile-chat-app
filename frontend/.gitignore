@@ -36,3 +36,4 @@ yarn-error.*
 
 # files
 firebaseConsts.ts
+config.ts
