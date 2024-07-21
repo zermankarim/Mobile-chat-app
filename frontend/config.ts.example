@@ -1,0 +1,2 @@
+export const SERVER_URL_MAIN:string = "SERVER_URL_MAIN";
+export const SERVER_PORT_MAIN:string = "SERVER_PORT_MAIN";
