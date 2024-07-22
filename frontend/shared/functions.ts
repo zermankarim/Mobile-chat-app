@@ -25,4 +25,10 @@ export const getRandomColor = () => {
   return color;
 };
 
-
+export const where = (
+  field: string,
+  conditionType: "==",
+  value: string | Array<string>
+) => {
+  return { field, conditionType, value };
+};

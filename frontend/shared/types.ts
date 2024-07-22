@@ -99,3 +99,9 @@ export interface IButtonDrawer {
   icon: React.ReactNode | null;
   onPress: () => void;
 }
+
+export interface dataFromGetDoc {
+  success: boolean;
+  message?: string;
+  data?: IUserState | IChatClient;
+}
