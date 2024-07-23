@@ -15,7 +15,7 @@ import { doc, setDoc } from "firebase/firestore";
 import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { Button, TextInput } from "react-native-paper";
-import { getRandomColor } from "../shared/functions";
+import { createUserWithEmailPassAndNames } from "../fetches/http";
 
 const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
   // Redux dispatch
@@ -26,8 +26,8 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
 
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
-  const [email, setEmail] = useState<string | null>(null);
-  const [password, setPassword] = useState<string | null>(null);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const [showEmailError, setShowEmailError] =
     useState<SetStateAction<boolean>>(false);
@@ -50,31 +50,30 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
     setLoadingSignUp(true);
 
     try {
-      if (!email || !password || !firstName || !lastName) {
-        Alert.alert("All fields must be filled in");
-        setLoadingSignUp(false);
-        return;
-      }
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
+      const response = await createUserWithEmailPassAndNames(
+        firstName,
+        lastName,
         email,
         password
       );
-      const newUserState: IUserState = {
-        uid: user.uid,
-        firstName,
-        lastName,
-        dateOfBirth: null,
-        email: email.toLocaleLowerCase(),
-        avatars: [],
-        backgroundColors: [getRandomColor(), getRandomColor()],
-        friends: [],
-      };
-      await setDoc(doc(database, "users", user.uid), newUserState);
-      dispatch(setUser(newUserState));
-      setLoadingSignUp(false);
+      if (response) {
+        const { success } = response;
+        if (!success) {
+          const { message } = response;
+
+          setLoadingSignUp(false);
+          console.error(message);
+          return Alert.alert(message!);
+        }
+
+        const { data: newUserState } = response;
+        dispatch(setUser(newUserState!));
+        setLoadingSignUp(false);
+      } else {
+        throw new Error("Error during receiving response");
+      }
     } catch (e: any) {
-      Alert.alert("Error during create user: ", e.message);
+      console.error("Error during signing up: ", e.message);
       setLoadingSignUp(false);
     }
   };

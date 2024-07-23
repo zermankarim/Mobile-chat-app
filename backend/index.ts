@@ -1,10 +1,9 @@
-import { getDocQueries } from "./types";
-import { Request, Response } from "express";
-
 const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const authRouter = require("./routers/authRouter");
+const getDataRouter = require("./routers/getDataRouter");
 
 require("dotenv").config();
 
@@ -38,44 +37,6 @@ const start = () => {
 
 start();
 
-// Get routes
-app.get("/some", async (req, res) => {
-  const users = await User.find({});
-  console.log(users);
-  res.send("Hello World!");
-});
-
-app.get("/getDoc", async (req: Request, res: Response) => {
-  let Model: typeof User | typeof Chat;
-  const query = {};
-  const { collectionName, condition } = req.query as getDocQueries;
-
-  if (collectionName === "users") {
-    Model = User;
-  }
-  if (collectionName === "chats") {
-    Model = Chat;
-  }
-
-  const { field, conditionType, value } = condition;
-
-  if (conditionType == "==") {
-    if (mongoose.isValidObjectId(value)) {
-      query[field] = new mongoose.Types.ObjectId(value);
-    } else {
-      query[field] = value;
-    }
-
-    try {
-      const data = await Model.findOne(query);
-      if (data) {
-        return res.send({ success: true, data });
-      } else {
-        return res.send({ success: false, message: "Doc not found" });
-      }
-    } catch (e) {
-      console.error(e.message);
-      return res.status(400).send({ success: false, message: e.message });
-    }
-  }
-});
+// Routes
+app.use("/getData", getDataRouter);
+app.use("/auth", authRouter);

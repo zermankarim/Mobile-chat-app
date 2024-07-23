@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export type getDocQueries = {
   collectionName: "users" | "chats";
@@ -9,25 +9,38 @@ export type getDocQueries = {
   };
 };
 
-export interface IUserSchema {
+export interface IUserBeforeSignUp {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
   email: string;
   avatars: string[];
-  friends: Schema.Types.ObjectId[] | IUserSchema[];
+  friends: string[];
   backgroundColors: string[];
+  password: string;
 }
 
-export interface IChatSchema {
-  createdAt: string;
-  createdBy: Schema.Types.ObjectId | IUserSchema;
-  messages: [
-    {
-      createdAt: string;
-      text: string;
-      sender: Schema.Types.ObjectId | IUserSchema;
-    }
-  ];
-  participants: Schema.Types.ObjectId[] | IUserSchema[];
+export interface IUser {
+  _id: mongoose.Types.ObjectId;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  email: string;
+  avatars: string[];
+  friends: IUser[];
+  backgroundColors: string[];
+  password?: string;
 }
+
+// export interface IChatSchema {
+//   createdAt: string;
+//   createdBy: Schema.Types.ObjectId | IUserSchema;
+//   messages: [
+//     {
+//       createdAt: string;
+//       text: string;
+//       sender: Schema.Types.ObjectId | IUserSchema;
+//     }
+//   ];
+//   participants: Schema.Types.ObjectId[] | IUserSchema[];
+// }

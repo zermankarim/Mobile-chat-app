@@ -10,15 +10,16 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../core/reducers/user";
 import { auth, database } from "../core/firebase/firebase";
 import { IUserState, LoginRouteProps } from "../shared/types";
-import { doc, getDoc } from "firebase/firestore";
+// import { doc, getDoc } from "firebase/firestore";
 import TextWithFont from "../shared/components/TextWithFont";
 import {
   sendPasswordResetEmail,
-  signInWithEmailAndPassword,
+  // signInWithEmailAndPassword,
 } from "firebase/auth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Button, TextInput } from "react-native-paper";
 import { theme } from "../shared/theme";
+import { signInWithEmailAndPassword } from "../fetches/http";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
   // Redux states and dispatch
@@ -30,42 +31,24 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
 
   const [loadingLogin, setLoadingLogin] = useState<boolean>(false);
 
-  const [email, setEmail] = useState<string | null>(null);
-  const [password, setPassword] = useState<string | null>(null);
-
-  const [showEmailError, setShowEmailError] =
-    useState<SetStateAction<boolean>>(false);
-  const [showPasswordError, setShowPasswordError] =
-    useState<SetStateAction<boolean>>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   // Functions
   const handleEmailChange = (
     e: NativeSyntheticEvent<TextInputChangeEventData>
   ) => {
-    if (!e.nativeEvent.text) {
-      setShowEmailError(true);
-    }
-    if (e.nativeEvent.text) {
-      setShowEmailError(false);
-    }
     setEmail(e.nativeEvent.text);
   };
 
   const handlePasswordChange = (
     e: NativeSyntheticEvent<TextInputChangeEventData>
   ) => {
-    if (!e.nativeEvent.text) {
-      setShowPasswordError(true);
-    }
-    if (e.nativeEvent.text) {
-      setShowPasswordError(false);
-    }
     setPassword(e.nativeEvent.text);
   };
 
   const onHandleLogin = async () => {
     setIsDisabledButton(true);
-    setLoadingLogin(true);
     if (!email || !password) {
       Alert.alert("All fields must be filled in");
       setLoadingLogin(false);
@@ -73,44 +56,54 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
       return;
     }
     try {
-      // Getting user from auth
-      const { user: userFromAuth } = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      // Getting user data from firestore by user's from auth uid
-      const userRef = doc(database, "users", userFromAuth.uid);
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const userData: IUserState = userSnap.data() as IUserState;
-        dispatch(setUser(userData));
+      setLoadingLogin(true);
+      const response = await signInWithEmailAndPassword(email, password);
+      if (response) {
+        const { success } = response;
+
+        if (success) {
+          const { data: userData } = response;
+          dispatch(setUser(userData!));
+          console.log(userData)
+          setLoadingLogin(false);
+          setIsDisabledButton(false);
+        } else {
+          const { message } = response;
+          console.error(message);
+          setLoadingLogin(false);
+          setIsDisabledButton(false);
+          Alert.alert(message!);
+          return;
+        }
       } else {
-        console.error("No such document!");
+        setLoadingLogin(false);
+        setIsDisabledButton(false);
+        Alert.alert("Error on logging in");
+        throw new Error("No response");
       }
-      setLoadingLogin(false);
-      setIsDisabledButton(false);
     } catch (e: any) {
-      Alert.alert("Error during login user: ", e.message);
       setLoadingLogin(false);
       setIsDisabledButton(false);
+      Alert.alert("Error on logging in: ", e.message);
+      throw new Error(e.message);
     }
   };
 
+  // This function isn't working now.
   const handleResetPassword = async (email: string | null) => {
     setIsDisabledButton(true);
     if (email) {
       sendPasswordResetEmail(auth, email)
         .then(() => {
           // Password reset email sent!
-          setEmail(null);
+          setEmail("");
           setIsDisabledButton(false);
           setIsVisibleOverlay(false);
           Alert.alert("Password reset information sent successfully!");
         })
         .catch((error) => {
           setIsDisabledButton(false);
-          setEmail(null);
+          setEmail("");
           setIsVisibleOverlay(false);
           const errorMessage = error.message;
 
