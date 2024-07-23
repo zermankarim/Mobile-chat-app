@@ -13,15 +13,15 @@ const userSchema = new Schema({
 
 const chatSchema = new Schema({
   createdAt: { type: String, required: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: "User" },
+  createdBy: { type: Schema.Types.ObjectId, ref: "users" },
   messages: [
     {
       createdAt: { type: String, required: true },
       text: { type: String },
-      sender: { type: Schema.Types.ObjectId, ref: "User" },
+      sender: { type: Schema.Types.ObjectId, ref: "users" },
     },
   ],
-  participants: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  participants: [{ type: Schema.Types.ObjectId, ref: "users" }],
 });
 
 const User = mongoose.model("users", userSchema);
