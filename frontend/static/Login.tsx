@@ -20,8 +20,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Button, TextInput } from "react-native-paper";
 import { theme } from "../shared/theme";
 import { signInWithEmailAndPassword } from "../fetches/http";
+import { useGlobalContext } from "../core/context/Context";
+import { connectToSocket } from "../shared/functions";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
+  // Global context
+  const { setConnectionState } = useGlobalContext();
+
   // Redux states and dispatch
   const dispatch = useDispatch();
 
@@ -61,13 +66,7 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
       if (response) {
         const { success } = response;
 
-        if (success) {
-          const { data: userData } = response;
-          dispatch(setUser(userData!));
-          console.log(userData)
-          setLoadingLogin(false);
-          setIsDisabledButton(false);
-        } else {
+        if (!success) {
           const { message } = response;
           console.error(message);
           setLoadingLogin(false);
@@ -75,6 +74,14 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
           Alert.alert(message!);
           return;
         }
+
+        const { data: userData } = response;
+        dispatch(setUser(userData!));
+        console.log(userData);
+        setLoadingLogin(false);
+        setIsDisabledButton(false);
+        const socket = connectToSocket(userData!._id!);
+        setConnectionState(socket);
       } else {
         setLoadingLogin(false);
         setIsDisabledButton(false);

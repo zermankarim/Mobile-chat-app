@@ -32,3 +32,27 @@ export interface IUser {
   backgroundColors: string[];
   password?: string;
 }
+
+export interface IMessage {
+  createdAt: string;
+  text: string;
+  sender: IUser;
+}
+
+export interface IChatClient {
+  _id: string;
+  createdAt: string;
+  createdBy: string;
+  messages: IMessage[];
+  participants: IUser[];
+}
+
+// Socket.IO client to server Interface
+export interface ISocketEmitEvent {
+  getChatsByUserId: (userId: string) => void;
+}
+
+// Socket.IO server to client Interface
+export interface ISocketOnEvent {
+  getChatsByUserId: (chatsData: IChatClient[]) => void;
+}

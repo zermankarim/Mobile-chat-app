@@ -1,8 +1,9 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { Socket } from "socket.io-client";
 
 export interface IUserState {
-  uid: string | null;
+  _id: string | null;
   firstName: string | null;
   lastName: string | null;
   dateOfBirth: string | null;
@@ -17,6 +18,63 @@ export interface ILoginInputsState {
   password: string | null;
 }
 
+export interface IChatClient {
+  _id: string;
+  createdAt: string;
+  createdBy: string;
+  messages: IMessage[];
+  participants: IUserState[];
+}
+
+export interface IChatDB {
+  id: string;
+  createdAt: string;
+  createdBy: string;
+  messages: IMessage[];
+  participants: string[];
+}
+
+export interface IMessage {
+  createdAt: string;
+  text: string;
+  sender: string;
+}
+
+export interface IButtonDrawer {
+  title: string;
+  icon: React.ReactNode | null;
+  onPress: () => void;
+}
+
+export interface IGetDocData {
+  success: boolean;
+  message?: string;
+  data?: IUserState | IChatClient;
+}
+
+export interface IGetDocsData {
+  success: boolean;
+  message?: string;
+  data?: IUserState[] | IChatClient[];
+}
+
+export interface IAuthData {
+  success: boolean;
+  message?: string;
+  data?: IUserState;
+}
+
+// Socket.IO client to server Interface
+export interface ISocketEmitEvent {
+  getChatsByUserId: (userId: string) => void;
+}
+
+// Socket.IO server to client Interface
+export interface ISocketOnEvent {
+  getChatsByUserId: (chatsData: IChatClient[]) => void;
+}
+
+// Routers props
 export type RootStackParamList = {
   Chat: undefined;
   Chats: undefined;
@@ -71,37 +129,3 @@ export type ProfileRouteProps = {
   route: ProfileRouteProp;
   navigation: ProfileScreenNavigationProp;
 };
-
-export interface IChatClient {
-  id: string;
-  createdAt: string;
-  createdBy: string;
-  messages: IMessage[];
-  participants: IUserState[];
-}
-
-export interface IChatDB {
-  id: string;
-  createdAt: string;
-  createdBy: string;
-  messages: IMessage[];
-  participants: string[];
-}
-
-export interface IMessage {
-  createdAt: string;
-  text: string;
-  sender: string;
-}
-
-export interface IButtonDrawer {
-  title: string;
-  icon: React.ReactNode | null;
-  onPress: () => void;
-}
-
-export interface dataFromGetDoc {
-  success: boolean;
-  message?: string;
-  data?: IUserState | IChatClient;
-}

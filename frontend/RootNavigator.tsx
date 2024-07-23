@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { RootState } from "./core/store/store";
 import DrawerContent from "./shared/components/Drawer";
@@ -24,13 +24,18 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import SignUp from "./static/SignUp";
 import CreateChat from "./static/CreateChat";
 import { LinearGradient } from "expo-linear-gradient";
+import { setCurrentChat } from "./core/reducers/currentChat";
+import { connectToSocket } from "./shared/functions";
+import { useGlobalContext } from "./core/context/Context";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
 const RootNavigator: FC = () => {
   // Navigation
   const navigation = useNavigation<ChatScreenNavigationProp>();
+
   // Redux states and dispatch
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
   const currentChat = useSelector((state: RootState) => state.currentChat);
 
@@ -109,7 +114,7 @@ const RootNavigator: FC = () => {
               {currentChat.participants
                 .filter(
                   (participant, index) =>
-                    participant.uid !== user.uid && index < 3
+                    participant._id !== user._id && index < 3
                 )
                 .map(
                   (participant) =>
@@ -126,10 +131,10 @@ const RootNavigator: FC = () => {
   //Effects
   useEffect(() => {
     setChatLoading(true);
-    if (currentChat.id && currentChat.participants.length === 2) {
+    if (currentChat._id && currentChat.participants.length === 2) {
       const oneRecipientData: IUserState | undefined =
         currentChat.participants.find(
-          (participant) => participant.uid !== user.uid
+          (participant) => participant._id !== user._id
         );
       if (oneRecipientData) {
         setOneRecipient(oneRecipientData);
@@ -153,7 +158,7 @@ const RootNavigator: FC = () => {
     );
   }
 
-  return user.uid ? (
+  return user._id ? (
     <Drawer.Navigator
       initialRouteName="Chats"
       drawerContent={(props) => <DrawerContent {...props}></DrawerContent>}
@@ -225,7 +230,18 @@ const RootNavigator: FC = () => {
                 name="arrow-back-outline"
                 size={24}
                 color={theme.colors.main[200]}
-                onPress={() => navigation.navigate("Chats")}
+                onPress={() => {
+                  dispatch(
+                    setCurrentChat({
+                      _id: "",
+                      createdAt: "",
+                      createdBy: "",
+                      messages: [],
+                      participants: [],
+                    })
+                  );
+                  navigation.navigate("Chats");
+                }}
               />
             </Button>
           ),

@@ -1,8 +1,13 @@
 import { format, isThisWeek, isToday, parseISO } from "date-fns";
-import { IChatClient, IUserState } from "./types";
-import { setChats } from "../core/reducers/chats";
-import { Alert } from "react-native";
-import { useDispatch } from "react-redux";
+import { Socket, io as socketIO } from "socket.io-client";
+import { SERVER_PORT_SOCKET, SERVER_URL_SOCKET } from "../config";
+import { ISocketEmitEvent, ISocketOnEvent } from "./types";
+
+export const connectToSocket = (userId: string) => {
+  const URL = `${SERVER_URL_SOCKET}:${SERVER_PORT_SOCKET}/?userId=${userId}`;
+  const socket: Socket<ISocketEmitEvent, ISocketOnEvent> = socketIO(URL);
+  return socket;
+};
 
 export const formatMessageDate = (isoString: string): string => {
   const date = parseISO(isoString);
@@ -16,19 +21,14 @@ export const formatMessageDate = (isoString: string): string => {
   }
 };
 
-export const getRandomColor = () => {
-  const letters = "0123456789ABCDEF";
-  let color = "#";
-  for (var i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
-
 export const where = (
   field: string,
   conditionType: "==",
   value: string | Array<string>
 ) => {
   return { field, conditionType, value };
+};
+
+export const populate = (fields: string[]) => {
+  return fields;
 };
