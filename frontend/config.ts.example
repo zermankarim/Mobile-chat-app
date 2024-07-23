@@ -1,2 +1,5 @@
 export const SERVER_URL_MAIN:string = "SERVER_URL_MAIN";
 export const SERVER_PORT_MAIN:string = "SERVER_PORT_MAIN";
+
+export const SERVER_URL_SOCKET: string = "SERVER_URL_SOCKETSERVER_URL_SOCKET";
+export const SERVER_PORT_SOCKET: string = "SERVER_PORT_SOCKET";
