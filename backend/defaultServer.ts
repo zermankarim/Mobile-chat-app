@@ -9,7 +9,8 @@ require("dotenv").config();
 
 const { User, Chat } = require("./models");
 
-const { PORT, MONGO_URL, CORS_ORIGIN_URL_WITH_PORT } = process.env;
+const { DEFAULT_SERVER_PORT, MONGO_URL, CORS_ORIGIN_URL_WITH_PORT } =
+  process.env;
 
 var corsOptions = {
   origin: CORS_ORIGIN_URL_WITH_PORT,
@@ -24,8 +25,8 @@ const start = () => {
     mongoose.connect(MONGO_URL).then(() => {
       console.log("Server connected to MongoDB.");
     });
-    app.listen(PORT, () => {
-      console.log(`Server listen on port ${PORT}`);
+    app.listen(DEFAULT_SERVER_PORT, () => {
+      console.log(`Server listen on port ${DEFAULT_SERVER_PORT}`);
     });
   } catch (e) {
     console.error(

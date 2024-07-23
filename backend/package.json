@@ -2,10 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "defaultServer.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec npx ts-node ./index.ts"
+    "start-default-server": "nodemon --exec ts-node ./defaultServer.ts",
+    "start-socket-server": "nodemon --exec ts-node ./socketServer.ts",
+    "start-default-socket-servers": "concurrently \"npm run start-default-server\" \"npm run start-socket-server\""
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +19,9 @@
     "express": "^4.19.2",
     "express-validator": "^7.1.0",
     "mongoose": "^8.5.1",
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "socket.io": "^4.7.5",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/node": "^20.14.11"
