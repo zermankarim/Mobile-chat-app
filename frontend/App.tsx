@@ -12,14 +12,18 @@ import { Text } from "react-native-paper";
 import RootNavigator from "./RootNavigator";
 import { Provider as StoreProvider } from "react-redux";
 import { GlobalContext } from "./core/context/Context";
-
-const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
+import { connectToSocket } from "./shared/functions";
+import { Socket } from "socket.io-client";
+import { ISocketEmitEvent, ISocketOnEvent } from "./shared/types";
 
 const App: FC = () => {
   // States
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const [chatsLoading, setChatsLoading] = useState<boolean>(false);
+  const [connectionState, setConnectionState] = useState<Socket<
+    ISocketOnEvent,
+    ISocketEmitEvent
+  > | null>(null);
 
   // Effects
   useEffect(() => {
@@ -50,7 +54,14 @@ const App: FC = () => {
   }
   return (
     <StoreProvider store={store}>
-      <GlobalContext.Provider value={{ chatsLoading, setChatsLoading }}>
+      <GlobalContext.Provider
+        value={{
+          chatsLoading,
+          setChatsLoading,
+          connectionState,
+          setConnectionState,
+        }}
+      >
         <NavigationContainer>
           <SafeAreaProvider onLayout={onLayoutRootView}>
             <RootNavigator></RootNavigator>
