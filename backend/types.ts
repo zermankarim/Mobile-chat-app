@@ -7,6 +7,7 @@ export type getDocQueries = {
     conditionType: "==" | "array-contains";
     value: "string" | Array<string>;
   };
+  populateArr?: string[];
 };
 
 export interface IUserBeforeSignUp {
@@ -31,16 +32,3 @@ export interface IUser {
   backgroundColors: string[];
   password?: string;
 }
-
-// export interface IChatSchema {
-//   createdAt: string;
-//   createdBy: Schema.Types.ObjectId | IUserSchema;
-//   messages: [
-//     {
-//       createdAt: string;
-//       text: string;
-//       sender: Schema.Types.ObjectId | IUserSchema;
-//     }
-//   ];
-//   participants: Schema.Types.ObjectId[] | IUserSchema[];
-// }
