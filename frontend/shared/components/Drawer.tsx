@@ -20,6 +20,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { signOut } from "firebase/auth";
 import { auth } from "../../core/firebase/firebase";
 import { logoutUser } from "../../core/reducers/user";
+import { LinearGradient } from "expo-linear-gradient";
+import { useGlobalContext } from "../../core/context/Context";
 
 type DrawerProps = {
   state: DrawerNavigationState<ParamListBase>;
@@ -28,16 +30,15 @@ type DrawerProps = {
 };
 
 function DrawerContent({ ...props }) {
+  // Global context
+  const { connectionState, setConnectionState } = useGlobalContext();
+
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
   const handleLogountButton = () => {
-    signOut(auth)
-      .then(() => {
-        dispatch(logoutUser());
-      })
-      .catch((err) => Alert.alert("Error during log out: ", err.message));
+    dispatch(logoutUser());
   };
 
   const drawerButtonsData: IButtonDrawer[] = [
@@ -93,6 +94,8 @@ function DrawerContent({ ...props }) {
       ),
       onPress: () => {
         props.navigation.closeDrawer();
+        connectionState.disconnect();
+        setConnectionState(null);
         handleLogountButton();
       },
     },
@@ -132,13 +135,24 @@ function DrawerContent({ ...props }) {
                 source={{ uri: user.avatars[user.avatars.length - 1] }}
               ></Avatar.Image>
             ) : (
-              <Avatar.Text
-                size={64}
-                label={user?.firstName![0] + user?.lastName![0]}
+              <LinearGradient
+                colors={user.backgroundColors}
                 style={{
-                  backgroundColor: theme.colors.main[200],
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: 64,
+                  height: 64,
+                  borderRadius: 50,
                 }}
-              />
+              >
+                <TextWithFont
+                  styleProps={{
+                    fontSize: theme.fontSize(5),
+                  }}
+                >
+                  {user?.firstName![0] + user?.lastName![0]}
+                </TextWithFont>
+              </LinearGradient>
             )}
           </TouchableOpacity>
         </View>

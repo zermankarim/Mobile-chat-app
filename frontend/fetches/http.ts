@@ -17,7 +17,7 @@ export const getDoc = async (
     );
     return data;
   } catch (e: any) {
-    throw new Error("Error at getDoc: ", e.message);
+    throw new Error(`Error at getDoc: ${e.message}`);
   }
 };
 
@@ -37,7 +37,7 @@ export const getDocs = async (
     );
     return data;
   } catch (e: any) {
-    throw new Error("Error at getDocs: ", e.message);
+    throw new Error(`Error at getDocs: ${e.message}`);
   }
 };
 

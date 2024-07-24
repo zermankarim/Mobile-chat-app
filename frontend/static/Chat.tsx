@@ -7,27 +7,24 @@ import {
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { ActivityIndicator, Button, Text, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, TextInput } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import uuid from "react-native-uuid";
 import TextWithFont from "../shared/components/TextWithFont";
-import { IChatDB, IMessage } from "../shared/types";
-import {
-  collection,
-  doc,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { IMessage, IMessagePopulated, IUserState } from "../shared/types";
+import { doc, updateDoc } from "firebase/firestore";
 import { database } from "../core/firebase/firebase";
-import { setCurrentChat } from "../core/reducers/currentChat";
 import { setMessages } from "../core/reducers/messages";
 import { formatMessageDate } from "../shared/functions";
+import { useGlobalContext } from "../core/context/Context";
+import { setCurrentChat } from "../core/reducers/currentChat";
 
 const Chat: FC = () => {
+  // Global context
+  const { connectionState } = useGlobalContext();
+
   // Redux states and dispatch
   const currentChat = useSelector((state: RootState) => state.currentChat);
   const user = useSelector((state: RootState) => state.user);
@@ -39,11 +36,11 @@ const Chat: FC = () => {
 
   // States
   const [messageText, setMessageText] = useState<string | undefined>("");
-  const [chatLoading, setChatLoading] = useState<boolean>(true);
+  const [chatLoading, setChatLoading] = useState<boolean>(false);
   const [disabledSendButton, setDisabledSendButton] = useState<boolean>(true);
 
   // Functions
-  const handleLongPressMessage = (message: IMessage) => {};
+  const handleLongPressMessage = (message: IMessagePopulated) => {};
 
   // Scroll when user send a new message
   const scrollToBottom = () => {
@@ -65,57 +62,54 @@ const Chat: FC = () => {
   const onSend = async () => {
     const newMessage: IMessage = {
       createdAt: new Date().toISOString(),
-      sender: user.uid!,
+      sender: user._id!,
       text: messageText!,
     };
     setMessageText("");
+    const participantsIds: string[] = currentChat.participants.map(
+      (participant: IUserState) => participant._id!
+    );
+    connectionState?.emit(
+      "sendMessage",
+      currentChat._id,
+      newMessage,
+      participantsIds
+    );
 
-    try {
-      // Updating document (add a new message)
-      const chatDocRef = doc(database, "chats", currentChat.id);
-      await updateDoc(chatDocRef, {
-        messages: [...currentChat.messages, newMessage],
-      });
-
-      scrollToBottom();
-      dispatch(setMessages([...currentChat.messages, newMessage]));
-      setDisabledSendButton(true);
-    } catch (error) {
-      console.error("Error updating document:", error);
-      setDisabledSendButton(true);
-    }
+    setDisabledSendButton(true);
   };
 
   // Effects
   useEffect(() => {
-    scrollToBottom();
-    if (currentChat) {
-      const q = query(
-        collection(database, "chats"),
-        where("id", "==", currentChat.id)
-      );
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        try {
-          if (!querySnapshot.empty) {
-            const document = querySnapshot.docs[0];
-            const updatedChat: IChatDB = document.data() as IChatDB;
-            dispatch(
-              setCurrentChat({
-                ...currentChat,
-                messages: updatedChat.messages,
-              })
-            );
-          }
+    if (currentChat._id && connectionState) {
+      setChatLoading(true);
+      connectionState?.emit("getChatById", currentChat._id);
+
+      connectionState?.on("getChatById", (data) => {
+        const { success } = data;
+        if (!success) {
+          const { message } = data;
+          console.error("Error during receiving chat by ID: ", message);
           setChatLoading(false);
-        } catch (error) {
-          console.error("Error on chat snapshot: ", error);
-          setChatLoading(false);
+          return;
         }
+        const { chatData } = data;
+        console.log("here");
+
+        dispatch(setMessages(chatData!.messages));
+
+        setChatLoading(false);
       });
 
-      return () => unsubscribe();
+      return () => {
+        connectionState?.off("getChatById");
+      };
     }
-  }, []);
+  }, [currentChat, connectionState]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   if (chatLoading) {
     return (
@@ -156,7 +150,7 @@ const Chat: FC = () => {
               style={{
                 flexDirection: "row",
                 justifyContent:
-                  message.sender === user.uid ? "flex-end" : "flex-start",
+                  message.sender._id === user._id ? "flex-end" : "flex-start",
                 width: "100%",
               }}
             >
@@ -164,7 +158,7 @@ const Chat: FC = () => {
                 onLongPress={() => handleLongPressMessage(message)}
                 style={{
                   backgroundColor:
-                    message.sender === user.uid
+                    message.sender._id === user._id
                       ? theme.colors.blue[100]
                       : theme.colors.main[300],
                   paddingVertical: theme.spacing(2),
@@ -172,9 +166,9 @@ const Chat: FC = () => {
                   borderTopLeftRadius: theme.borderRadius(2),
                   borderTopRightRadius: theme.borderRadius(2),
                   borderBottomLeftRadius:
-                    message.sender === user.uid ? theme.borderRadius(2) : 0,
+                    message.sender._id === user._id ? theme.borderRadius(2) : 0,
                   borderBottomRightRadius:
-                    message.sender === user.uid ? 0 : theme.borderRadius(2),
+                    message.sender._id === user._id ? 0 : theme.borderRadius(2),
                   minWidth: 72,
                   maxWidth: "80%",
                 }}
@@ -194,7 +188,7 @@ const Chat: FC = () => {
                     width: "100%",
                     fontSize: theme.fontSize(3),
                     color:
-                      message.sender === user.uid
+                      message.sender._id === user._id
                         ? theme.colors.main[100]
                         : theme.colors.main[200],
                   }}

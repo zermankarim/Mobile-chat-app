@@ -5,7 +5,9 @@ import { ISocketEmitEvent, ISocketOnEvent } from "./types";
 
 export const connectToSocket = (userId: string) => {
   const URL = `${SERVER_URL_SOCKET}:${SERVER_PORT_SOCKET}/?userId=${userId}`;
-  const socket: Socket<ISocketEmitEvent, ISocketOnEvent> = socketIO(URL);
+  const socket: Socket<ISocketEmitEvent, ISocketOnEvent> = socketIO(URL, {
+    query: { userId },
+  });
   return socket;
 };
 

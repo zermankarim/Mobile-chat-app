@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Document, ObjectId, PopulatedDoc, Types } from "mongoose";
 
 export type getDocQueries = {
   collectionName: "users" | "chats";
@@ -22,37 +22,59 @@ export interface IUserBeforeSignUp {
 }
 
 export interface IUser {
-  _id: mongoose.Types.ObjectId;
+  _id: Types.ObjectId | string;
   firstName: string;
   lastName: string;
   dateOfBirth: string;
   email: string;
   avatars: string[];
-  friends: IUser[];
+  friends: IUser[] | Types.ObjectId[];
   backgroundColors: string[];
   password?: string;
 }
 
 export interface IMessage {
   createdAt: string;
-  text: string;
-  sender: IUser;
+  text?: string;
+  sender: Types.ObjectId;
 }
 
-export interface IChatClient {
-  _id: string;
+export interface IChat {
+  _id: Types.ObjectId;
   createdAt: string;
-  createdBy: string;
+  createdBy: Types.ObjectId;
   messages: IMessage[];
-  participants: IUser[];
+  participants: Types.ObjectId[];
 }
+
+// Socket.IO interfaces
 
 // Socket.IO client to server Interface
 export interface ISocketEmitEvent {
-  getChatsByUserId: (userId: string) => void;
+  getChatsByUserId: (data: {
+    success: boolean;
+    message?: string;
+    chatsData?: IChat[];
+  }) => void;
+  getChatById: (data: {
+    success: boolean;
+    message?: string;
+    chatData?: IChat;
+  }) => void;
 }
 
 // Socket.IO server to client Interface
 export interface ISocketOnEvent {
-  getChatsByUserId: (chatsData: IChatClient[]) => void;
+  getChatsByUserId: (userId: string) => void;
+  getChatById: (chatId: string) => void;
+  sendMessage: (
+    chatId: string,
+    newMessage: IMessage,
+    participantsIds: string[]
+  ) => void;
+}
+
+export interface IConnectedUser {
+  userId: string;
+  socketId: string;
 }

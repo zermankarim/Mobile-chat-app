@@ -4,8 +4,8 @@ import { theme } from "../shared/theme";
 import TextWithFont from "../shared/components/TextWithFont";
 import {
   CreateChatRouteProps,
-  IChatClient,
-  IChatDB,
+  IChat,
+  IChatPopulated,
   IUserState,
 } from "../shared/types";
 import {
@@ -45,21 +45,21 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
     setUsersLoading(true);
     try {
       const chatId = uuid.v4().toLocaleString();
-      const newChatForDB: IChatDB = {
-        id: chatId,
+      const newChatForDB: IChat = {
+        _id: chatId,
         createdAt: new Date().toISOString(),
         messages: [],
-        createdBy: user.uid!,
-        participants: [user.uid!, userForChat.uid!],
+        createdBy: user._id!,
+        participants: [user._id!, user._id!],
       };
-      const newChatForClient: IChatClient = {
-        id: chatId,
+      const newChatForClient: IChatPopulated = {
+        _id: chatId,
         createdAt: new Date().toISOString(),
         messages: [],
-        createdBy: user.uid!,
+        createdBy: user,
         participants: [user, userForChat],
       };
-      await setDoc(doc(database, "chats", newChatForDB.id), newChatForDB);
+      await setDoc(doc(database, "chats", newChatForDB._id), newChatForDB);
 
       dispatch(setCurrentChat(newChatForClient));
       dispatch(setMessages([]));
@@ -84,7 +84,7 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
       // Query users for searching
       const usersQ = query(
         collection(database, "users"),
-        where("uid", "!=", user.uid)
+        where("uid", "!=", user._id)
       );
 
       const chatsQ = query(collection(database, "chats"));
@@ -97,8 +97,8 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
           const userForChatData: IUserState = doc.data() as IUserState;
 
           const chatDocs = chatsSnapshot.docs.filter((doc) => {
-            const chatData: IChatDB = doc.data() as IChatDB;
-            return chatData.participants.includes(userForChatData.uid!);
+            const chatData: IChat = doc.data() as IChat;
+            // return chatData.participants.includes(userForChatData._id!);
           });
 
           if (
@@ -121,7 +121,7 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
           }
           setUsersForChat((prevUsers) =>
             prevUsers.filter((user) =>
-              usersData.some((u) => u.uid === user.uid)
+              usersData.some((u) => u._id === user._id)
             )
           );
         }

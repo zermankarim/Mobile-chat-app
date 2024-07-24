@@ -1,3 +1,5 @@
+import { startSocketServer } from "./socketServer";
+
 const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
@@ -20,14 +22,15 @@ var corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-const start = () => {
+const start = async () => {
   try {
-    mongoose.connect(MONGO_URL).then(() => {
+    await mongoose.connect(MONGO_URL).then(() => {
       console.log("Server connected to MongoDB.");
     });
-    app.listen(DEFAULT_SERVER_PORT, () => {
+    await app.listen(DEFAULT_SERVER_PORT, () => {
       console.log(`Server listen on port ${DEFAULT_SERVER_PORT}`);
     });
+    startSocketServer();
   } catch (e) {
     console.error(
       "Error during starting server or connect to MongoDB: ",

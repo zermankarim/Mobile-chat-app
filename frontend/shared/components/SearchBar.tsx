@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import { Searchbar } from "react-native-paper";
 import { theme } from "../theme";
-import { IChatClient, IChatDB, IUserState } from "../types";
+import { IChat, IUserState } from "../types";
 import { setChats } from "../../core/reducers/chats";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useGlobalContext } from "../../core/context/Context";
@@ -41,16 +41,16 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
       if (text) {
         const q = query(
           collection(database, "chats"),
-          where("participants", "array-contains", user.uid)
+          where("participants", "array-contains", user._id)
         );
         const querySnapshot = await getDocs(q);
-        const chatsFromDB: IChatDB[] = [];
+        const chatsFromDB: IChat[] = [];
         if (!querySnapshot.empty) {
           querySnapshot.docs.forEach((doc) => {
-            chatsFromDB.push(doc.data() as IChatDB);
+            chatsFromDB.push(doc.data() as IChat);
           });
         }
-        console.log(chatsFromDB);
+        // console.log(chatsFromDB);
       }
       setChatsLoading(false);
     } catch (error: any) {

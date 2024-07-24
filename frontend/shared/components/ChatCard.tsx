@@ -2,7 +2,7 @@ import { TouchableOpacity, View } from "react-native";
 import { FC } from "react";
 import TextWithFont from "../components/TextWithFont";
 import { theme } from "../theme";
-import { ChatScreenNavigationProp, IChatClient, IUserState } from "../types";
+import { ChatScreenNavigationProp, IChatPopulated, IUserState } from "../types";
 import { useNavigation } from "@react-navigation/native";
 import { RootState } from "../../core/store/store";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,14 +10,14 @@ import { setMessages } from "../../core/reducers/messages";
 import { setCurrentChat } from "../../core/reducers/currentChat";
 import { Avatar, Badge } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
-import { formatMessageDate, getRandomColor } from "../functions";
+import { formatMessageDate } from "../functions";
 import { LinearGradient } from "expo-linear-gradient";
 
 interface IChatCartProps {
-  chat: IChatClient;
-  setSelectedChats?: React.Dispatch<React.SetStateAction<IChatClient[]>>;
+  chat: IChatPopulated;
+  setSelectedChats?: React.Dispatch<React.SetStateAction<IChatPopulated[]>>;
   isSelectedChat?: boolean;
-  selectedChats?: IChatClient[];
+  selectedChats?: IChatPopulated[];
   oneRecipient: IUserState | false | undefined;
 }
 
@@ -29,7 +29,6 @@ const ChatCard: FC<IChatCartProps> = ({
   oneRecipient,
 }) => {
   const navigation = useNavigation<ChatScreenNavigationProp>();
-
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
@@ -44,7 +43,7 @@ const ChatCard: FC<IChatCartProps> = ({
         setSelectedChats((prevState) => [...prevState, chat]);
       } else {
         const selectedChatIdx = selectedChats.findIndex(
-          (selectedChat) => selectedChat.id === chat.id
+          (selectedChat) => selectedChat._id === chat._id
         );
         const selectedChatsSlice = selectedChats.slice();
         selectedChatsSlice.splice(selectedChatIdx, 1);
@@ -149,11 +148,11 @@ const ChatCard: FC<IChatCartProps> = ({
           >
             {chat.participants
               .filter(
-                (participant, index) =>
-                  participant.uid !== user.uid && index < 3
+                (participant: IUserState, index: number) =>
+                  participant._id !== user._id && index < 3
               )
               .map(
-                (participant) =>
+                (participant: IUserState) =>
                   participant.firstName + " " + participant.lastName
               )
               .join(", ") + " and other.."}
@@ -167,7 +166,7 @@ const ChatCard: FC<IChatCartProps> = ({
         >
           {messages.length ? (
             <>
-              {messages[messages.length - 1].sender === user.uid && (
+              {messages[messages.length - 1].sender._id === user._id && (
                 <TextWithFont
                   numberOfLines={1}
                   styleProps={{

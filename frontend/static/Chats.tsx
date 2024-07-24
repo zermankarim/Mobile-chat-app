@@ -4,19 +4,14 @@ import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { setChats } from "../core/reducers/chats";
 import { ActivityIndicator } from "react-native-paper";
-import {
-  ChatsRouteProps,
-  IChatClient,
-  IChatDB,
-  IUserState,
-} from "../shared/types";
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
+import { ChatsRouteProps, IChatPopulated, IUserState } from "../shared/types";
+// import {
+//   collection,
+//   getDocs,
+//   onSnapshot,
+//   query,
+//   where,
+// } from "firebase/firestore";
 import { database } from "../core/firebase/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
@@ -25,60 +20,47 @@ import uuid from "react-native-uuid";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useGlobalContext } from "../core/context/Context";
+import { getDocs } from "../fetches/http";
+import { populate, where } from "../shared/functions";
 
 const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
+  // Global context
+  const { connectionState } = useGlobalContext();
+
   // Redux states and dispatch
-  const chats = useSelector((state: RootState) => state.chats);
+  const chats: IChatPopulated[] = useSelector(
+    (state: RootState) => state.chats
+  );
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
   // States
   const { chatsLoading, setChatsLoading } = useGlobalContext();
-  const [searchLoading, setSearchLoading] = useState<boolean>(true);
-  const [selectedChats, setSelectedChats] = useState<IChatClient[]>([]);
+  const [searchLoading, setSearchLoading] = useState<boolean>(false);
+  const [selectedChats, setSelectedChats] = useState<IChatPopulated[]>([]);
 
   // Effects
   useEffect(() => {
-    // Get all chat and push to a state
-    const updateChats = async () => {
-      const q = query(
-        collection(database, "chats"),
-        where("participants", "array-contains", user.uid)
-      );
+    setChatsLoading(true);
 
-      const unsubscribe = onSnapshot(q, async (snapshot) => {
-        const newChats: IChatClient[] = [];
-        for (const doc of snapshot.docs) {
-          const chatDataFromDB: IChatDB = doc.data() as IChatDB;
-          const { participants } = chatDataFromDB;
-          const q = query(
-            collection(database, "users"),
-            where("uid", "in", participants)
-          );
-          const querySnapshot = await getDocs(q);
-          const usersData: IUserState[] = querySnapshot.docs.map((doc) =>
-            doc.data()
-          ) as IUserState[];
+    connectionState?.emit("getChatsByUserId", user._id!);
 
-          const chatForClient: IChatClient = {
-            ...chatDataFromDB,
-            participants: usersData,
-          };
-          newChats.push(chatForClient);
-        }
-        dispatch(setChats(newChats));
-        setChatsLoading(false);
-        setSearchLoading(false);
-      });
-
-      return unsubscribe;
+    connectionState?.on("getChatsByUserId", (data) => {
+      const { success } = data;
+      if (!success) {
+        const { message } = data;
+        console.error("Error during receiving chats by user ID: ", message);
+        return;
+      }
+      const { chatsData } = data;
+      dispatch(setChats(chatsData as IChatPopulated[]));
+      setChatsLoading(false);
+      setSearchLoading(false);
+    });
+    return () => {
+      connectionState?.off("getChatsByUserId");
     };
-    try {
-      updateChats();
-    } catch (e) {
-      console.error("Error during update chats on Home page: ", e);
-    }
-  }, []);
+  }, [connectionState]);
 
   if (chatsLoading) {
     return (
@@ -101,39 +83,58 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
         paddingVertical: theme.spacing(4),
       }}
     >
-      <ScrollView // Container for chats
-        style={{
-          minHeight: "100%",
-          width: "100%",
-        }}
-      >
-        {searchLoading ? (
-          <ActivityIndicator
-            size={"large"}
-            color={theme.colors.main[200]}
-            style={{
-              flex: 1,
-              backgroundColor: theme.colors.main[400],
+      {chats.length ? (
+        <ScrollView // Container for chats
+          style={{
+            minHeight: "100%",
+            width: "100%",
+          }}
+        >
+          {searchLoading ? (
+            <ActivityIndicator
+              size={"large"}
+              color={theme.colors.main[200]}
+              style={{
+                flex: 1,
+                backgroundColor: theme.colors.main[400],
+              }}
+            ></ActivityIndicator>
+          ) : (
+            chats.map((chat) => (
+              <ChatCard
+                key={uuid.v4() + "-chatCard"}
+                chat={chat}
+                isSelectedChat={selectedChats.includes(chat)}
+                selectedChats={selectedChats}
+                setSelectedChats={setSelectedChats}
+                oneRecipient={
+                  chat.participants.length === 2 &&
+                  chat.participants.find(
+                    (participant: IUserState) => participant._id !== user._id
+                  )
+                }
+              ></ChatCard>
+            ))
+          )}
+        </ScrollView>
+      ) : (
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+          }}
+        >
+          <TextWithFont
+            styleProps={{
+              color: theme.colors.main[200],
             }}
-          ></ActivityIndicator>
-        ) : (
-          chats.map((chat) => (
-            <ChatCard
-              key={uuid.v4() + "-chatCard"}
-              chat={chat}
-              isSelectedChat={selectedChats.includes(chat)}
-              selectedChats={selectedChats}
-              setSelectedChats={setSelectedChats}
-              oneRecipient={
-                chat.participants.length === 2 &&
-                chat.participants.find(
-                  (participant) => participant.uid !== user.uid
-                )
-              }
-            ></ChatCard>
-          ))
-        )}
-      </ScrollView>
+          >
+            You haven't any chats.
+          </TextWithFont>
+        </View>
+      )}
+
       <TouchableOpacity
         onPress={() => navigation.navigate("CreateChat")}
         style={{

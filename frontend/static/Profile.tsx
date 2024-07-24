@@ -53,7 +53,7 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
 
       const storageAvatarRef = ref(
         storage,
-        `avatars/${user.uid}/${avatarUid}.jpg`
+        `avatars/${user._id}/${avatarUid}.jpg`
       );
       await uploadBytes(storageAvatarRef, blob).then((snapshot) => {
         console.log("Uploaded a blob or file!");
@@ -61,7 +61,7 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
 
       const newAvatarPublicURL = await getDownloadURL(storageAvatarRef);
 
-      const userRef = doc(database, "users", user.uid!);
+      const userRef = doc(database, "users", user._id!);
       await updateDoc(userRef, {
         avatars: [...user.avatars, newAvatarPublicURL],
       });
@@ -117,11 +117,11 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
     setActiveImage(owner.avatars.length - 1);
   }, [owner]);
   useEffect(() => {
-    if (!avatarUploading && owner.uid === user.uid) {
+    if (!avatarUploading && owner._id === user._id) {
       try {
         const q = query(
           collection(database, "users"),
-          where("uid", "==", user.uid)
+          where("uid", "==", user._id)
         );
         const unsubscribe = onSnapshot(q, async (snapshot: any) => {
           if (!snapshot.empty) {
@@ -257,7 +257,7 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
           >
             {ownerState.firstName + " " + ownerState.lastName}
           </TextWithFont>
-          {owner.uid === user.uid && (
+          {owner._id === user._id && (
             <TouchableOpacity
               onPress={handleImagePicker}
               style={{

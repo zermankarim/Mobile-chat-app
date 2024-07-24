@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { getDocQueries } from "../types";
 const { User, Chat } = require("../models");
 
-const getDoc = async (req: Request, res: Response) => {
+export const getDoc = async (req: Request, res: Response) => {
   let Model: typeof User | typeof Chat;
   const query = {};
   const { collectionName, condition } = req.query as getDocQueries;
@@ -38,7 +38,7 @@ const getDoc = async (req: Request, res: Response) => {
   }
 };
 
-const getDocs = async (req: Request, res: Response) => {
+export const getDocs = async (req: Request, res: Response) => {
   let Model: typeof User | typeof Chat;
   const query = {};
   const { collectionName, condition } = req.query as getDocQueries;
@@ -64,7 +64,6 @@ const getDocs = async (req: Request, res: Response) => {
 
     try {
       let data = await Model.find(query).populate(req.query.populateArr);
-      console.log(data);
       if (data) {
         return res.send({ success: true, data });
       } else {

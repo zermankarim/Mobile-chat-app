@@ -8,16 +8,18 @@ import {
 import { FC, SetStateAction, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "../core/reducers/user";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, database } from "../core/firebase/firebase";
-import { IUserState, LoginRouteProps } from "../shared/types";
-import { doc, setDoc } from "firebase/firestore";
+import { LoginRouteProps } from "../shared/types";
 import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { Button, TextInput } from "react-native-paper";
 import { createUserWithEmailPassAndNames } from "../fetches/http";
+import { connectToSocket } from "../shared/functions";
+import { useGlobalContext } from "../core/context/Context";
 
 const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
+  // Global context
+  const { setConnectionState } = useGlobalContext();
+
   // Redux dispatch
   const dispatch = useDispatch();
 
@@ -53,7 +55,7 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
       const response = await createUserWithEmailPassAndNames(
         firstName,
         lastName,
-        email,
+        email.toLocaleLowerCase(),
         password
       );
       if (response) {
@@ -69,6 +71,8 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
         const { data: newUserState } = response;
         dispatch(setUser(newUserState!));
         setLoadingSignUp(false);
+        const socket = connectToSocket(newUserState!._id!);
+        setConnectionState(socket);
       } else {
         throw new Error("Error during receiving response");
       }

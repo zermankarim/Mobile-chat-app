@@ -62,7 +62,10 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
     }
     try {
       setLoadingLogin(true);
-      const response = await signInWithEmailAndPassword(email, password);
+      const response = await signInWithEmailAndPassword(
+        email.toLocaleLowerCase(),
+        password
+      );
       if (response) {
         const { success } = response;
 
@@ -77,7 +80,6 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
 
         const { data: userData } = response;
         dispatch(setUser(userData!));
-        console.log(userData);
         setLoadingLogin(false);
         setIsDisabledButton(false);
         const socket = connectToSocket(userData!._id!);

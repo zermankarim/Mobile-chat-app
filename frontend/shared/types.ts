@@ -1,6 +1,10 @@
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { Socket } from "socket.io-client";
+
+export interface ILoginInputsState {
+  login: string | null;
+  password: string | null;
+}
 
 export interface IUserState {
   _id: string | null;
@@ -9,35 +13,28 @@ export interface IUserState {
   dateOfBirth: string | null;
   email: string | null;
   avatars: string[];
-  friends: string[];
+  friends: IUserState[] | string[];
   backgroundColors: string[];
-}
-
-export interface ILoginInputsState {
-  login: string | null;
-  password: string | null;
-}
-
-export interface IChatClient {
-  _id: string;
-  createdAt: string;
-  createdBy: string;
-  messages: IMessage[];
-  participants: IUserState[];
-}
-
-export interface IChatDB {
-  id: string;
-  createdAt: string;
-  createdBy: string;
-  messages: IMessage[];
-  participants: string[];
 }
 
 export interface IMessage {
   createdAt: string;
-  text: string;
+  text?: string;
   sender: string;
+}
+
+export interface IMessagePopulated {
+  createdAt: string;
+  text?: string;
+  sender: IUserState;
+}
+
+export interface IChatPopulated {
+  _id: string;
+  createdAt: string;
+  createdBy: IUserState;
+  messages: IMessagePopulated[];
+  participants: IUserState[];
 }
 
 export interface IButtonDrawer {
@@ -49,13 +46,13 @@ export interface IButtonDrawer {
 export interface IGetDocData {
   success: boolean;
   message?: string;
-  data?: IUserState | IChatClient;
+  data?: IUserState | IChatPopulated;
 }
 
 export interface IGetDocsData {
   success: boolean;
   message?: string;
-  data?: IUserState[] | IChatClient[];
+  data?: IUserState[] | IChatPopulated[];
 }
 
 export interface IAuthData {
@@ -67,14 +64,34 @@ export interface IAuthData {
 // Socket.IO client to server Interface
 export interface ISocketEmitEvent {
   getChatsByUserId: (userId: string) => void;
+  getChatById: (chatId: string) => void;
+  sendMessage: (
+    chatId: string,
+    newMessage: IMessage,
+    participantsIds: string[]
+  ) => void;
 }
 
 // Socket.IO server to client Interface
 export interface ISocketOnEvent {
-  getChatsByUserId: (chatsData: IChatClient[]) => void;
+  getChatsByUserId: (data: {
+    success: boolean;
+    message?: string;
+    chatsData?: IChatPopulated[];
+  }) => void;
+  getChatById: (data: {
+    success: boolean;
+    message?: string;
+    chatData?: IChatPopulated;
+  }) => void;
+  sendMessage: (data: {
+    success: boolean;
+    message?: string;
+    updatedChat?: IChatPopulated;
+  }) => void;
 }
 
-// Routers props
+// Routes props
 export type RootStackParamList = {
   Chat: undefined;
   Chats: undefined;
