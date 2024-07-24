@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-default-server": "nodemon --exec ts-node ./defaultServer.ts",
     "start-socket-server": "nodemon --exec ts-node ./socketServer.ts",
-    "start-default-socket-servers": "concurrently \"npm run start-default-server\" \"npm run start-socket-server\""
+    "start": "concurrently \"npm run start-default-server\" \"npm run start-socket-server\""
   },
   "author": "",
   "license": "ISC",
