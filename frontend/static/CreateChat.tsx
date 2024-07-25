@@ -1,10 +1,9 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { Alert, TouchableOpacity, View } from "react-native";
 import { theme } from "../shared/theme";
 import TextWithFont from "../shared/components/TextWithFont";
 import {
   CreateChatRouteProps,
-  IChat,
   IChatPopulated,
   IUserState,
 } from "../shared/types";
@@ -28,121 +27,42 @@ import { RootState } from "../core/store/store";
 import currentChat, { setCurrentChat } from "../core/reducers/currentChat";
 import { setMessages } from "../core/reducers/messages";
 import { LinearGradient } from "expo-linear-gradient";
+import { useGlobalContext } from "../core/context/Context";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 
 const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
+  // Global context states
+  const {
+    usersForChat,
+    setUsersForChat,
+    connectionState,
+    createChatLoading,
+    setCreateChatLoading,
+    setChatLoading
+  } = useGlobalContext();
+
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
-  // States
-  const [usersForChat, setUsersForChat] = useState<IUserState[]>([]);
-  const [usersLoading, setUsersLoading] = useState<boolean>(true);
-  const [chatLoading, setChatLoading] = useState<boolean>(false);
-
   // Functions
-  const handleCreateChatWithUser = async (userForChat: IUserState) => {
-    setChatLoading(true);
-    setUsersLoading(true);
-    try {
-      const chatId = uuid.v4().toLocaleString();
-      const newChatForDB: IChat = {
-        _id: chatId,
-        createdAt: new Date().toISOString(),
-        messages: [],
-        createdBy: user._id!,
-        participants: [user._id!, user._id!],
-      };
-      const newChatForClient: IChatPopulated = {
-        _id: chatId,
-        createdAt: new Date().toISOString(),
-        messages: [],
-        createdBy: user,
-        participants: [user, userForChat],
-      };
-      await setDoc(doc(database, "chats", newChatForDB._id), newChatForDB);
-
-      dispatch(setCurrentChat(newChatForClient));
-      dispatch(setMessages([]));
-      navigation.navigate("Chat");
-      setUsersLoading(false);
-      setChatLoading(false);
-
-      console.log("Chat was created!");
-    } catch (e: any) {
-      console.error("Error during creating chat: ", e.message);
-      Alert.alert("Error during creating chat: ", e.message);
-      setUsersLoading(false);
-      setChatLoading(false);
-    }
+  const handleOpenChatWithUser = async (userForChat: IUserState) => {
+    setChatLoading(true)
+    
   };
 
   // Effects
   useEffect(() => {
-    setUsersLoading(true);
+    setCreateChatLoading(true);
+  }, []);
 
-    const updateUsersForChat = async () => {
-      // Query users for searching
-      const usersQ = query(
-        collection(database, "users"),
-        where("uid", "!=", user._id)
-      );
+  useFocusEffect(
+    useCallback(() => {
+      connectionState?.emit("getUsersForCreateChat");
+    }, [])
+  );
 
-      const chatsQ = query(collection(database, "chats"));
-
-      // Listener for chats DB for updating it state at Chat Page
-      const unsubscribeChats = onSnapshot(chatsQ, async (chatsSnapshot) => {
-        const usersData: IUserState[] = [];
-        const usersSnapshot = await getDocs(usersQ);
-        for (const doc of usersSnapshot.docs) {
-          const userForChatData: IUserState = doc.data() as IUserState;
-
-          const chatDocs = chatsSnapshot.docs.filter((doc) => {
-            const chatData: IChat = doc.data() as IChat;
-            // return chatData.participants.includes(userForChatData._id!);
-          });
-
-          if (
-            !chatDocs.length ||
-            chatDocs.some((doc) => doc.data().participants.length > 2)
-          ) {
-            usersData.push(userForChatData);
-          }
-        }
-        setUsersForChat(usersData);
-      });
-
-      // Listener for users DB for updating it state at CreateChat Page
-      const unsubscribeUsers = onSnapshot(usersQ, async (usersSnapshot) => {
-        if (!usersSnapshot.empty) {
-          const usersData: IUserState[] = [];
-          for (const doc of usersSnapshot.docs) {
-            const userForChatData: IUserState = doc.data() as IUserState;
-            usersData.push(userForChatData);
-          }
-          setUsersForChat((prevUsers) =>
-            prevUsers.filter((user) =>
-              usersData.some((u) => u._id === user._id)
-            )
-          );
-        }
-      });
-
-      return () => {
-        unsubscribeChats();
-        unsubscribeUsers();
-      };
-    };
-
-    try {
-      updateUsersForChat();
-      setUsersLoading(false);
-    } catch (e: any) {
-      console.error(e.message);
-      setUsersLoading(false);
-    }
-  }, [currentChat]);
-
-  if (usersLoading || chatLoading) {
+  if (createChatLoading) {
     return (
       <ActivityIndicator
         size={"large"}
@@ -165,67 +85,82 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
         style={{
           flexDirection: "column",
           padding: theme.spacing(2),
+          minHeight: "100%",
         }}
       >
-        {usersForChat.length
-          ? usersForChat
-              .sort((a, b) => a.firstName!.localeCompare(b.firstName!))
-              .map((userForChat) => (
-                <TouchableOpacity // Container for one user for creating the chat
-                  key={uuid.v4() + "-userForChat-container"}
-                  onPress={() => handleCreateChatWithUser(userForChat)}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: theme.spacing(2),
-                    padding: theme.spacing(2),
-                  }}
-                >
-                  {userForChat.avatars.length ? (
-                    <Avatar.Image
-                      size={48}
-                      source={{
-                        uri: userForChat.avatars[
-                          userForChat.avatars.length - 1
-                        ],
-                      }}
-                    ></Avatar.Image>
-                  ) : (
-                    <LinearGradient
-                      colors={userForChat.backgroundColors}
-                      style={{
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: 48,
-                        height: 48,
-                        borderRadius: 50,
-                      }}
-                    >
-                      <TextWithFont>
-                        {userForChat?.firstName![0] + userForChat?.lastName![0]}
-                      </TextWithFont>
-                    </LinearGradient>
-                  )}
-                  <View // Container for user names and email
+        {usersForChat.length ? (
+          usersForChat
+            .sort((a, b) => a.firstName!.localeCompare(b.firstName!))
+            .map((userForChat) => (
+              <TouchableOpacity // Container for one user for creating the chat
+                key={uuid.v4() + "-userForChat-container"}
+                onPress={() => handleOpenChatWithUser(userForChat)}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: theme.spacing(2),
+                  padding: theme.spacing(2),
+                }}
+              >
+                {userForChat.avatars.length ? (
+                  <Avatar.Image
+                    size={48}
+                    source={{
+                      uri: userForChat.avatars[userForChat.avatars.length - 1],
+                    }}
+                  ></Avatar.Image>
+                ) : (
+                  <LinearGradient
+                    colors={userForChat.backgroundColors}
                     style={{
-                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: 48,
+                      height: 48,
+                      borderRadius: 50,
                     }}
                   >
                     <TextWithFont>
-                      {userForChat.firstName + " " + userForChat.lastName}
+                      {userForChat?.firstName![0] + userForChat?.lastName![0]}
                     </TextWithFont>
-                    <TextWithFont
-                      styleProps={{
-                        color: theme.colors.main[200],
-                        fontSize: theme.fontSize(3),
-                      }}
-                    >
-                      {userForChat.email}
-                    </TextWithFont>
-                  </View>
-                </TouchableOpacity>
-              ))
-          : null}
+                  </LinearGradient>
+                )}
+                <View // Container for user names and email
+                  style={{
+                    flexDirection: "column",
+                  }}
+                >
+                  <TextWithFont>
+                    {userForChat.firstName + " " + userForChat.lastName}
+                  </TextWithFont>
+                  <TextWithFont
+                    styleProps={{
+                      color: theme.colors.main[200],
+                      fontSize: theme.fontSize(3),
+                    }}
+                  >
+                    {userForChat.email}
+                  </TextWithFont>
+                </View>
+              </TouchableOpacity>
+            ))
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <TextWithFont
+              styleProps={{
+                color: theme.colors.main[200],
+              }}
+            >
+              Users for creating chat not found
+            </TextWithFont>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

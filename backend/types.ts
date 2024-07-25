@@ -49,7 +49,7 @@ export interface IChat {
 
 // Socket.IO interfaces
 
-// Socket.IO client to server Interface
+// Socket.IO server to client Interface
 export interface ISocketEmitEvent {
   getChatsByUserId: (data: {
     success: boolean;
@@ -61,9 +61,19 @@ export interface ISocketEmitEvent {
     message?: string;
     chatData?: IChat;
   }) => void;
+  getUsersForCreateChat: (data: {
+    success: boolean;
+    message?: string;
+    usersData?: IUser[];
+  }) => void;
+  openChatWithUser: (data: {
+    success: boolean;
+    message?: string;
+    chat?: IChat;
+  }) => void;
 }
 
-// Socket.IO server to client Interface
+// Socket.IO client to server Interface
 export interface ISocketOnEvent {
   getChatsByUserId: (userId: string) => void;
   getChatById: (chatId: string) => void;
@@ -72,6 +82,8 @@ export interface ISocketOnEvent {
     newMessage: IMessage,
     participantsIds: string[]
   ) => void;
+  getUsersForCreateChat: () => void;
+  openChatWithUser: (senderId: string, recipientId: string) => void;
 }
 
 export interface IConnectedUser {

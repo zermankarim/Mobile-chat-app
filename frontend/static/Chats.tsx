@@ -1,5 +1,5 @@
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { setChats } from "../core/reducers/chats";
@@ -22,10 +22,17 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { useGlobalContext } from "../core/context/Context";
 import { getDocs } from "../fetches/http";
 import { populate, where } from "../shared/functions";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   // Global context
-  const { connectionState } = useGlobalContext();
+  const {
+    connectionState,
+    loading,
+    setLoading,
+    chatsLoading,
+    setChatsLoading,
+  } = useGlobalContext();
 
   // Redux states and dispatch
   const chats: IChatPopulated[] = useSelector(
@@ -36,14 +43,19 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   const dispatch = useDispatch();
 
   // States
-  const { chatsLoading, setChatsLoading } = useGlobalContext();
   const [searchLoading, setSearchLoading] = useState<boolean>(false);
   const [selectedChats, setSelectedChats] = useState<IChatPopulated[]>([]);
 
   // Effects
   useEffect(() => {
-    connectionState?.emit("getChatsByUserId", user._id!);
+    setChatsLoading(true);
   }, [connectionState, messages]);
+
+  useFocusEffect(
+    useCallback(() => {
+      connectionState?.emit("getChatsByUserId", user._id!);
+    }, [messages])
+  );
 
   if (chatsLoading) {
     return (

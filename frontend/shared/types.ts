@@ -70,6 +70,9 @@ export interface ISocketEmitEvent {
     newMessage: IMessage,
     participantsIds: string[]
   ) => void;
+  getUsersByCondition: (field: string, condition: string | string[]) => void;
+  getUsersForCreateChat: () => void;
+  openChatWithUser: (senderId: string, recipientId: string) => void;
 }
 
 // Socket.IO server to client Interface
@@ -88,6 +91,21 @@ export interface ISocketOnEvent {
     success: boolean;
     message?: string;
     updatedChat?: IChatPopulated;
+  }) => void;
+  getUsersByCondition: (data: {
+    success: boolean;
+    message?: string;
+    usersData?: IUserState[];
+  }) => void;
+  getUsersForCreateChat: (data: {
+    success: boolean;
+    message?: string;
+    usersData?: IUserState[];
+  }) => void;
+  openChatWithUser: (data: {
+    success: boolean;
+    message?: string;
+    chat?: IChatPopulated;
   }) => void;
 }
 

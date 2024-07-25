@@ -14,18 +14,23 @@ import { Provider as StoreProvider } from "react-redux";
 import { GlobalContext } from "./core/context/Context";
 import { connectToSocket } from "./shared/functions";
 import { Socket } from "socket.io-client";
-import { ISocketEmitEvent, ISocketOnEvent } from "./shared/types";
+import { ISocketEmitEvent, ISocketOnEvent, IUserState } from "./shared/types";
 import { setMessages } from "./core/reducers/messages";
 
 const App: FC = () => {
   // States
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
-  const [chatsLoading, setChatsLoading] = useState<boolean>(false);
+
+  const [loading, setLoading] = useState<boolean>(false);
   const [chatLoading, setChatLoading] = useState<boolean>(false);
+  const [chatsLoading, setChatsLoading] = useState<boolean>(false);
+  const [createChatLoading, setCreateChatLoading] = useState<boolean>(false);
+
   const [connectionState, setConnectionState] = useState<Socket<
     ISocketOnEvent,
     ISocketEmitEvent
   > | null>(null);
+  const [usersForChat, setUsersForChat] = useState<IUserState[]>([]);
 
   // Effects
   useEffect(() => {
@@ -58,12 +63,18 @@ const App: FC = () => {
     <StoreProvider store={store}>
       <GlobalContext.Provider
         value={{
-          chatsLoading,
-          setChatsLoading,
           connectionState,
           setConnectionState,
+          loading,
+          setLoading,
+          usersForChat,
+          setUsersForChat,
+          chatsLoading,
+          setChatsLoading,
           chatLoading,
           setChatLoading,
+          createChatLoading,
+          setCreateChatLoading,
         }}
       >
         <NavigationContainer>

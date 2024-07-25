@@ -1,12 +1,12 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, RefObject, useEffect, useRef, useState } from "react";
 import { theme } from "../shared/theme";
 import {
   NativeSyntheticEvent,
+  ScrollView,
   TextInputChangeEventData,
   TouchableOpacity,
   View,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
 import { ActivityIndicator, Button, TextInput } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,12 +14,8 @@ import { RootState } from "../core/store/store";
 import uuid from "react-native-uuid";
 import TextWithFont from "../shared/components/TextWithFont";
 import { IMessage, IMessagePopulated, IUserState } from "../shared/types";
-import { doc, updateDoc } from "firebase/firestore";
-import { database } from "../core/firebase/firebase";
-import { setMessages } from "../core/reducers/messages";
-import { formatMessageDate } from "../shared/functions";
+import { formatMessageDate, scrollToBottom } from "../shared/functions";
 import { useGlobalContext } from "../core/context/Context";
-import { setCurrentChat } from "../core/reducers/currentChat";
 
 const Chat: FC = () => {
   // Global context states
@@ -32,7 +28,7 @@ const Chat: FC = () => {
   const dispatch = useDispatch();
 
   // Ref
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef: RefObject<ScrollView> = useRef<ScrollView>(null);
 
   // States
   const [messageText, setMessageText] = useState<string | undefined>("");
@@ -40,13 +36,6 @@ const Chat: FC = () => {
 
   // Functions
   const handleLongPressMessage = (message: IMessagePopulated) => {};
-
-  // Scroll when user send a new message
-  const scrollToBottom = () => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollToEnd({ animated: true });
-    }
-  };
 
   const handleChangeMessageText = (text: string) => {
     const regExp = /^\s*$/;
@@ -81,16 +70,16 @@ const Chat: FC = () => {
   // Effects
   useEffect(() => {
     if (currentChat._id) {
-      scrollToBottom();
+      scrollToBottom(scrollViewRef);
       setChatLoading(true);
       connectionState?.emit("getChatById", currentChat._id);
       connectionState?.emit("getChatsByUserId", user._id!);
     }
-    setChatLoading(false);
+    // setChatLoading(false);
   }, [currentChat]);
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom(scrollViewRef);
   }, [messages]);
 
   if (chatLoading) {

@@ -38,6 +38,7 @@ io.on("connection", (socket) => {
     CONNECTED_USERS[foundConnUserIdx].socketId = socket.id;
   }
   console.log(`Connected: ${socket.id}`);
+  console.log(CONNECTED_USERS);
 
   // Request receiving chats by user ID
   socket.on("getChatsByUserId", async (userId) => {
@@ -109,7 +110,6 @@ io.on("connection", (socket) => {
           })
         );
       } else {
-        console.log("Send chatData to user");
         socket.emit("getChatById", {
           success: true,
           chatData: foundAndUpdatedChat,
@@ -124,14 +124,31 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("getUsersForCreateChat", async () => {
+    try {
+      const usersData = await User.find({});
+      socket.emit("getUsersForCreateChat", { success: true, usersData });
+    } catch (e: any) {
+      console.error(
+        "Error during receiving users data ad getUsersForCreateChat event: ",
+        e.message
+      );
+      socket.emit("getUsersForCreateChat", {
+        success: false,
+        message: `Error during receiving users data ad getUsersForCreateChat event: ${e.message}`,
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     const foundConnUserIdx = CONNECTED_USERS.findIndex(
       (connUser) => connUser.socketId === socket.id
     );
-    if (foundConnUserIdx) {
+    if (foundConnUserIdx !== -1) {
       CONNECTED_USERS.splice(foundConnUserIdx, 1);
     }
     console.log(`Disconnected: ${socket.id}`);
+    console.log(CONNECTED_USERS);
   });
 });
 
