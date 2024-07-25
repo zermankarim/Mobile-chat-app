@@ -43,6 +43,7 @@ const RootNavigator: FC = () => {
     setUsersForChat,
     setChatsLoading,
     setCreateChatLoading,
+    setChatLoading,
   } = useGlobalContext();
 
   // Navigation
@@ -51,6 +52,7 @@ const RootNavigator: FC = () => {
   // Redux states and dispatch
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
+  const chats = useSelector((state: RootState) => state.chats);
   const currentChat = useSelector((state: RootState) => state.currentChat);
 
   // States
@@ -152,6 +154,7 @@ const RootNavigator: FC = () => {
       if (oneRecipientData) {
         setOneRecipient(oneRecipientData);
       }
+      console.log(oneRecipientData);
     } else {
       setOneRecipient(null);
     }
@@ -185,12 +188,12 @@ const RootNavigator: FC = () => {
         if (!success) {
           const { message } = data;
           console.error("Error during receiving chat by ID: ", message);
-          setLoading(false);
+          setChatLoading(false);
           return;
         }
         const { chatData } = data;
         dispatch(setMessages(chatData!.messages));
-        setLoading(false);
+        setChatLoading(false);
       }
       function onGetUsersForCreateChat(data: {
         success: boolean;
@@ -209,13 +212,33 @@ const RootNavigator: FC = () => {
           setUsersForChat(usersData!);
           setCreateChatLoading(false);
         }
+        setCreateChatLoading(false);
       }
       function onOpenChatWithUser(data: {
         success: boolean;
         message?: string;
         chat?: IChatPopulated;
       }) {
-        console.log(data)
+        if (data) {
+          const { success } = data;
+          if (!success) {
+            const { message } = data;
+            console.error(message);
+            setChatsLoading(false);
+            return;
+          }
+          const { chat } = data;
+          // console.log(chat);
+
+          // dispatch(setChats([...chats, chat!]));
+          dispatch(setMessages(chat?.messages!));
+          dispatch(setCurrentChat(chat!));
+          setCreateChatLoading(false);
+          setChatsLoading(false);
+          setChatLoading(false);
+          navigation.navigate("Chat");
+        }
+        setChatsLoading(false);
       }
 
       connectionState?.on("getChatsByUserId", onGetChatsByUserId);

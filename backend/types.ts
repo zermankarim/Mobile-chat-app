@@ -82,8 +82,8 @@ export interface ISocketOnEvent {
     newMessage: IMessage,
     participantsIds: string[]
   ) => void;
-  getUsersForCreateChat: () => void;
-  openChatWithUser: (senderId: string, recipientId: string) => void;
+  getUsersForCreateChat: (userId: string) => void;
+  openChatWithUser: (userId: string, userForChatId: string) => void;
 }
 
 export interface IConnectedUser {

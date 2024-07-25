@@ -38,7 +38,6 @@ io.on("connection", (socket) => {
     CONNECTED_USERS[foundConnUserIdx].socketId = socket.id;
   }
   console.log(`Connected: ${socket.id}`);
-  console.log(CONNECTED_USERS);
 
   // Request receiving chats by user ID
   socket.on("getChatsByUserId", async (userId) => {
@@ -54,6 +53,7 @@ io.on("connection", (socket) => {
       .populate<{ child: IUser }>("participants")
       .populate<{ child: IUser }>("messages.sender")
       .populate<{ child: IUser }>("createdBy");
+
     socket.emit("getChatsByUserId", { success: true, chatsData });
   });
 
@@ -124,9 +124,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("getUsersForCreateChat", async () => {
+  socket.on("getUsersForCreateChat", async (userId) => {
     try {
-      const usersData = await User.find({});
+      const usersData = await User.find({ _id: { $ne: userId } });
       socket.emit("getUsersForCreateChat", { success: true, usersData });
     } catch (e: any) {
       console.error(
@@ -140,6 +140,33 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("openChatWithUser", async (userId, userForChatId) => {
+    try {
+      let foundChat = await Chat.findOne({
+        participants: { $all: [userId, userForChatId] },
+      });
+      if (!foundChat) {
+        let newChat = await Chat.create({
+          createdAt: new Date().toISOString(),
+          createdBy: userId,
+          messages: [],
+          participants: [userId, userForChatId],
+        });
+        newChat = await newChat.populate(["createdBy", "participants"]);
+        socket.emit("openChatWithUser", { success: true, chat: newChat });
+        return;
+      }
+      foundChat = await foundChat.populate(["createdBy", "participants", "messages.sender"]);
+      socket.emit("openChatWithUser", { success: true, chat: foundChat });
+    } catch (e: any) {
+      console.error(`Error during opening chat with user: ${e.message}`);
+      socket.emit("openChatWithUser", {
+        success: false,
+        message: `Error during opening chat with user: ${e.message}`,
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     const foundConnUserIdx = CONNECTED_USERS.findIndex(
       (connUser) => connUser.socketId === socket.id
@@ -148,7 +175,6 @@ io.on("connection", (socket) => {
       CONNECTED_USERS.splice(foundConnUserIdx, 1);
     }
     console.log(`Disconnected: ${socket.id}`);
-    console.log(CONNECTED_USERS);
   });
 });
 

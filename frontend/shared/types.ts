@@ -71,8 +71,8 @@ export interface ISocketEmitEvent {
     participantsIds: string[]
   ) => void;
   getUsersByCondition: (field: string, condition: string | string[]) => void;
-  getUsersForCreateChat: () => void;
-  openChatWithUser: (senderId: string, recipientId: string) => void;
+  getUsersForCreateChat: (userId:string) => void;
+  openChatWithUser: (userId: string, userForChatId: string) => void;
 }
 
 // Socket.IO server to client Interface

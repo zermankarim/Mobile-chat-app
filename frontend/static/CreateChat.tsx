@@ -38,7 +38,7 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
     connectionState,
     createChatLoading,
     setCreateChatLoading,
-    setChatLoading
+    setChatLoading,
   } = useGlobalContext();
 
   // Redux states and dispatch
@@ -47,8 +47,9 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
 
   // Functions
   const handleOpenChatWithUser = async (userForChat: IUserState) => {
-    setChatLoading(true)
-    
+    setChatLoading(true);
+    setCreateChatLoading(true);
+    connectionState?.emit("openChatWithUser", user._id!, userForChat._id!);
   };
 
   // Effects
@@ -58,7 +59,7 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
 
   useFocusEffect(
     useCallback(() => {
-      connectionState?.emit("getUsersForCreateChat");
+      connectionState?.emit("getUsersForCreateChat", user._id!);
     }, [])
   );
 

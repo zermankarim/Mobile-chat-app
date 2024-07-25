@@ -1,4 +1,4 @@
-import { FC, RefObject, useEffect, useRef, useState } from "react";
+import { FC, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { theme } from "../shared/theme";
 import {
   NativeSyntheticEvent,
@@ -16,6 +16,7 @@ import TextWithFont from "../shared/components/TextWithFont";
 import { IMessage, IMessagePopulated, IUserState } from "../shared/types";
 import { formatMessageDate, scrollToBottom } from "../shared/functions";
 import { useGlobalContext } from "../core/context/Context";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Chat: FC = () => {
   // Global context states
@@ -69,14 +70,24 @@ const Chat: FC = () => {
 
   // Effects
   useEffect(() => {
-    if (currentChat._id) {
-      scrollToBottom(scrollViewRef);
-      setChatLoading(true);
+    setChatLoading(true);
+  }, []);
+  useFocusEffect(
+    useCallback(() => {
       connectionState?.emit("getChatById", currentChat._id);
       connectionState?.emit("getChatsByUserId", user._id!);
-    }
-    // setChatLoading(false);
-  }, [currentChat]);
+      scrollToBottom(scrollViewRef);
+    }, [currentChat])
+  );
+  // useEffect(() => {
+  //   if (currentChat._id) {
+  //     scrollToBottom(scrollViewRef);
+  //     setChatLoading(true);
+  //     connectionState?.emit("getChatById", currentChat._id);
+  //     connectionState?.emit("getChatsByUserId", user._id!);
+  //   }
+  //   // setChatLoading(false);
+  // }, [currentChat]);
 
   useEffect(() => {
     scrollToBottom(scrollViewRef);

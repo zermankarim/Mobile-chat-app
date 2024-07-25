@@ -49,12 +49,14 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   // Effects
   useEffect(() => {
     setChatsLoading(true);
-  }, [connectionState, messages]);
+  }, [connectionState,]);
 
   useFocusEffect(
     useCallback(() => {
-      connectionState?.emit("getChatsByUserId", user._id!);
-    }, [messages])
+      if (connectionState) {
+        connectionState?.emit("getChatsByUserId", user._id!);
+      }
+    }, [messages, connectionState])
   );
 
   if (chatsLoading) {
