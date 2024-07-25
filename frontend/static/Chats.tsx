@@ -32,6 +32,7 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
     (state: RootState) => state.chats
   );
   const user = useSelector((state: RootState) => state.user);
+  const messages = useSelector((state: RootState) => state.messages);
   const dispatch = useDispatch();
 
   // States
@@ -41,26 +42,8 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
 
   // Effects
   useEffect(() => {
-    setChatsLoading(true);
-
     connectionState?.emit("getChatsByUserId", user._id!);
-
-    connectionState?.on("getChatsByUserId", (data) => {
-      const { success } = data;
-      if (!success) {
-        const { message } = data;
-        console.error("Error during receiving chats by user ID: ", message);
-        return;
-      }
-      const { chatsData } = data;
-      dispatch(setChats(chatsData as IChatPopulated[]));
-      setChatsLoading(false);
-      setSearchLoading(false);
-    });
-    return () => {
-      connectionState?.off("getChatsByUserId");
-    };
-  }, [connectionState]);
+  }, [connectionState, messages]);
 
   if (chatsLoading) {
     return (

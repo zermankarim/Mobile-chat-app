@@ -84,24 +84,10 @@ const Chat: FC = () => {
       scrollToBottom();
       setChatLoading(true);
       connectionState?.emit("getChatById", currentChat._id);
-
-      connectionState?.on("getChatById", (data) => {
-        const { success } = data;
-        if (!success) {
-          const { message } = data;
-          console.error("Error during receiving chat by ID: ", message);
-          setChatLoading(false);
-          return;
-        }
-        const { chatData } = data;
-
-        connectionState?.emit("getChatsByUserId", user._id!);
-
-        dispatch(setMessages(chatData!.messages));
-      });
-      setChatLoading(false);
+      connectionState?.emit("getChatsByUserId", user._id!);
     }
-  }, []);
+    setChatLoading(false);
+  }, [currentChat]);
 
   useEffect(() => {
     scrollToBottom();

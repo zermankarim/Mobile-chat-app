@@ -10,6 +10,8 @@ import Login from "./static/Login";
 import SearchBarComponent from "./shared/components/SearchBar";
 import {
   ChatScreenNavigationProp,
+  IChatPopulated,
+  ISocketOnEvent,
   IUserState,
   RootStackParamList,
 } from "./shared/types";
@@ -28,12 +30,14 @@ import { setCurrentChat } from "./core/reducers/currentChat";
 import { connectToSocket } from "./shared/functions";
 import { useGlobalContext } from "./core/context/Context";
 import { setMessages } from "./core/reducers/messages";
+import { setChats } from "./core/reducers/chats";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
 const RootNavigator: FC = () => {
   // Global context states
-  const { connectionState, setChatLoading, chatLoading } = useGlobalContext();
+  const { connectionState, setChatLoading, chatLoading, setChatsLoading } =
+    useGlobalContext();
 
   // Navigation
   const navigation = useNavigation<ChatScreenNavigationProp>();
@@ -149,21 +153,47 @@ const RootNavigator: FC = () => {
   }, [currentChat]);
 
   useEffect(() => {
-    connectionState?.on("getChatById", (data) => {
-      const { success } = data;
-      if (!success) {
-        const { message } = data;
-        console.error("Error during receiving chat by ID: ", message);
-        setChatLoading(false);
-        return;
+    if (connectionState) {
+      function onGetChatsByUserId(data: {
+        success: boolean;
+        message?: string;
+        chatsData?: IChatPopulated[];
+      }) {
+        const { success } = data;
+        if (!success) {
+          const { message } = data;
+          console.error("Error during receiving chats by user ID: ", message);
+          return;
+        }
+        const { chatsData } = data;
+        dispatch(setChats(chatsData as IChatPopulated[]));
+        setChatsLoading(false);
       }
-      const { chatData } = data;
+      function onGetChatById(data: {
+        success: boolean;
+        message?: string;
+        chatData?: IChatPopulated;
+      }) {
+        const { success } = data;
+        if (!success) {
+          const { message } = data;
+          console.error("Error during receiving chat by ID: ", message);
+          setChatLoading(false);
+          return;
+        }
+        const { chatData } = data;
+        dispatch(setMessages(chatData!.messages));
+      }
 
-      connectionState?.emit("getChatsByUserId", user._id!);
+      connectionState?.on("getChatsByUserId", onGetChatsByUserId);
+      connectionState?.on("getChatById", onGetChatById);
 
-      dispatch(setMessages(chatData!.messages));
-    });
-  });
+      return () => {
+        connectionState.off("getChatsByUserId", onGetChatsByUserId);
+        connectionState.off("getChatById", onGetChatById);
+      };
+    }
+  }, [connectionState]);
 
   if (chatLoading) {
     return (
