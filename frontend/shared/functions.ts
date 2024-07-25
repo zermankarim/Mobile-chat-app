@@ -2,6 +2,8 @@ import { format, isThisWeek, isToday, parseISO } from "date-fns";
 import { Socket, io as socketIO } from "socket.io-client";
 import { SERVER_PORT_SOCKET, SERVER_URL_SOCKET } from "../config";
 import { ISocketEmitEvent, ISocketOnEvent } from "./types";
+import { Ref, RefObject } from "react";
+import { ScrollView } from "react-native";
 
 export const connectToSocket = (userId: string) => {
   const URL = `${SERVER_URL_SOCKET}:${SERVER_PORT_SOCKET}/?userId=${userId}`;
@@ -33,4 +35,10 @@ export const where = (
 
 export const populate = (fields: string[]) => {
   return fields;
+};
+
+export const scrollToBottom = (scrollViewRef: RefObject<ScrollView>) => {
+  if (scrollViewRef.current) {
+    scrollViewRef.current.scrollToEnd({ animated: true });
+  }
 };
