@@ -75,31 +75,51 @@ io.on("connection", (socket) => {
 
   // New message
   socket.on("sendMessage", async (chatId, newMessage, participantsIds) => {
-    const foundChat = await Chat.findOne({ _id: chatId })
-      .populate<{ child: IUser }>("participants")
-      .populate<{ child: IUser }>("messages.sender")
-      .populate<{ child: IUser }>("createdBy");
-    if (!foundChat) {
+    try {
+      const foundAndUpdatedChat = await Chat.findOneAndUpdate(
+        { _id: chatId },
+        {
+          $push: { messages: newMessage },
+        },
+        {
+          returnOriginal: false,
+        }
+      )
+        .populate<{ child: IUser }>("participants")
+        .populate<{ child: IUser }>("messages.sender")
+        .populate<{ child: IUser }>("createdBy");
+      if (!foundAndUpdatedChat) {
+        socket.emit("getChatById", {
+          success: false,
+          message: "This chat ID is not valid.",
+        });
+      }
+
+      const connectedRecipients = CONNECTED_USERS.filter((connUser) =>
+        participantsIds.some(
+          (participiantId) => participiantId === connUser.userId
+        )
+      );
+
+      if (connectedRecipients.length > 1) {
+        connectedRecipients.forEach((connRecipient) =>
+          io.to(connRecipient.socketId).emit("getChatById", {
+            success: true,
+            chatData: foundAndUpdatedChat,
+          })
+        );
+      } else {
+        console.log("Send chatData to user");
+        socket.emit("getChatById", {
+          success: true,
+          chatData: foundAndUpdatedChat,
+        });
+      }
+    } catch (e: any) {
+      console.error("Error during receiving updated chat: ", e.message);
       socket.emit("getChatById", {
         success: false,
-        message: "This chat ID is not valid.",
-      });
-    }
-    foundChat.messages.push(newMessage);
-    await foundChat.save();
-
-    const connectedRecipients = CONNECTED_USERS.filter((connUser) =>
-      participantsIds.some(
-        (participiantId) => participiantId === connUser.userId
-      )
-    );
-
-    if (connectedRecipients.length > 1) {
-      connectedRecipients.map((connRecipient) => {
-        console.log("Send chatData to user");
-        socket
-          .to(connRecipient.socketId)
-          .emit("getChatById", { success: true, chatData: foundChat });
+        message: `Error during receiving updated chat: ${e.message}`,
       });
     }
   });

@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState, store } from "./core/store/store";
 import { FC, useCallback, useEffect, useState } from "react";
 import "react-native-gesture-handler";
@@ -15,11 +15,13 @@ import { GlobalContext } from "./core/context/Context";
 import { connectToSocket } from "./shared/functions";
 import { Socket } from "socket.io-client";
 import { ISocketEmitEvent, ISocketOnEvent } from "./shared/types";
+import { setMessages } from "./core/reducers/messages";
 
 const App: FC = () => {
   // States
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const [chatsLoading, setChatsLoading] = useState<boolean>(false);
+  const [chatLoading, setChatLoading] = useState<boolean>(false);
   const [connectionState, setConnectionState] = useState<Socket<
     ISocketOnEvent,
     ISocketEmitEvent
@@ -60,6 +62,8 @@ const App: FC = () => {
           setChatsLoading,
           connectionState,
           setConnectionState,
+          chatLoading,
+          setChatLoading,
         }}
       >
         <NavigationContainer>

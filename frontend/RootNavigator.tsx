@@ -27,10 +27,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { setCurrentChat } from "./core/reducers/currentChat";
 import { connectToSocket } from "./shared/functions";
 import { useGlobalContext } from "./core/context/Context";
+import { setMessages } from "./core/reducers/messages";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
 const RootNavigator: FC = () => {
+  // Global context states
+  const { connectionState, setChatLoading, chatLoading } = useGlobalContext();
+
   // Navigation
   const navigation = useNavigation<ChatScreenNavigationProp>();
 
@@ -41,7 +45,6 @@ const RootNavigator: FC = () => {
 
   // States
   const [oneRecipient, setOneRecipient] = useState<IUserState | null>(null);
-  const [chatLoading, setChatLoading] = useState<boolean>(false);
 
   const HeaderUserInfo = () => {
     return (
@@ -145,6 +148,23 @@ const RootNavigator: FC = () => {
     setChatLoading(false);
   }, [currentChat]);
 
+  useEffect(() => {
+    connectionState?.on("getChatById", (data) => {
+      const { success } = data;
+      if (!success) {
+        const { message } = data;
+        console.error("Error during receiving chat by ID: ", message);
+        setChatLoading(false);
+        return;
+      }
+      const { chatData } = data;
+
+      connectionState?.emit("getChatsByUserId", user._id!);
+
+      dispatch(setMessages(chatData!.messages));
+    });
+  });
+
   if (chatLoading) {
     return (
       <ActivityIndicator
@@ -235,7 +255,16 @@ const RootNavigator: FC = () => {
                     setCurrentChat({
                       _id: "",
                       createdAt: "",
-                      createdBy: "",
+                      createdBy: {
+                        _id: "",
+                        firstName: "",
+                        lastName: "",
+                        email: "",
+                        dateOfBirth: "",
+                        backgroundColors: [],
+                        avatars: [],
+                        friends: [],
+                      },
                       messages: [],
                       participants: [],
                     })

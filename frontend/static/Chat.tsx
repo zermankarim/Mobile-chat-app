@@ -22,8 +22,8 @@ import { useGlobalContext } from "../core/context/Context";
 import { setCurrentChat } from "../core/reducers/currentChat";
 
 const Chat: FC = () => {
-  // Global context
-  const { connectionState } = useGlobalContext();
+  // Global context states
+  const { connectionState, chatLoading, setChatLoading } = useGlobalContext();
 
   // Redux states and dispatch
   const currentChat = useSelector((state: RootState) => state.currentChat);
@@ -36,7 +36,6 @@ const Chat: FC = () => {
 
   // States
   const [messageText, setMessageText] = useState<string | undefined>("");
-  const [chatLoading, setChatLoading] = useState<boolean>(false);
   const [disabledSendButton, setDisabledSendButton] = useState<boolean>(true);
 
   // Functions
@@ -81,7 +80,8 @@ const Chat: FC = () => {
 
   // Effects
   useEffect(() => {
-    if (currentChat._id && connectionState) {
+    if (currentChat._id) {
+      scrollToBottom();
       setChatLoading(true);
       connectionState?.emit("getChatById", currentChat._id);
 
@@ -94,18 +94,14 @@ const Chat: FC = () => {
           return;
         }
         const { chatData } = data;
-        console.log("here");
+
+        connectionState?.emit("getChatsByUserId", user._id!);
 
         dispatch(setMessages(chatData!.messages));
-
-        setChatLoading(false);
       });
-
-      return () => {
-        connectionState?.off("getChatById");
-      };
+      setChatLoading(false);
     }
-  }, [currentChat, connectionState]);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
