@@ -1,6 +1,12 @@
+import uuid from "react-native-uuid";
 import axios from "axios";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
-import { IGetDocData, IAuthData, IGetDocsData } from "../shared/types";
+import {
+  IGetDocData,
+  IAuthData,
+  IGetDocsData,
+  IUploadImageData,
+} from "../shared/types";
 
 export const getDoc = async (
   collectionName: "users" | "chats",
@@ -71,5 +77,41 @@ export const createUserWithEmailPassAndNames = async (
     return data;
   } catch (e: any) {
     throw new Error(e.message);
+  }
+};
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+export const uploadNewAvatar = async (
+  blob: Blob,
+  userId: string
+): Promise<IUploadImageData> => {
+  try {
+    const base64Image = await blobToBase64(blob);
+
+    const formData = new FormData();
+    formData.append("image", base64Image);
+    formData.append("userId", userId);
+
+    const { data } = await axios.post(
+      `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/upload/newAvatar`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return data;
+  } catch (e: any) {
+    console.error(`Error during sending image: ${e.message}`);
+    throw new Error(`Error during sending image: ${e.message}`);
   }
 };

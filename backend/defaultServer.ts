@@ -1,3 +1,4 @@
+import path from "path";
 import { startSocketServer } from "./socketServer";
 
 const mongoose = require("mongoose");
@@ -6,6 +7,7 @@ const cors = require("cors");
 const app = express();
 const authRouter = require("./routers/authRouter");
 const getDataRouter = require("./routers/getDataRouter");
+const uploadRouter = require("./routers/uploadRouter");
 
 require("dotenv").config();
 
@@ -21,6 +23,8 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+app.use("/public", express.static(path.join(__dirname, "public")));
 
 const start = async () => {
   try {
@@ -44,3 +48,4 @@ start();
 // Routes
 app.use("/getData", getDataRouter);
 app.use("/auth", authRouter);
+app.use("/upload", uploadRouter);

@@ -35,5 +35,5 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# files
-firebaseConsts.ts
+# directories
+public/avatars/*

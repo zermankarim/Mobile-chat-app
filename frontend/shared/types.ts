@@ -61,6 +61,12 @@ export interface IAuthData {
   data?: IUserState;
 }
 
+export interface IUploadImageData {
+  success: boolean;
+  message?: string;
+  data?: IUserState;
+}
+
 // Socket.IO client to server Interface
 export interface ISocketEmitEvent {
   getChatsByUserId: (userId: string) => void;
@@ -71,7 +77,7 @@ export interface ISocketEmitEvent {
     participantsIds: string[]
   ) => void;
   getUsersByCondition: (field: string, condition: string | string[]) => void;
-  getUsersForCreateChat: (userId:string) => void;
+  getUsersForCreateChat: (userId: string) => void;
   openChatWithUser: (userId: string, userForChatId: string) => void;
 }
 

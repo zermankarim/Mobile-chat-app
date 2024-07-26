@@ -1,4 +1,5 @@
 import {
+  Alert,
   Dimensions,
   Image,
   NativeScrollEvent,
@@ -11,18 +12,16 @@ import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
-import { ActivityIndicator, Avatar } from "react-native-paper";
+import { ActivityIndicator } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { IUserState, ProfileRouteProps } from "../shared/types";
 import * as ImagePicker from "expo-image-picker";
-import { database, storage } from "../core/firebase/firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import uuid from "react-native-uuid";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { setUser } from "../core/reducers/user";
-import { doc, updateDoc } from "firebase/firestore";
 import { LinearGradient } from "expo-linear-gradient";
+import { uploadNewAvatar } from "../fetches/http";
+import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 
 const Profile: FC<ProfileRouteProps> = ({ route }) => {
   // Redux states and dispatch
@@ -47,27 +46,22 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
     setAvatarUploading(true);
     try {
       const response = await fetch(uri);
-      const blob = await response.blob();
+      const blob: Blob = await response.blob();
 
-      const avatarUid = uuid.v4();
-
-      const storageAvatarRef = ref(
-        storage,
-        `avatars/${user._id}/${avatarUid}.jpg`
-      );
-      await uploadBytes(storageAvatarRef, blob).then((snapshot) => {
-        console.log("Uploaded a blob or file!");
-      });
-
-      const newAvatarPublicURL = await getDownloadURL(storageAvatarRef);
-
-      const userRef = doc(database, "users", user._id!);
-      await updateDoc(userRef, {
-        avatars: [...user.avatars, newAvatarPublicURL],
-      });
+      const data = await uploadNewAvatar(blob, user._id!);
+      const { success } = data;
+      if (!success) {
+        const { message } = data;
+        console.error(message);
+        return;
+      }
+      const { data: userData } = data;
+      dispatch(setUser(userData!));
+      setOwnerState(userData!);
+      setActiveImage(userData?.avatars.length! - 1);
       setAvatarUploading(false);
     } catch (e: any) {
-      console.error("Error during uploading image: ", e.message);
+      console.error("Error during updating image: ", e.message);
       setAvatarUploading(false);
     }
   };
@@ -77,7 +71,9 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        alert("Sorry, we need camera roll permissions to make this work!");
+        Alert.alert(
+          "Sorry, we need camera roll permissions to make this work!"
+        );
         return;
       }
     }
@@ -87,6 +83,7 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
       let result = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
         quality: 1,
+        aspect: [1, 1],
       });
 
       if (!result.canceled) {
@@ -116,28 +113,6 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
     setOwnerState(owner);
     setActiveImage(owner.avatars.length - 1);
   }, [owner]);
-  useEffect(() => {
-    if (!avatarUploading && owner._id === user._id) {
-      try {
-        const q = query(
-          collection(database, "users"),
-          where("uid", "==", user._id)
-        );
-        const unsubscribe = onSnapshot(q, async (snapshot: any) => {
-          if (!snapshot.empty) {
-            const newUser: IUserState = snapshot.docs[0].data() as IUserState;
-            dispatch(setUser(newUser));
-            setOwnerState(newUser);
-            setActiveImage(newUser.avatars.length - 1);
-          }
-        });
-
-        return unsubscribe;
-      } catch (e: any) {
-        console.error("Error during update user at profile page: ", e.message);
-      }
-    }
-  }, [avatarUploading]);
 
   return (
     <ScrollView
@@ -212,11 +187,11 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
               }}
             >
               {ownerState.avatars
-                .map((avatar, index) => (
+                .map((avatarRelativePath, index) => (
                   <Image
                     key={uuid.v4() + "-userAvatar"}
                     source={{
-                      uri: avatar, // Используем avatar напрямую
+                      uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${avatarRelativePath}`,
                     }}
                     style={{
                       borderRadius: 0,
