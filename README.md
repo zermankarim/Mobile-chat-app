@@ -8,8 +8,9 @@ This project is a React Native chat application using Expo, Redux Toolkit, Fireb
 2. [Project Setup](#project-setup)
 3. [Installation](#installation)
 4. [MongoDB Setup](#mongodb-setup)
-5. [Setup .env and config files](#usage)
+5. [Setup .env and config files](#setup-env-and-config-files)
 6. [Running the Project](#running-the-project)
+6. [Known Issues](#known-issues)
 
 ## Prerequisites
 
@@ -35,6 +36,8 @@ Before you begin, ensure you have met the following requirements:
     ```bash
    yarn install
    ```
+3. **Required:** Create directories `public/avatars` in `backend` directory
+
 ## Installation
 
 1. Install Expo CLI if not already installed:
@@ -50,7 +53,7 @@ yarn install -g expo-cli
 1. **Install MongoDB:** Follow the [official MongoDB installation guide](https://www.mongodb.com/docs/manual/installation/) for your operating system.
 2. **Create a MongoDB database:** You can create a local or cloud-based MongoDB instance.
 
-## Setup .env file
+## Setup env and config files
 1. Create `.env` file in backend directory.
 2. Create `config.ts` file in backend directory.
 3. Write Your secret variables using `.example` files.
@@ -61,3 +64,8 @@ yarn install -g expo-cli
 2. Run the project on a physical device or emulator:
 - **For iOS:** Scan the QR code with the Expo Go app on your iPhone or iPad.
 - **For Android:** Scan the QR code with the Expo Go app on your Android device.
+
+## Known Issues
+***Note:** If you know how to resolve some issues, please send me it to e-mail [zermankarim@gmail.com](zermankarim@gmail.com)*
+
+- You must create directories `public/avatars`, because they ignored in `.gitignore` as `public/avatars/*`. It should be set to prevent commiting pictures.
