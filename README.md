@@ -1,6 +1,7 @@
 # React Native Chat Application
 
-This project is a React Native chat application using Expo, Redux Toolkit, Firebase, and MongoDB. Follow the steps below to initialize, install, and run the project.
+This project is a React Native chat application using Expo, Redux Toolkit, Node.js, and MongoDB, Express.js and other libraries. 
+Follow the steps below to initialize, install, and run the project.
 
 ## Table of Contents
 
