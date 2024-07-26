@@ -54,9 +54,9 @@ yarn install -g expo-cli
 2. **Create a MongoDB database:** You can create a local or cloud-based MongoDB instance.
 
 ## Setup env and config files
-1. Create `.env` file in backend directory.
-2. Create `config.ts` file in backend directory.
-3. Write Your secret variables using `.example` files.
+1. Create `.env` file in `backend` directory.
+2. Create `config.ts` file in `frontend` directory.
+3. Write Your secret constants using `.example` files as example.
 
 ## Running the Project
 1. You can use ```npm start``` or ```yarn start``` for running the project in `frontend` and `backend` directories.
