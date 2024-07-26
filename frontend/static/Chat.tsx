@@ -79,15 +79,6 @@ const Chat: FC = () => {
       scrollToBottom(scrollViewRef);
     }, [currentChat])
   );
-  // useEffect(() => {
-  //   if (currentChat._id) {
-  //     scrollToBottom(scrollViewRef);
-  //     setChatLoading(true);
-  //     connectionState?.emit("getChatById", currentChat._id);
-  //     connectionState?.emit("getChatsByUserId", user._id!);
-  //   }
-  //   // setChatLoading(false);
-  // }, [currentChat]);
 
   useEffect(() => {
     scrollToBottom(scrollViewRef);

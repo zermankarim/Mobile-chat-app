@@ -1,5 +1,5 @@
 import React from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import { theme } from "../theme";
 import TextWithFont from "./TextWithFont";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,11 +17,10 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
-import { signOut } from "firebase/auth";
-import { auth } from "../../core/firebase/firebase";
 import { logoutUser } from "../../core/reducers/user";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../../core/context/Context";
+import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 
 type DrawerProps = {
   state: DrawerNavigationState<ParamListBase>;
@@ -93,8 +92,9 @@ function DrawerContent({ ...props }) {
         />
       ),
       onPress: () => {
+        console.log(connectionState);
         props.navigation.closeDrawer();
-        connectionState.disconnect();
+        connectionState?.disconnect();
         setConnectionState(null);
         handleLogountButton();
       },
@@ -132,7 +132,11 @@ function DrawerContent({ ...props }) {
             {user?.avatars.length ? (
               <Avatar.Image
                 size={64}
-                source={{ uri: user.avatars[user.avatars.length - 1] }}
+                source={{
+                  uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+                    user.avatars[user.avatars.length - 1]
+                  }`,
+                }}
               ></Avatar.Image>
             ) : (
               <LinearGradient

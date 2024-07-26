@@ -1,18 +1,9 @@
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { FC, useCallback, useEffect, useState } from "react";
 import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
-import { setChats } from "../core/reducers/chats";
 import { ActivityIndicator } from "react-native-paper";
 import { ChatsRouteProps, IChatPopulated, IUserState } from "../shared/types";
-// import {
-//   collection,
-//   getDocs,
-//   onSnapshot,
-//   query,
-//   where,
-// } from "firebase/firestore";
-import { database } from "../core/firebase/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import ChatCard from "../shared/components/ChatCard";
@@ -20,16 +11,12 @@ import uuid from "react-native-uuid";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useGlobalContext } from "../core/context/Context";
-import { getDocs } from "../fetches/http";
-import { populate, where } from "../shared/functions";
 import { useFocusEffect } from "@react-navigation/native";
 
 const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   // Global context
   const {
     connectionState,
-    loading,
-    setLoading,
     chatsLoading,
     setChatsLoading,
   } = useGlobalContext();

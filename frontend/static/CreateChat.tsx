@@ -1,34 +1,19 @@
-import { FC, useCallback, useEffect, useState } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { FC, useCallback, useEffect } from "react";
+import { TouchableOpacity, View } from "react-native";
 import { theme } from "../shared/theme";
 import TextWithFont from "../shared/components/TextWithFont";
 import {
   CreateChatRouteProps,
-  IChatPopulated,
   IUserState,
 } from "../shared/types";
-import {
-  addDoc,
-  and,
-  collection,
-  doc,
-  getDocs,
-  onSnapshot,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
-import { database } from "../core/firebase/firebase";
 import { ActivityIndicator, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import uuid from "react-native-uuid";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
-import currentChat, { setCurrentChat } from "../core/reducers/currentChat";
-import { setMessages } from "../core/reducers/messages";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../core/context/Context";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 
 const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
   // Global context states

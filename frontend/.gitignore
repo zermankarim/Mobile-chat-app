@@ -35,5 +35,4 @@ yarn-error.*
 *.tsbuildinfo
 
 # files
-firebaseConsts.ts
 config.ts
