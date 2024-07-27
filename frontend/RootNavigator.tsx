@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { RootState } from "./core/store/store";
@@ -11,21 +11,16 @@ import SearchBarComponent from "./shared/components/SearchBar";
 import {
   ChatScreenNavigationProp,
   IChatPopulated,
-  ISocketOnEvent,
   IUserState,
   RootStackParamList,
 } from "./shared/types";
 import Chat from "./static/Chat";
-import { Dimensions, View } from "react-native";
+import { Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { ActivityIndicator, Avatar, Button } from "react-native-paper";
-import { MaterialIcons } from "@expo/vector-icons";
-import TextWithFont from "./shared/components/TextWithFont";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { ActivityIndicator, Button } from "react-native-paper";
 import SignUp from "./static/SignUp";
 import CreateChat from "./static/CreateChat";
-import { LinearGradient } from "expo-linear-gradient";
 import { setCurrentChat } from "./core/reducers/currentChat";
 import { connectToSocket } from "./shared/functions";
 import { useGlobalContext } from "./core/context/Context";
@@ -56,110 +51,9 @@ const RootNavigator: FC = () => {
   const currentChat = useSelector((state: RootState) => state.currentChat);
 
   // States
-  const [oneRecipient, setOneRecipient] = useState<IUserState | null>(null);
 
-  const HeaderUserInfo = () => {
-    return (
-      <View
-        style={{
-          flexDirection: "row",
-          gap: theme.spacing(4),
-        }}
-      >
-        {oneRecipient ? (
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate("Profile", { owner: oneRecipient })
-            }
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.spacing(4),
-            }}
-          >
-            {oneRecipient.avatars.length ? (
-              <Avatar.Image
-                size={36}
-                source={{
-                  uri: oneRecipient.avatars[oneRecipient.avatars.length - 1],
-                }}
-              ></Avatar.Image>
-            ) : (
-              <LinearGradient
-                colors={oneRecipient.backgroundColors}
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: 36,
-                  width: 36,
-                  borderRadius: 50,
-                }}
-              >
-                <TextWithFont
-                  styleProps={{
-                    fontSize: theme.fontSize(3),
-                  }}
-                >
-                  {oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
-                </TextWithFont>
-              </LinearGradient>
-            )}
-            <TextWithFont
-              styleProps={{
-                fontSize: theme.fontSize(5),
-              }}
-            >
-              {oneRecipient.firstName + " " + oneRecipient.lastName}
-            </TextWithFont>
-          </TouchableOpacity>
-        ) : (
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.spacing(2),
-            }}
-          >
-            <MaterialIcons
-              name="groups"
-              size={48}
-              color={theme.colors.main[200]}
-            />
-            <TextWithFont>
-              {currentChat.participants
-                .filter(
-                  (participant, index) =>
-                    participant._id !== user._id && index < 3
-                )
-                .map(
-                  (participant) =>
-                    participant.firstName + " " + participant.lastName
-                )
-                .join(", ") + " and other.."}
-            </TextWithFont>
-          </View>
-        )}
-      </View>
-    );
-  };
 
   //Effects
-  useEffect(() => {
-    setLoading(true);
-    if (currentChat._id && currentChat.participants.length === 2) {
-      const oneRecipientData: IUserState | undefined =
-        currentChat.participants.find(
-          (participant) => participant._id !== user._id
-        );
-      if (oneRecipientData) {
-        setOneRecipient(oneRecipientData);
-      }
-      console.log(oneRecipientData);
-    } else {
-      setOneRecipient(null);
-    }
-    setLoading(false);
-  }, [currentChat]);
 
   useEffect(() => {
     if (connectionState) {
@@ -228,9 +122,7 @@ const RootNavigator: FC = () => {
             return;
           }
           const { chat } = data;
-          // console.log(chat);
 
-          // dispatch(setChats([...chats, chat!]));
           dispatch(setMessages(chat?.messages!));
           dispatch(setCurrentChat(chat!));
           setCreateChatLoading(false);
@@ -332,44 +224,10 @@ const RootNavigator: FC = () => {
         name="Chat"
         component={Chat}
         options={{
+          headerShown: false,
           headerStyle: {
             backgroundColor: theme.colors.main[400],
           },
-          headerTitle: HeaderUserInfo,
-          headerLeft: () => (
-            <Button
-              style={{
-                minWidth: 0,
-              }}
-            >
-              <Ionicons
-                name="arrow-back-outline"
-                size={24}
-                color={theme.colors.main[200]}
-                onPress={() => {
-                  dispatch(
-                    setCurrentChat({
-                      _id: "",
-                      createdAt: "",
-                      createdBy: {
-                        _id: "",
-                        firstName: "",
-                        lastName: "",
-                        email: "",
-                        dateOfBirth: "",
-                        backgroundColors: [],
-                        avatars: [],
-                        friends: [],
-                      },
-                      messages: [],
-                      participants: [],
-                    })
-                  );
-                  navigation.navigate("Chats");
-                }}
-              />
-            </Button>
-          ),
         }}
       />
     </Drawer.Navigator>
