@@ -92,7 +92,6 @@ function DrawerContent({ ...props }) {
         />
       ),
       onPress: () => {
-        console.log(connectionState);
         props.navigation.closeDrawer();
         connectionState?.disconnect();
         setConnectionState(null);

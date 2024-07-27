@@ -33,7 +33,6 @@ export const uploadNewAvatar = async (req, res, next) => {
     const user = await User.findOne({ _id: userId });
     user.avatars.push(relativePath);
     await user.save();
-    console.log(user)
     return res.json({ success: true, data: user });
   } catch (e) {
     console.error(`Error during saving avatar: ${e.message}`);

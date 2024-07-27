@@ -144,7 +144,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
       if (oneRecipientData) {
         setOneRecipient(oneRecipientData);
       }
-      console.log(oneRecipientData);
     } else {
       setOneRecipient(null);
     }

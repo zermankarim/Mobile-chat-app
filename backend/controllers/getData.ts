@@ -51,10 +51,6 @@ export const getDocs = async (req: Request, res: Response) => {
 
   const { field, conditionType, value } = condition;
 
-  // if (req.query.populateArr) {
-  //   console.log(req.query.populate);
-  // }
-
   if (conditionType == "==") {
     if (typeof value === "string" && mongoose.isValidObjectId(value)) {
       query[field] = new mongoose.Types.ObjectId(value);
