@@ -75,7 +75,10 @@ const App: FC = () => {
       >
         <NavigationContainer>
           <SafeAreaProvider onLayout={onLayoutRootView}>
-            <StatusBar backgroundColor={theme.colors.main[400]}></StatusBar>
+            <StatusBar
+              backgroundColor="transparent"
+              translucent={true}
+            ></StatusBar>
             <RootNavigator></RootNavigator>
           </SafeAreaProvider>
         </NavigationContainer>
