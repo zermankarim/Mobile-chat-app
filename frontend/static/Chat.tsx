@@ -387,8 +387,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                         ? theme.colors.blue[500]
                         : theme.colors.blue[200]
                       : selectedMessages.includes(message)
-                      ? theme.colors.main[400]
-                      : theme.colors.main[300],
+                      ? theme.colors.main[300]
+                      : theme.colors.main[400],
                   paddingVertical: theme.spacing(2),
                   paddingHorizontal: theme.spacing(3),
                   borderTopLeftRadius: theme.borderRadius(2),
