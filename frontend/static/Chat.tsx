@@ -30,6 +30,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { setCurrentChat } from "../core/reducers/currentChat";
 import { Ionicons } from "@expo/vector-icons";
+import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 
 const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   // Global context states
@@ -177,9 +178,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
           flexDirection: "row",
           gap: theme.spacing(4),
           width: "100%",
-          height: 80,
           padding: theme.spacing(2),
-          paddingTop: theme.spacing(5),
           backgroundColor: theme.colors.main[400],
           zIndex: 1,
         }}
@@ -289,7 +288,9 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
               <Avatar.Image
                 size={36}
                 source={{
-                  uri: oneRecipient.avatars[oneRecipient.avatars.length - 1],
+                  uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+                    oneRecipient.avatars[oneRecipient.avatars.length - 1]
+                  }`,
                 }}
               ></Avatar.Image>
             ) : (
