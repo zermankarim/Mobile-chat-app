@@ -2,6 +2,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import {
   IChat,
+  IChatPopulatedAll,
   IConnectedUser,
   IMessage,
   ISocketEmitEvent,
@@ -41,14 +42,14 @@ io.on("connection", (socket) => {
   console.log(`Connected: ${socket.id}`);
 
   // Request receiving chats by user ID
-  socket.on("getChatsByUserId", async (userId) => {
+  socket.on("getChatsByUserId", async (userId, searchReq) => {
     if (!mongoose.isValidObjectId(userId)) {
       socket.emit("getChatsByUserId", {
         success: false,
         message: "User ID is not valid.",
       });
     }
-    const chatsData: IChat[] = await Chat.find({
+    let chatsData: IChat[] = await Chat.find({
       participants: userId,
     })
       .populate<{ child: IUser }>("participants")
@@ -126,9 +127,22 @@ io.on("connection", (socket) => {
   });
 
   // Sending users for creating chat
-  socket.on("getUsersForCreateChat", async (userId) => {
+  socket.on("getUsersForCreateChat", async (userId, searchReq) => {
     try {
-      const usersData = await User.find({ _id: { $ne: userId } });
+      let usersData: IUser[];
+      if (!searchReq) {
+        usersData = await User.find({ _id: { $ne: userId } });
+      } else {
+        usersData = await User.find({
+          _id: { $ne: userId },
+          $or: [
+            { firstName: { $regex: searchReq, $options: "i" } },
+            { lastName: { $regex: searchReq, $options: "i" } },
+            { email: { $regex: searchReq, $options: "i" } },
+          ],
+        });
+      }
+
       socket.emit("getUsersForCreateChat", { success: true, usersData });
     } catch (e: any) {
       console.error(

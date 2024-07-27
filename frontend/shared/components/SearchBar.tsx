@@ -9,12 +9,14 @@ import { setChats } from "../../core/reducers/chats";
 import { useGlobalContext } from "../../core/context/Context";
 
 type SearchBarComponentProps = {
-  searchType: string;
+  searchType: "Chats" | "UsersForCreateChat";
 };
 
 const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
   searchType,
 }) => {
+  // Global context
+  const { connectionState, setCreateChatLoading } = useGlobalContext();
   // Redux states
   const user = useSelector((state: RootState) => state.user);
   const chats = useSelector((state: RootState) => state.chats);
@@ -27,20 +29,33 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
   const [search, setSearch] = useState<string>("");
 
   // Functions
-  const updateSearchChats = async (text: string) => {
+  const updateChats = (text: string) => {
     setChatsLoading(true);
     try {
-      setChatsLoading(false);
+      connectionState?.emit("getChatsByUserId", user._id!, text);
     } catch (error: any) {
       Alert.alert("Error during updating chats: ", error.message);
       console.error("Error during finding chats: ", error.message);
     }
   };
 
-  const handleUpdateChats = async (text: string) => {
+  const updateUsersForCreateChat = (text: string) => {
+    setCreateChatLoading(true);
+    try {
+      connectionState?.emit("getUsersForCreateChat", user._id!, text);
+    } catch (error: any) {
+      Alert.alert("Error during updating chats: ", error.message);
+      console.error("Error during finding chats: ", error.message);
+    }
+  };
+
+  const handleUpdateSearch = async (text: string) => {
     setSearch(text);
     if (searchType === "Chats") {
-      updateSearchChats(text);
+      updateChats(text);
+    }
+    if (searchType === "UsersForCreateChat") {
+      updateUsersForCreateChat(text);
     }
   };
 
@@ -56,7 +71,7 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
         placeholder="Search"
         iconColor={theme.colors.main[200]}
         placeholderTextColor={theme.colors.main[200]}
-        onChangeText={(text) => handleUpdateChats(text)}
+        onChangeText={(text) => handleUpdateSearch(text)}
         value={search}
         style={{
           backgroundColor: theme.colors.main[500],

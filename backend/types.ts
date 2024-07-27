@@ -48,6 +48,21 @@ export interface IChat {
   participants: Types.ObjectId[];
 }
 
+export interface IMessagePopulated {
+  _id: string;
+  createdAt: string;
+  text?: string;
+  sender: IUser;
+}
+
+export interface IChatPopulatedAll {
+  _id: Types.ObjectId;
+  createdAt: string;
+  createdBy: IUser;
+  messages: IMessagePopulated[];
+  participants: IUser[];
+}
+
 // Socket.IO interfaces
 
 // Socket.IO server to client Interface
@@ -55,7 +70,7 @@ export interface ISocketEmitEvent {
   getChatsByUserId: (data: {
     success: boolean;
     message?: string;
-    chatsData?: IChat[];
+    chatsData?: IChat[] | IChatPopulatedAll[];
   }) => void;
   getChatById: (data: {
     success: boolean;
@@ -76,14 +91,14 @@ export interface ISocketEmitEvent {
 
 // Socket.IO client to server Interface
 export interface ISocketOnEvent {
-  getChatsByUserId: (userId: string) => void;
+  getChatsByUserId: (userId: string, searchReq?: string) => void;
   getChatById: (chatId: string) => void;
   sendMessage: (
     chatId: string,
     newMessage: IMessage,
     participantsIds: string[]
   ) => void;
-  getUsersForCreateChat: (userId: string) => void;
+  getUsersForCreateChat: (userId: string, searchReq?: string) => void;
   openChatWithUser: (userId: string, userForChatId: string) => void;
   deleteMessages: (
     chatId: string,

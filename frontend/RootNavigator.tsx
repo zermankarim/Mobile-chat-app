@@ -52,7 +52,6 @@ const RootNavigator: FC = () => {
 
   // States
 
-
   //Effects
 
   useEffect(() => {
@@ -205,6 +204,11 @@ const RootNavigator: FC = () => {
                 onPress={() => navigation.navigate("Chats")}
               />
             </Button>
+          ),
+          headerTitle: () => (
+            <SearchBarComponent
+              searchType={"UsersForCreateChat"}
+            ></SearchBarComponent>
           ),
         }}
       />

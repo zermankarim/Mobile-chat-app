@@ -71,7 +71,7 @@ export interface IUploadImageData {
 
 // Socket.IO client to server Interface
 export interface ISocketEmitEvent {
-  getChatsByUserId: (userId: string) => void;
+  getChatsByUserId: (userId: string, searchReq?: string) => void;
   getChatById: (chatId: string) => void;
   sendMessage: (
     chatId: string,
@@ -79,7 +79,7 @@ export interface ISocketEmitEvent {
     participantsIds: string[]
   ) => void;
   getUsersByCondition: (field: string, condition: string | string[]) => void;
-  getUsersForCreateChat: (userId: string) => void;
+  getUsersForCreateChat: (userId: string, searchReq?: string) => void;
   openChatWithUser: (userId: string, userForChatId: string) => void;
   deleteMessages: (
     chatId: string,

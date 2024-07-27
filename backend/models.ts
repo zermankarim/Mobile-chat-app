@@ -12,7 +12,7 @@ const userSchema = new Schema<IUser>({
   password: { type: String, required: true },
 });
 
-const chatSchema = new Schema({
+const chatSchema = new Schema<IChat>({
   createdAt: { type: String, required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: "users", required: true },
   messages: [
