@@ -231,7 +231,7 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
           >
             <TextWithFont
               styleProps={{
-                color: theme.colors.main[200],
+                color: theme.colors.blue[300],
               }}
             >
               Log In

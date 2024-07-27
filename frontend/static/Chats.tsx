@@ -125,7 +125,7 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
           position: "absolute",
           bottom: 12,
           right: 12,
-          backgroundColor: theme.colors.blue[100],
+          backgroundColor: theme.colors.blue[500],
           padding: theme.spacing(4),
           borderRadius: 50,
         }}
