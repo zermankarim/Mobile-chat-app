@@ -12,6 +12,7 @@ import { Avatar, Badge } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { formatMessageDate } from "../functions";
 import { LinearGradient } from "expo-linear-gradient";
+import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 
 interface IChatCartProps {
   chat: IChatPopulated;
@@ -86,7 +87,9 @@ const ChatCard: FC<IChatCartProps> = ({
             <Avatar.Image
               size={48}
               source={{
-                uri: oneRecipient.avatars[oneRecipient.avatars.length - 1],
+                uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+                  oneRecipient.avatars[oneRecipient.avatars.length - 1]
+                }`,
               }}
             ></Avatar.Image>
           ) : (
