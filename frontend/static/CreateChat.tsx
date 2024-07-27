@@ -2,10 +2,7 @@ import { FC, useCallback, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { theme } from "../shared/theme";
 import TextWithFont from "../shared/components/TextWithFont";
-import {
-  CreateChatRouteProps,
-  IUserState,
-} from "../shared/types";
+import { CreateChatRouteProps, IUserState } from "../shared/types";
 import { ActivityIndicator, Avatar } from "react-native-paper";
 import { ScrollView } from "react-native-gesture-handler";
 import uuid from "react-native-uuid";
@@ -14,6 +11,7 @@ import { RootState } from "../core/store/store";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
+import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 
 const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
   // Global context states
@@ -92,7 +90,9 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
                   <Avatar.Image
                     size={48}
                     source={{
-                      uri: userForChat.avatars[userForChat.avatars.length - 1],
+                      uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+                        userForChat.avatars[userForChat.avatars.length - 1]
+                      }`,
                     }}
                   ></Avatar.Image>
                 ) : (
