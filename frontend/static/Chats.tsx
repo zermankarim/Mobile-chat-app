@@ -15,11 +15,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   // Global context
-  const {
-    connectionState,
-    chatsLoading,
-    setChatsLoading,
-  } = useGlobalContext();
+  const { connectionState, chatsLoading, setChatsLoading } = useGlobalContext();
 
   // Redux states and dispatch
   const chats: IChatPopulated[] = useSelector(
@@ -35,8 +31,10 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
 
   // Effects
   useEffect(() => {
-    setChatsLoading(true);
-  }, [connectionState,]);
+    if (connectionState) {
+      setChatsLoading(true);
+    }
+  }, [connectionState]);
 
   useFocusEffect(
     useCallback(() => {
