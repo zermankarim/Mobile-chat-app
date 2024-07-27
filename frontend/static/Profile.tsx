@@ -139,31 +139,32 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
             style={{
               position: "absolute",
               display: "flex",
-              top: 20,
+              top: 10,
               flexDirection: "row",
               alignSelf: "center",
               zIndex: 1,
               width: "100%",
             }}
           >
-            {ownerState.avatars
-              .map((avatar, index) => {
-                return (
-                  <View
-                    key={uuid.v4() + "avatarsDots"}
-                    style={{
-                      flex: 1,
-                      height: 1,
-                      backgroundColor:
-                        activeImage === index
-                          ? theme.colors.main[100]
-                          : theme.colors.main[200],
-                      margin: theme.spacing(1),
-                    }}
-                  />
-                );
-              })
-              .reverse()}
+            {ownerState.avatars.length > 1 &&
+              ownerState.avatars
+                .map((avatar, index) => {
+                  return (
+                    <View
+                      key={uuid.v4() + "avatarsDots"}
+                      style={{
+                        flex: 1,
+                        height: 1,
+                        backgroundColor:
+                          activeImage === index
+                            ? theme.colors.main[100]
+                            : theme.colors.main[200],
+                        margin: theme.spacing(1),
+                      }}
+                    />
+                  );
+                })
+                .reverse()}
           </View>
           {avatarUploading ? (
             <ActivityIndicator
