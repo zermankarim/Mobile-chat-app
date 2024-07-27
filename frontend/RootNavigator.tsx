@@ -320,7 +320,7 @@ const RootNavigator: FC = () => {
         name="Profile"
         component={Profile}
         options={{
-          swipeEdgeWidth: Dimensions.get("window").width * 0.3,
+          swipeEdgeWidth: Dimensions.get("window").width * 0.4,
           headerTitle: undefined,
           headerTransparent: true,
           headerStyle: {
