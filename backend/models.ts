@@ -17,6 +17,7 @@ const chatSchema = new Schema({
   createdBy: { type: Schema.Types.ObjectId, ref: "users", required: true },
   messages: [
     {
+      _id: { type: String, required: true },
       createdAt: { type: String, required: true },
       text: { type: String },
       sender: { type: Schema.Types.ObjectId, ref: "users", required: true },

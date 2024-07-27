@@ -18,12 +18,14 @@ export interface IUserState {
 }
 
 export interface IMessage {
+  _id: string;
   createdAt: string;
   text?: string;
   sender: string;
 }
 
 export interface IMessagePopulated {
+  _id: string;
   createdAt: string;
   text?: string;
   sender: IUserState;
@@ -79,6 +81,11 @@ export interface ISocketEmitEvent {
   getUsersByCondition: (field: string, condition: string | string[]) => void;
   getUsersForCreateChat: (userId: string) => void;
   openChatWithUser: (userId: string, userForChatId: string) => void;
+  deleteMessages: (
+    chatId: string,
+    messagesForDeleting: IMessagePopulated[],
+    participantsIds: string[]
+  ) => void;
 }
 
 // Socket.IO server to client Interface
@@ -157,6 +164,10 @@ export type ChatsRouteProps = {
 
 export type CreateChatRouteProps = {
   navigation: ChatsScreenNavigationProp;
+};
+
+export type ChatRouteProps = {
+  navigation: ChatScreenNavigationProp;
 };
 
 export type ProfileScreenNavigationProp = StackNavigationProp<

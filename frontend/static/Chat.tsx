@@ -7,18 +7,31 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { ActivityIndicator, Button, TextInput } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Avatar,
+  Button,
+  TextInput,
+} from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import uuid from "react-native-uuid";
 import TextWithFont from "../shared/components/TextWithFont";
-import { IMessage, IMessagePopulated, IUserState } from "../shared/types";
+import {
+  ChatRouteProps,
+  IMessage,
+  IMessagePopulated,
+  IUserState,
+} from "../shared/types";
 import { formatMessageDate, scrollToBottom } from "../shared/functions";
 import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { setCurrentChat } from "../core/reducers/currentChat";
+import { Ionicons } from "@expo/vector-icons";
 
-const Chat: FC = () => {
+const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   // Global context states
   const { connectionState, chatLoading, setChatLoading } = useGlobalContext();
 
@@ -34,9 +47,24 @@ const Chat: FC = () => {
   // States
   const [messageText, setMessageText] = useState<string | undefined>("");
   const [disabledSendButton, setDisabledSendButton] = useState<boolean>(true);
+  const [selectedMessages, setSelectedMessages] = useState<IMessagePopulated[]>(
+    []
+  );
+  const [oneRecipient, setOneRecipient] = useState<IUserState | null>(null);
 
   // Functions
-  const handleLongPressMessage = (message: IMessagePopulated) => {};
+  const handleSelectMessage = (message: IMessagePopulated) => {
+    const selectedMessageIdx = selectedMessages.findIndex(
+      (selMsg) => selMsg._id === message._id
+    );
+    if (selectedMessageIdx === -1) {
+      setSelectedMessages([...selectedMessages, message]);
+    } else {
+      const selectedMessagesCopy = selectedMessages.slice();
+      selectedMessagesCopy.splice(selectedMessageIdx, 1);
+      setSelectedMessages(selectedMessagesCopy);
+    }
+  };
 
   const handleChangeMessageText = (text: string) => {
     const regExp = /^\s*$/;
@@ -50,6 +78,7 @@ const Chat: FC = () => {
 
   const onSend = async () => {
     const newMessage: IMessage = {
+      _id: uuid.v4().toString(),
       createdAt: new Date().toISOString(),
       sender: user._id!,
       text: messageText!,
@@ -68,10 +97,28 @@ const Chat: FC = () => {
     setDisabledSendButton(true);
   };
 
+  const handleDeleteMessages = () => {
+    const participantsIds: string[] = currentChat.participants.map(
+      (participant: IUserState) => participant._id!
+    );
+    connectionState?.emit(
+      "deleteMessages",
+      currentChat._id,
+      selectedMessages,
+      participantsIds
+    );
+    setSelectedMessages([]);
+  };
+
   // Effects
   useEffect(() => {
     setChatLoading(true);
   }, []);
+
+  useEffect(() => {
+    scrollToBottom(scrollViewRef);
+  }, [messages]);
+
   useFocusEffect(
     useCallback(() => {
       connectionState?.emit("getChatById", currentChat._id);
@@ -80,9 +127,28 @@ const Chat: FC = () => {
     }, [currentChat])
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedMessages([]);
+    }, [])
+  );
+
   useEffect(() => {
-    scrollToBottom(scrollViewRef);
-  }, [messages]);
+    setChatLoading(true);
+    if (currentChat._id && currentChat.participants.length === 2) {
+      const oneRecipientData: IUserState | undefined =
+        currentChat.participants.find(
+          (participant) => participant._id !== user._id
+        );
+      if (oneRecipientData) {
+        setOneRecipient(oneRecipientData);
+      }
+      console.log(oneRecipientData);
+    } else {
+      setOneRecipient(null);
+    }
+    setChatLoading(false);
+  }, [currentChat]);
 
   if (chatLoading) {
     return (
@@ -104,6 +170,185 @@ const Chat: FC = () => {
         backgroundColor: theme.colors.main[500],
       }}
     >
+      {/* {Header container} */}
+      <View
+        style={{
+          position: "absolute",
+          flexDirection: "row",
+          gap: theme.spacing(4),
+          width: "100%",
+          height: 80,
+          padding: theme.spacing(2),
+          paddingTop: theme.spacing(5),
+          backgroundColor: theme.colors.main[400],
+          zIndex: 1,
+        }}
+      >
+        {selectedMessages.length ? (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              height: "100%",
+              gap: theme.spacing(3),
+              paddingHorizontal: theme.spacing(3),
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                height: 40,
+                gap: theme.spacing(3),
+              }}
+            >
+              <Button
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: theme.colors.blue[400],
+                  borderRadius: 8,
+                }}
+              >
+                <TextWithFont>Forward</TextWithFont>
+              </Button>
+              <Button
+                onPress={handleDeleteMessages}
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: theme.colors.blue[400],
+                  borderRadius: 8,
+                }}
+              >
+                <TextWithFont>Delete</TextWithFont>
+              </Button>
+            </View>
+            <Button
+              onPress={() => setSelectedMessages([])}
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: 0,
+              }}
+            >
+              <TextWithFont
+                styleProps={{
+                  color: theme.colors.blue[300],
+                }}
+              >
+                Cancel
+              </TextWithFont>
+            </Button>
+          </View>
+        ) : oneRecipient ? (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("Profile", { owner: oneRecipient })
+            }
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.spacing(3),
+            }}
+          >
+            <Button
+              style={{
+                minWidth: 0,
+              }}
+            >
+              <Ionicons
+                name="arrow-back-outline"
+                size={24}
+                color={theme.colors.main[200]}
+                onPress={() => {
+                  dispatch(
+                    setCurrentChat({
+                      _id: "",
+                      createdAt: "",
+                      createdBy: {
+                        _id: "",
+                        firstName: "",
+                        lastName: "",
+                        email: "",
+                        dateOfBirth: "",
+                        backgroundColors: [],
+                        avatars: [],
+                        friends: [],
+                      },
+                      messages: [],
+                      participants: [],
+                    })
+                  );
+                  navigation.navigate("Chats");
+                }}
+              />
+            </Button>
+            {oneRecipient.avatars.length ? (
+              <Avatar.Image
+                size={36}
+                source={{
+                  uri: oneRecipient.avatars[oneRecipient.avatars.length - 1],
+                }}
+              ></Avatar.Image>
+            ) : (
+              <LinearGradient
+                colors={oneRecipient.backgroundColors}
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: 36,
+                  width: 36,
+                  borderRadius: 50,
+                }}
+              >
+                <TextWithFont
+                  styleProps={{
+                    fontSize: theme.fontSize(3),
+                  }}
+                >
+                  {oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
+                </TextWithFont>
+              </LinearGradient>
+            )}
+            <TextWithFont
+              styleProps={{
+                fontSize: theme.fontSize(5),
+              }}
+            >
+              {oneRecipient.firstName + " " + oneRecipient.lastName}
+            </TextWithFont>
+          </TouchableOpacity>
+        ) : (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.spacing(2),
+            }}
+          >
+            <MaterialIcons
+              name="groups"
+              size={48}
+              color={theme.colors.main[200]}
+            />
+            <TextWithFont>
+              {currentChat.participants
+                .filter(
+                  (participant, index) =>
+                    participant._id !== user._id && index < 3
+                )
+                .map(
+                  (participant) =>
+                    participant.firstName + " " + participant.lastName
+                )
+                .join(", ") + " and other.."}
+            </TextWithFont>
+          </View>
+        )}
+      </View>
+      {/* {Header container} */}
       {messages.length ? (
         <ScrollView // Container for messages
           ref={scrollViewRef}
@@ -128,11 +373,20 @@ const Chat: FC = () => {
               }}
             >
               <TouchableOpacity // Container for message
-                onLongPress={() => handleLongPressMessage(message)}
+                onLongPress={() => handleSelectMessage(message)}
+                onPress={() => {
+                  if (selectedMessages.length) {
+                    handleSelectMessage(message);
+                  }
+                }}
                 style={{
                   backgroundColor:
                     message.sender._id === user._id
-                      ? theme.colors.blue[100]
+                      ? selectedMessages.includes(message)
+                        ? theme.colors.blue[500]
+                        : theme.colors.blue[200]
+                      : selectedMessages.includes(message)
+                      ? theme.colors.main[400]
                       : theme.colors.main[300],
                   paddingVertical: theme.spacing(2),
                   paddingHorizontal: theme.spacing(3),
@@ -225,7 +479,7 @@ const Chat: FC = () => {
             <MaterialIcons
               name="send"
               size={24}
-              color={theme.colors.blue[100]}
+              color={theme.colors.blue[400]}
             />
           </Button>
         ) : null}

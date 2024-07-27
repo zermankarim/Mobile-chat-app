@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import {
   IChat,
   IConnectedUser,
+  IMessage,
   ISocketEmitEvent,
   ISocketOnEvent,
   IUser,
@@ -124,6 +125,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Sending users for creating chat
   socket.on("getUsersForCreateChat", async (userId) => {
     try {
       const usersData = await User.find({ _id: { $ne: userId } });
@@ -140,6 +142,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Handle opening chat with user
   socket.on("openChatWithUser", async (userId, userForChatId) => {
     try {
       let foundChat = await Chat.findOne({
@@ -156,7 +159,11 @@ io.on("connection", (socket) => {
         socket.emit("openChatWithUser", { success: true, chat: newChat });
         return;
       }
-      foundChat = await foundChat.populate(["createdBy", "participants", "messages.sender"]);
+      foundChat = await foundChat.populate([
+        "createdBy",
+        "participants",
+        "messages.sender",
+      ]);
       socket.emit("openChatWithUser", { success: true, chat: foundChat });
     } catch (e: any) {
       console.error(`Error during opening chat with user: ${e.message}`);
@@ -166,6 +173,60 @@ io.on("connection", (socket) => {
       });
     }
   });
+
+  // Handling deleting messages from chat
+  socket.on(
+    "deleteMessages",
+    async (chatId, messagesForDeleting, participantsIds) => {
+      try {
+        const chat = await Chat.findOne({ _id: chatId })
+          .populate<{ child: IUser }>("participants")
+          .populate<{ child: IUser }>("messages.sender")
+          .populate<{ child: IUser }>("createdBy");
+
+        if (!chat) {
+          socket.emit("getChatById", {
+            success: false,
+            message: `Error during deleting messages from chat: Chat not found`,
+          });
+        }
+        const filteredMessages: IMessage[] = chat.messages.filter(
+          (msg) =>
+            !messagesForDeleting.some((msgForDel) => msgForDel._id === msg._id)
+        );
+
+        chat.messages = filteredMessages;
+
+        await chat.save();
+
+        const connectedRecipients = CONNECTED_USERS.filter((connUser) =>
+          participantsIds.some(
+            (participiantId) => participiantId === connUser.userId
+          )
+        );
+
+        if (connectedRecipients.length > 1) {
+          connectedRecipients.forEach((connRecipient) =>
+            io.to(connRecipient.socketId).emit("getChatById", {
+              success: true,
+              chatData: chat,
+            })
+          );
+        } else {
+          socket.emit("getChatById", {
+            success: true,
+            chatData: chat,
+          });
+        }
+      } catch (e) {
+        console.error(`Error during deleting messages from chat: ${e.message}`);
+        socket.emit("getChatById", {
+          success: false,
+          message: `Error during deleting messages from chat: ${e.message}`,
+        });
+      }
+    }
+  );
 
   socket.on("disconnect", () => {
     const foundConnUserIdx = CONNECTED_USERS.findIndex(

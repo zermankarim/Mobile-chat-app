@@ -34,6 +34,7 @@ export interface IUser {
 }
 
 export interface IMessage {
+  _id: string;
   createdAt: string;
   text?: string;
   sender: Types.ObjectId;
@@ -84,6 +85,11 @@ export interface ISocketOnEvent {
   ) => void;
   getUsersForCreateChat: (userId: string) => void;
   openChatWithUser: (userId: string, userForChatId: string) => void;
+  deleteMessages: (
+    chatId: string,
+    messagesForDeleting: IMessage[],
+    participantsIds: string[]
+  ) => void;
 }
 
 export interface IConnectedUser {
