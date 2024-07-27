@@ -240,7 +240,7 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
                 position: "absolute",
                 bottom: theme.spacing(-6),
                 right: theme.spacing(4),
-                backgroundColor: theme.colors.blue[100],
+                backgroundColor: theme.colors.blue[400],
                 borderRadius: 50,
                 padding: theme.spacing(3),
               }}
