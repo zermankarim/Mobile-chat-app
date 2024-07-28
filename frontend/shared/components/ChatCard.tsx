@@ -1,4 +1,4 @@
-import { TouchableOpacity, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 import { FC } from "react";
 import TextWithFont from "../components/TextWithFont";
 import { theme } from "../theme";
@@ -178,6 +178,19 @@ const ChatCard: FC<IChatCartProps> = ({
                 >
                   You:
                 </TextWithFont>
+              )}
+              {messages[messages.length - 1].image && (
+                <Image
+                  source={{
+                    uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+                      messages[messages.length - 1].image
+                    }`,
+                  }}
+                  style={{
+                    width: 20,
+                    height: 20,
+                  }}
+                ></Image>
               )}
               <TextWithFont // Chat text field
                 numberOfLines={1}
