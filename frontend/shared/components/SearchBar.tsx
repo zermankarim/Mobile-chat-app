@@ -32,7 +32,11 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
   const updateChats = (text: string) => {
     setChatsLoading(true);
     try {
-      connectionState?.emit("getChatsByUserId", user._id!, text);
+      connectionState?.emit(
+        "getChatsByUserId",
+        user._id!,
+        text.toLocaleLowerCase()
+      );
     } catch (error: any) {
       Alert.alert("Error during updating chats: ", error.message);
       console.error("Error during finding chats: ", error.message);
@@ -42,7 +46,11 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
   const updateUsersForCreateChat = (text: string) => {
     setCreateChatLoading(true);
     try {
-      connectionState?.emit("getUsersForCreateChat", user._id!, text);
+      connectionState?.emit(
+        "getUsersForCreateChat",
+        user._id!,
+        text.toLocaleLowerCase()
+      );
     } catch (error: any) {
       Alert.alert("Error during updating chats: ", error.message);
       console.error("Error during finding chats: ", error.message);

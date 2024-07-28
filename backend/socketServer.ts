@@ -49,14 +49,29 @@ io.on("connection", (socket) => {
         message: "User ID is not valid.",
       });
     }
-    let chatsData: IChat[] = await Chat.find({
+    let chatsData = await Chat.find({
       participants: userId,
     })
-      .populate<{ child: IUser }>("participants")
-      .populate<{ child: IUser }>("messages.sender")
-      .populate<{ child: IUser }>("createdBy");
+      .populate<Pick<IChatPopulatedAll, "participants">>("participants")
+      .populate<Pick<IChatPopulatedAll, "messages">>("messages.sender")
+      .populate<Pick<IChatPopulatedAll, "createdBy">>("createdBy");
 
-    socket.emit("getChatsByUserId", { success: true, chatsData });
+    if (!searchReq) {
+      socket.emit("getChatsByUserId", { success: true, chatsData });
+    } else {
+      const filteredChatsData = chatsData.filter((chat) =>
+        chat.participants.some(
+          (participant) =>
+            participant.firstName.toLocaleLowerCase().includes(searchReq) ||
+            participant.lastName.toLocaleLowerCase().includes(searchReq) ||
+            participant.email.toLocaleLowerCase().includes(searchReq)
+        )
+      );
+      socket.emit("getChatsByUserId", {
+        success: true,
+        chatsData: filteredChatsData,
+      });
+    }
   });
 
   // Request receiving chat by ID
