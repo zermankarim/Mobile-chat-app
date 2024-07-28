@@ -11,7 +11,6 @@ import { GlobalContext } from "./core/context/Context";
 import { Socket } from "socket.io-client";
 import { ISocketEmitEvent, ISocketOnEvent, IUserState } from "./shared/types";
 import { StatusBar } from "react-native";
-import { theme } from "./shared/theme";
 
 const App: FC = () => {
   // States
@@ -75,7 +74,7 @@ const App: FC = () => {
       >
         <NavigationContainer>
           <SafeAreaProvider onLayout={onLayoutRootView}>
-            <StatusBar backgroundColor={theme.colors.main[400]}></StatusBar>
+            <StatusBar translucent backgroundColor="transparent"></StatusBar>
             <RootNavigator></RootNavigator>
           </SafeAreaProvider>
         </NavigationContainer>
