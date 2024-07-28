@@ -3,6 +3,7 @@ import { theme } from "../shared/theme";
 import {
   NativeSyntheticEvent,
   ScrollView,
+  StatusBar,
   TextInputChangeEventData,
   TouchableOpacity,
   View,
@@ -177,7 +178,10 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
           flexDirection: "row",
           gap: theme.spacing(4),
           width: "100%",
-          padding: theme.spacing(2),
+          paddingVertical: theme.spacing(2),
+          paddingTop: StatusBar?.currentHeight
+            ? StatusBar.currentHeight + theme.spacing(2)
+            : 0,
           backgroundColor: theme.colors.main[400],
           zIndex: 1,
         }}
@@ -358,18 +362,30 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
           contentContainerStyle={{
             justifyContent: "flex-end",
             minHeight: "100%",
-            padding: theme.spacing(3),
-            gap: theme.spacing(3),
+            paddingVertical: theme.spacing(3),
+            // gap: theme.spacing(3),
           }}
         >
           {messages.map((message) => (
-            <View // Container for message row
+            <TouchableOpacity // Container for message row
               key={uuid.v4() + "-containerRowMessage"}
+              onPress={() => {
+                if (selectedMessages.length) {
+                  handleSelectMessage(message);
+                }
+              }}
+              onLongPress={() => handleSelectMessage(message)}
               style={{
+                position: "relative",
                 flexDirection: "row",
                 justifyContent:
                   message.sender._id === user._id ? "flex-end" : "flex-start",
                 width: "100%",
+                backgroundColor: selectedMessages.includes(message)
+                  ? theme.colors.main[400]
+                  : "transparent",
+                paddingHorizontal: theme.spacing(3),
+                paddingVertical: theme.spacing(1.5),
               }}
             >
               <TouchableOpacity // Container for message
@@ -423,7 +439,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   {formatMessageDate(message.createdAt)}
                 </TextWithFont>
               </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       ) : (
