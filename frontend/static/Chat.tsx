@@ -388,7 +388,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                       style={{
                         width: "100%",
                         height: undefined,
-                        aspectRatio: 2,
+                        aspectRatio: 1.5,
                         objectFit: "cover",
                       }}
                     ></Image>
