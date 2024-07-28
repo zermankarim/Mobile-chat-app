@@ -192,6 +192,17 @@ const ChatCard: FC<IChatCartProps> = ({
                   }}
                 ></Image>
               )}
+              {messages[messages.length - 1].image &&
+                !messages[messages.length - 1].text && (
+                  <TextWithFont // Chat text field
+                    numberOfLines={1}
+                    styleProps={{
+                      color: theme.colors.blue[300],
+                    }}
+                  >
+                    Photo
+                  </TextWithFont>
+                )}
               <TextWithFont // Chat text field
                 numberOfLines={1}
                 styleProps={{
