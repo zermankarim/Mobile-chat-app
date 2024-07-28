@@ -69,7 +69,18 @@ const RootNavigator: FC = () => {
           return;
         }
         const { chatsData } = data;
-        dispatch(setChats(chatsData as IChatPopulated[]));
+
+        // Sorting chats by last message date
+        const sortedChatsData = chatsData!.sort(function (a, b) {
+          const dateA = new Date(
+            a.messages[a.messages.length - 1].createdAt
+          ).getTime();
+          const dateB = new Date(
+            b.messages[b.messages.length - 1].createdAt
+          ).getTime();
+          return dateB - dateA;
+        });
+        dispatch(setChats(sortedChatsData as IChatPopulated[]));
         setChatsLoading(false);
       }
       function onGetChatById(data: {
