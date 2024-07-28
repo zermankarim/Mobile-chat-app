@@ -37,7 +37,7 @@ Before you begin, ensure you have met the following requirements:
     ```bash
    yarn install
    ```
-3. **Required:** Create directories `public/avatars` in `backend` directory
+3. Create directories `public/avatars` and `public/chat/messages/` in `backend` directory. If you don't create it, server should be create it.
 
 ## Installation
 
@@ -69,4 +69,4 @@ yarn install -g expo-cli
 ## Known Issues
 ***Note:** If you know how to resolve some issues, please send me it to e-mail [zermankarim@gmail.com](zermankarim@gmail.com)*
 
-- You must create directories `public/avatars`, because they ignored in `.gitignore` as `public/avatars/*`. It should be set to prevent commiting pictures.
+- You must create directories `public/avatars` and `public/chat/messages`, because they ignored in `.gitignore` as `public/avatars/*` and `public/chat/messages/*`. It should be set to prevent commiting pictures.
