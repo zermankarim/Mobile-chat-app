@@ -37,6 +37,7 @@ export interface IMessage {
   _id: string;
   createdAt: string;
   text?: string;
+  image?: string;
   sender: Types.ObjectId;
 }
 

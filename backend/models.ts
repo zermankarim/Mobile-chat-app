@@ -20,6 +20,7 @@ const chatSchema = new Schema<IChat>({
       _id: { type: String, required: true },
       createdAt: { type: String, required: true },
       text: { type: String },
+      image: { type: String },
       sender: { type: Schema.Types.ObjectId, ref: "users", required: true },
     },
   ],

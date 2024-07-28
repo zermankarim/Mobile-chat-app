@@ -1,30 +1,19 @@
 import { FC, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import { theme } from "../shared/theme";
 import {
-  NativeSyntheticEvent,
+  Image,
   ScrollView,
   StatusBar,
-  TextInputChangeEventData,
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  ActivityIndicator,
-  Avatar,
-  Button,
-  TextInput,
-} from "react-native-paper";
+import { ActivityIndicator, Avatar, Button } from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import uuid from "react-native-uuid";
 import TextWithFont from "../shared/components/TextWithFont";
-import {
-  ChatRouteProps,
-  IMessage,
-  IMessagePopulated,
-  IUserState,
-} from "../shared/types";
+import { ChatRouteProps, IMessagePopulated, IUserState } from "../shared/types";
 import { formatMessageDate, scrollToBottom } from "../shared/functions";
 import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -32,6 +21,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { setCurrentChat } from "../core/reducers/currentChat";
 import { Ionicons } from "@expo/vector-icons";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
+import InputMessage from "../shared/components/InputMessage";
 
 const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   // Global context states
@@ -47,8 +37,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   const scrollViewRef: RefObject<ScrollView> = useRef<ScrollView>(null);
 
   // States
-  const [messageText, setMessageText] = useState<string | undefined>("");
-  const [disabledSendButton, setDisabledSendButton] = useState<boolean>(true);
   const [selectedMessages, setSelectedMessages] = useState<IMessagePopulated[]>(
     []
   );
@@ -66,37 +54,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
       selectedMessagesCopy.splice(selectedMessageIdx, 1);
       setSelectedMessages(selectedMessagesCopy);
     }
-  };
-
-  const handleChangeMessageText = (text: string) => {
-    const regExp = /^\s*$/;
-    setMessageText(text);
-    if (!regExp.test(text)) {
-      setDisabledSendButton(false);
-    } else {
-      setDisabledSendButton(true);
-    }
-  };
-
-  const onSend = async () => {
-    const newMessage: IMessage = {
-      _id: uuid.v4().toString(),
-      createdAt: new Date().toISOString(),
-      sender: user._id!,
-      text: messageText!,
-    };
-    setMessageText("");
-    const participantsIds: string[] = currentChat.participants.map(
-      (participant: IUserState) => participant._id!
-    );
-    connectionState?.emit(
-      "sendMessage",
-      currentChat._id,
-      newMessage,
-      participantsIds
-    );
-
-    setDisabledSendButton(true);
   };
 
   const handleDeleteMessages = () => {
@@ -396,6 +353,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   }
                 }}
                 style={{
+                  flexDirection: "column",
+                  gap: theme.spacing(1),
                   backgroundColor:
                     message.sender._id === user._id
                       ? selectedMessages.includes(message)
@@ -416,15 +375,36 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   maxWidth: "80%",
                 }}
               >
-                <TextWithFont
-                  styleProps={{
-                    width: "100%",
-                    textAlign: "left",
-                    maxWidth: "100%",
-                  }}
-                >
-                  {message.text}
-                </TextWithFont>
+                {message.image && (
+                  <View
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <Image
+                      source={{
+                        uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${message.image}`,
+                      }}
+                      style={{
+                        width: "100%",
+                        height: undefined,
+                        aspectRatio: 2,
+                        objectFit: "cover",
+                      }}
+                    ></Image>
+                  </View>
+                )}
+                {message.text && (
+                  <TextWithFont
+                    styleProps={{
+                      width: "100%",
+                      textAlign: "left",
+                      maxWidth: "100%",
+                    }}
+                  >
+                    {message.text}
+                  </TextWithFont>
+                )}
                 <TextWithFont
                   styleProps={{
                     textAlign: "right",
@@ -459,47 +439,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
           </TextWithFont>
         </View>
       )}
-      <View // Container for input message and send message button
-        style={{
-          flexDirection: "row",
-          alignItems: "flex-end",
-          width: "100%",
-          backgroundColor: theme.colors.main[400],
-        }}
-      >
-        <TextInput
-          placeholder="Message"
-          multiline
-          // numberOfLines={4}
-          value={messageText}
-          placeholderTextColor={theme.colors.main[200]}
-          onChange={(e: NativeSyntheticEvent<TextInputChangeEventData>) => {
-            handleChangeMessageText(e.nativeEvent.text);
-          }}
-          textColor={theme.colors.main[100]}
-          style={{
-            flex: 1,
-            maxHeight: 128,
-            backgroundColor: theme.colors.main[400],
-          }}
-        ></TextInput>
-        {!disabledSendButton ? (
-          <Button
-            onPress={onSend}
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              height: 48,
-            }}
-          >
-            <MaterialIcons
-              name="send"
-              size={24}
-              color={theme.colors.blue[400]}
-            />
-          </Button>
-        ) : null}
-      </View>
+      <InputMessage></InputMessage>
     </View>
   );
 };

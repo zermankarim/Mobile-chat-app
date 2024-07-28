@@ -21,6 +21,7 @@ export interface IMessage {
   _id: string;
   createdAt: string;
   text?: string;
+  image?: string;
   sender: string;
 }
 
@@ -28,6 +29,7 @@ export interface IMessagePopulated {
   _id: string;
   createdAt: string;
   text?: string;
+  image?: string;
   sender: IUserState;
 }
 
@@ -67,6 +69,7 @@ export interface IUploadImageData {
   success: boolean;
   message?: string;
   data?: IUserState;
+  relativePath?: string;
 }
 
 // Socket.IO client to server Interface

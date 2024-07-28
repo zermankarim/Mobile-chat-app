@@ -89,16 +89,25 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
   });
 };
 
-export const uploadNewAvatar = async (
+export const uploadNewImage = async (
   blob: Blob,
-  userId: string
+  params: { userId?: string; chatId?: string; type: "avatar" | "message" }
 ): Promise<IUploadImageData> => {
   try {
+    const { userId, chatId, type } = params;
     const base64Image = await blobToBase64(blob);
 
     const formData = new FormData();
     formData.append("image", base64Image);
-    formData.append("userId", userId);
+    formData.append("type", type);
+
+    if (type === "avatar") {
+      formData.append("userId", userId!);
+    }
+
+    if (type === "message") {
+      formData.append("chatId", chatId!);
+    }
 
     const { data } = await axios.post(
       `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/upload/newAvatar`,

@@ -20,7 +20,7 @@ import * as ImagePicker from "expo-image-picker";
 import uuid from "react-native-uuid";
 import { setUser } from "../core/reducers/user";
 import { LinearGradient } from "expo-linear-gradient";
-import { uploadNewAvatar } from "../fetches/http";
+import { uploadNewImage } from "../fetches/http";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 
 const Profile: FC<ProfileRouteProps> = ({ route }) => {
@@ -48,7 +48,10 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
       const response = await fetch(uri);
       const blob: Blob = await response.blob();
 
-      const data = await uploadNewAvatar(blob, user._id!);
+      const data = await uploadNewImage(blob, {
+        type: "avatar",
+        userId: user._id!,
+      });
       const { success } = data;
       if (!success) {
         const { message } = data;
