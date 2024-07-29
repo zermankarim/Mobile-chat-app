@@ -22,8 +22,9 @@ import { setUser } from "../core/reducers/user";
 import { LinearGradient } from "expo-linear-gradient";
 import { uploadNewImage } from "../fetches/http";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
+import { Ionicons } from "@expo/vector-icons";
 
-const Profile: FC<ProfileRouteProps> = ({ route }) => {
+const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
@@ -257,10 +258,9 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
           )}
         </View>
       </View>
-      <View // Outer container for user info
+      <View // Outer container for user info and settings
         style={{
           width: "100%",
-          minHeight: "100%",
           paddingHorizontal: theme.spacing(4),
           backgroundColor: theme.colors.main[400],
         }}
@@ -330,6 +330,41 @@ const Profile: FC<ProfileRouteProps> = ({ route }) => {
             </TextWithFont>
           </View>
         </View>
+      </View>
+      <View // Container for settings
+        style={{
+          flexDirection: "column",
+          marginTop: theme.spacing(4),
+          width: "100%",
+          paddingHorizontal: theme.spacing(4),
+          paddingVertical: theme.spacing(2),
+          backgroundColor: theme.colors.main[400],
+        }}
+      >
+        <TextWithFont
+          styleProps={{
+            color: theme.colors.blue[300],
+          }}
+        >
+          Settings
+        </TextWithFont>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("ChatSettings")}
+          style={{
+            flexDirection: "row",
+            gap: theme.spacing(3),
+            paddingVertical: theme.spacing(3),
+            borderBottomColor: theme.colors.main[500],
+            borderBottomWidth: 0.5,
+          }}
+        >
+          <Ionicons
+            name="chatbubble-outline"
+            size={24}
+            color={theme.colors.main[200]}
+          />
+          <TextWithFont>Chat settings</TextWithFont>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
