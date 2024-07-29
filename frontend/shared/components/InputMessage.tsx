@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import {
   Alert,
   Image,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { theme } from "../theme";
 import { Button, Modal, TextInput } from "react-native-paper";
-import { IMessage, IUserState } from "../types";
+import { IMessage, IMessagePopulated, IUserState } from "../types";
 import uuid from "react-native-uuid";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
@@ -21,7 +21,15 @@ import { uploadNewImage } from "../../fetches/http";
 import TextWithFont from "./TextWithFont";
 import { useFocusEffect } from "@react-navigation/native";
 
-const InputMessage = () => {
+type InputMessageProps = {
+  replyMessage: IMessagePopulated | null;
+  setReplyMessage: (newState: IMessagePopulated | null) => void;
+};
+
+const InputMessage: FC<InputMessageProps> = ({
+  replyMessage,
+  setReplyMessage,
+}) => {
   // Global context states
   const { connectionState, chatLoading, setChatLoading } = useGlobalContext();
 
@@ -126,6 +134,20 @@ const InputMessage = () => {
     if (imageForMessageURI) {
       const relativePath = await uploadImage();
       newMessage.image = relativePath;
+    }
+
+    if (replyMessage) {
+      newMessage.replyMessage = {
+        _id: replyMessage._id,
+        createdAt: replyMessage.createdAt,
+        sender: replyMessage.sender._id!,
+      };
+      if (replyMessage.text) {
+        newMessage.replyMessage.text = replyMessage.text;
+      }
+      if (replyMessage.image) {
+        newMessage.replyMessage.image = replyMessage.image;
+      }
     }
 
     const participantsIds: string[] = currentChat.participants.map(

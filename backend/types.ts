@@ -39,6 +39,7 @@ export interface IMessage {
   text?: string;
   image?: string;
   sender: Types.ObjectId;
+  replyMessage?: IMessage;
 }
 
 export interface IChat {
@@ -54,6 +55,7 @@ export interface IMessagePopulated {
   createdAt: string;
   text?: string;
   sender: IUser;
+  replyMessage?: IMessagePopulated;
 }
 
 export interface IChatPopulatedAll {

@@ -54,7 +54,8 @@ io.on("connection", (socket) => {
     })
       .populate<Pick<IChatPopulatedAll, "participants">>("participants")
       .populate<Pick<IChatPopulatedAll, "messages">>("messages.sender")
-      .populate<Pick<IChatPopulatedAll, "createdBy">>("createdBy");
+      .populate<Pick<IChatPopulatedAll, "createdBy">>("createdBy")
+      .populate<{ child: IUser }>("messages.replyMessage.sender");
 
     if (!searchReq) {
       socket.emit("getChatsByUserId", { success: true, chatsData });
@@ -87,7 +88,8 @@ io.on("connection", (socket) => {
     })
       .populate<{ child: IUser }>("participants")
       .populate<{ child: IUser }>("messages.sender")
-      .populate<{ child: IUser }>("createdBy");
+      .populate<{ child: IUser }>("createdBy")
+      .populate<{ child: IUser }>("messages.replyMessage.sender");
     socket.emit("getChatById", { success: true, chatData });
   });
 
@@ -105,7 +107,9 @@ io.on("connection", (socket) => {
       )
         .populate<{ child: IUser }>("participants")
         .populate<{ child: IUser }>("messages.sender")
-        .populate<{ child: IUser }>("createdBy");
+        .populate<{ child: IUser }>("createdBy")
+        .populate<{ child: IUser }>("messages.replyMessage.sender");
+
       if (!foundAndUpdatedChat) {
         socket.emit("getChatById", {
           success: false,
@@ -211,7 +215,8 @@ io.on("connection", (socket) => {
         const chat = await Chat.findOne({ _id: chatId })
           .populate<{ child: IUser }>("participants")
           .populate<{ child: IUser }>("messages.sender")
-          .populate<{ child: IUser }>("createdBy");
+          .populate<{ child: IUser }>("createdBy")
+          .populate<{ child: IUser }>("messages.replyMessage.sender");
 
         if (!chat) {
           socket.emit("getChatById", {

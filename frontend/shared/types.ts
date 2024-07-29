@@ -23,6 +23,7 @@ export interface IMessage {
   text?: string;
   image?: string;
   sender: string;
+  replyMessage?: IMessage;
 }
 
 export interface IMessagePopulated {
@@ -31,6 +32,7 @@ export interface IMessagePopulated {
   text?: string;
   image?: string;
   sender: IUserState;
+  replyMessage?: IMessagePopulated;
 }
 
 export interface IChatPopulated {

@@ -43,6 +43,9 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
     []
   );
   const [oneRecipient, setOneRecipient] = useState<IUserState | null>(null);
+  const [replyMessage, setReplyMessage] = useState<IMessagePopulated | null>(
+    null
+  );
 
   // Functions
   const handleSelectMessage = (message: IMessagePopulated) => {
@@ -71,6 +74,11 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
     setSelectedMessages([]);
   };
 
+  const handleReplyMessage = () => {
+    setReplyMessage(selectedMessages[0]);
+    setSelectedMessages([]);
+  };
+
   // Effects
   useEffect(() => {
     setChatLoading(true);
@@ -88,11 +96,11 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
     }, [currentChat])
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      setSelectedMessages([]);
-    }, [])
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     setSelectedMessages([]);
+  //   }, [])
+  // );
 
   useEffect(() => {
     setChatLoading(true);
@@ -189,10 +197,26 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
             <View
               style={{
                 flexDirection: "row",
-                gap: theme.spacing(2),
+                gap: theme.spacing(6),
               }}
             >
-              <Button
+              {selectedMessages.length === 1 && (
+                <TouchableOpacity
+                  onPress={() => handleReplyMessage()}
+                  style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: 8,
+                  }}
+                >
+                  <Entypo
+                    name="reply"
+                    size={theme.fontSize(5)}
+                    color={theme.colors.main[100]}
+                  />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
                 onPress={() => navigation.navigate("Chats")}
                 style={{
                   justifyContent: "center",
@@ -205,8 +229,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   size={theme.fontSize(5)}
                   color={theme.colors.main[100]}
                 />
-              </Button>
-              <Button
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={handleDeleteMessages}
                 style={{
                   justifyContent: "center",
@@ -219,7 +243,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   size={theme.fontSize(5)}
                   color={theme.colors.main[100]}
                 />
-              </Button>
+              </TouchableOpacity>
             </View>
           </View>
         ) : oneRecipient ? (
@@ -331,6 +355,15 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
         )}
       </View>
       {/* {Header container} */}
+      <Image // Background image
+        source={require("../assets/chat-background-items.png")}
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          tintColor: theme.colors.blue[100],
+        }}
+      ></Image>
       {messages.length ? (
         <ScrollView // Container for messages
           ref={scrollViewRef}
@@ -342,7 +375,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
             justifyContent: "flex-end",
             minHeight: "100%",
             paddingVertical: theme.spacing(3),
-            backgroundColor: theme.colors.main[500],
           }}
         >
           {messages.map((message) => (
@@ -416,6 +448,56 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                     ></Image>
                   </View>
                 )}
+                {message.replyMessage && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      width: "100%",
+                      borderRadius: theme.spacing(2),
+                      backgroundColor: theme.colors.blue[300],
+                      padding: theme.spacing(1),
+                      gap: theme.spacing(2),
+                      borderLeftColor: theme.colors.main[100],
+                      borderLeftWidth: 2,
+                    }}
+                  >
+                    {message.replyMessage.image && (
+                      <Image
+                        source={{
+                          uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${message.replyMessage.image}`,
+                        }}
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: theme.spacing(1),
+                        }}
+                      ></Image>
+                    )}
+                    <View // Container for replied message text
+                      style={{
+                        flexDirection: "column",
+                      }}
+                    >
+                      <TextWithFont
+                        styleProps={{
+                          color: theme.colors.main[100],
+                        }}
+                      >
+                        {message.replyMessage.sender.firstName}
+                      </TextWithFont>
+
+                      {message.replyMessage.text && (
+                        <TextWithFont
+                          styleProps={{
+                            color: theme.colors.main[100],
+                          }}
+                        >
+                          {message.replyMessage.text}
+                        </TextWithFont>
+                      )}
+                    </View>
+                  </View>
+                )}
                 {message.text && (
                   <TextWithFont
                     styleProps={{
@@ -461,7 +543,97 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
           </TextWithFont>
         </View>
       )}
-      <InputMessage></InputMessage>
+      {replyMessage && (
+        <View // Container for replied message
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: theme.spacing(2),
+            backgroundColor: theme.colors.main[400],
+            width: "100%",
+            height: 60,
+            borderBottomColor: theme.colors.main[500],
+            borderBottomWidth: 1,
+            padding: theme.spacing(3),
+          }}
+        >
+          <Entypo
+            name="reply"
+            size={theme.fontSize(5)}
+            color={theme.colors.blue[400]}
+          />
+          <View // Container for replied message image and text
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: theme.spacing(2),
+              flex: 1,
+            }}
+          >
+            {replyMessage.image && (
+              <Image
+                source={{
+                  uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${replyMessage.image}`,
+                }}
+                style={{
+                  height: "100%",
+                  width: undefined,
+                  aspectRatio: 1,
+                }}
+              ></Image>
+            )}
+            <View // Container for replied message text
+              style={{
+                flexDirection: "column",
+              }}
+            >
+              <TextWithFont
+                styleProps={{
+                  color: theme.colors.blue[300],
+                }}
+              >
+                Reply to {replyMessage.sender.firstName}
+              </TextWithFont>
+              {replyMessage.image && !replyMessage.text && (
+                <TextWithFont // Chat text field
+                  numberOfLines={1}
+                  styleProps={{
+                    color: theme.colors.blue[300],
+                  }}
+                >
+                  Photo
+                </TextWithFont>
+              )}
+              {replyMessage.text && (
+                <TextWithFont
+                  numberOfLines={1}
+                  styleProps={{
+                    color: theme.colors.main[200],
+                  }}
+                >
+                  {replyMessage.text}
+                </TextWithFont>
+              )}
+            </View>
+          </View>
+          <TouchableOpacity onPress={() => setReplyMessage(null)}>
+            <Entypo
+              name="cross"
+              size={theme.fontSize(5)}
+              color={theme.colors.main[200]}
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
+      <InputMessage
+        replyMessage={replyMessage}
+        setReplyMessage={setReplyMessage}
+      ></InputMessage>
     </View>
   );
 };
