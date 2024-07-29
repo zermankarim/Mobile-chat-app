@@ -9,7 +9,12 @@ import RootNavigator from "./RootNavigator";
 import { Provider as StoreProvider } from "react-redux";
 import { GlobalContext } from "./core/context/Context";
 import { Socket } from "socket.io-client";
-import { ISocketEmitEvent, ISocketOnEvent, IUserState } from "./shared/types";
+import {
+  IMessagePopulated,
+  ISocketEmitEvent,
+  ISocketOnEvent,
+  IUserState,
+} from "./shared/types";
 import { StatusBar } from "react-native";
 
 const App: FC = () => {
@@ -20,6 +25,9 @@ const App: FC = () => {
   const [chatLoading, setChatLoading] = useState<boolean>(false);
   const [chatsLoading, setChatsLoading] = useState<boolean>(false);
   const [createChatLoading, setCreateChatLoading] = useState<boolean>(false);
+  const [forwardMessages, setForwardMessages] = useState<
+    IMessagePopulated[] | null
+  >(null);
 
   const [connectionState, setConnectionState] = useState<Socket<
     ISocketOnEvent,
@@ -70,6 +78,8 @@ const App: FC = () => {
           setChatLoading,
           createChatLoading,
           setCreateChatLoading,
+          forwardMessages,
+          setForwardMessages,
         }}
       >
         <NavigationContainer>

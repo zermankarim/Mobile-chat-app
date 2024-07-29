@@ -12,6 +12,7 @@ import {
   ChatScreenNavigationProp,
   IChatPopulated,
   IUserState,
+  ProfileScreenNavigationProp,
   RootStackParamList,
 } from "./shared/types";
 import Chat from "./static/Chat";
@@ -26,6 +27,7 @@ import { connectToSocket } from "./shared/functions";
 import { useGlobalContext } from "./core/context/Context";
 import { setMessages } from "./core/reducers/messages";
 import { setChats } from "./core/reducers/chats";
+import ChatSettings from "./static/ChatSettings";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -39,6 +41,7 @@ const RootNavigator: FC = () => {
     setChatsLoading,
     setCreateChatLoading,
     setChatLoading,
+    forwardMessages,
   } = useGlobalContext();
 
   // Navigation
@@ -71,16 +74,16 @@ const RootNavigator: FC = () => {
         const { chatsData } = data;
 
         // Sorting chats by last message date
-        const sortedChatsData = chatsData!.sort(function (a, b) {
-          const dateA = new Date(
-            a.messages[a.messages.length - 1].createdAt
-          ).getTime();
-          const dateB = new Date(
-            b.messages[b.messages.length - 1].createdAt
-          ).getTime();
-          return dateB - dateA;
-        });
-        dispatch(setChats(sortedChatsData as IChatPopulated[]));
+        // const sortedChatsData = chatsData!.sort(function (a, b) {
+        //   const dateA = new Date(
+        //     a.messages[a.messages.length - 1].createdAt
+        //   ).getTime();
+        //   const dateB = new Date(
+        //     b.messages[b.messages.length - 1].createdAt
+        //   ).getTime();
+        //   return dateB - dateA;
+        // });
+        dispatch(setChats(chatsData as IChatPopulated[]));
         setChatsLoading(false);
       }
       function onGetChatById(data: {
@@ -192,9 +195,11 @@ const RootNavigator: FC = () => {
         },
         drawerType: "slide",
         headerShadowVisible: false,
-        headerTitle: () => (
-          <SearchBarComponent searchType={"Chats"}></SearchBarComponent>
-        ),
+        headerTitle: forwardMessages
+          ? "Forward..."
+          : () => (
+              <SearchBarComponent searchType={"Chats"}></SearchBarComponent>
+            ),
       }}
     >
       <Drawer.Screen name="Chats" component={Chats} />
@@ -243,6 +248,27 @@ const RootNavigator: FC = () => {
           headerStyle: {
             backgroundColor: theme.colors.main[400],
           },
+        }}
+      />
+      <Drawer.Screen
+        name="ChatSettings"
+        component={ChatSettings}
+        options={{
+          headerLeft: () => (
+            <Button
+              style={{
+                minWidth: 0,
+              }}
+            >
+              <Ionicons
+                name="arrow-back-outline"
+                size={24}
+                color={theme.colors.main[200]}
+                onPress={() => navigation.navigate("Profile", { owner: user })}
+              />
+            </Button>
+          ),
+          headerTitle: undefined,
         }}
       />
     </Drawer.Navigator>

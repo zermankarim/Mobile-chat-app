@@ -24,10 +24,18 @@ import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 import InputMessage from "../shared/components/InputMessage";
 import { Entypo } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import ReplyMessage from "../shared/components/ReplyMessage";
+import ForwardMessages from "../shared/components/ForwardMessages";
 
 const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   // Global context states
-  const { connectionState, chatLoading, setChatLoading } = useGlobalContext();
+  const {
+    connectionState,
+    chatLoading,
+    setChatLoading,
+    forwardMessages,
+    setForwardMessages,
+  } = useGlobalContext();
 
   // Redux states and dispatch
   const currentChat = useSelector((state: RootState) => state.currentChat);
@@ -96,11 +104,11 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
     }, [currentChat])
   );
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     setSelectedMessages([]);
-  //   }, [])
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedMessages([]);
+    }, [])
+  );
 
   useEffect(() => {
     setChatLoading(true);
@@ -217,7 +225,10 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                 </TouchableOpacity>
               )}
               <TouchableOpacity
-                onPress={() => navigation.navigate("Chats")}
+                onPress={() => {
+                  setForwardMessages(selectedMessages);
+                  navigation.navigate("Chats");
+                }}
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
@@ -390,7 +401,9 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                 position: "relative",
                 flexDirection: "row",
                 justifyContent:
-                  message.sender._id === user._id ? "flex-end" : "flex-start",
+                  message.sender._id === user._id || message.isForward
+                    ? "flex-end"
+                    : "flex-start",
                 width: "100%",
                 backgroundColor: selectedMessages.includes(message)
                   ? theme.colors.main[400]
@@ -406,11 +419,12 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                     handleSelectMessage(message);
                   }
                 }}
+                // If message forwarded, it will be rendered with sender styles
                 style={{
                   flexDirection: "column",
                   gap: theme.spacing(1),
                   backgroundColor:
-                    message.sender._id === user._id
+                    message.sender._id === user._id || message.isForward
                       ? selectedMessages.includes(message)
                         ? theme.colors.blue[500]
                         : theme.colors.blue[200]
@@ -429,6 +443,66 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   maxWidth: "80%",
                 }}
               >
+                {message.isForward && (
+                  <View // Container for forward message info
+                    style={{
+                      flexDirection: "column",
+                    }}
+                  >
+                    <TextWithFont>Forwarded from</TextWithFont>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: theme.spacing(1),
+                      }}
+                    >
+                      {/*If forward message sender has avatars - render last, else - render linear gradient*/}
+                      {message.sender.avatars.length ? (
+                        <Image
+                          source={{
+                            uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+                              message.sender.avatars[
+                                message.sender.avatars.length - 1
+                              ]
+                            }`,
+                          }}
+                          style={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: 40,
+                          }}
+                        ></Image>
+                      ) : (
+                        <LinearGradient
+                          colors={message.sender.backgroundColors}
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: 20,
+                            height: 20,
+                            borderRadius: 40,
+                          }}
+                        >
+                          <TextWithFont
+                            styleProps={{
+                              fontSize: theme.fontSize(2),
+                            }}
+                          >
+                            {message.sender.firstName![0] +
+                              message.sender.lastName![0]}
+                          </TextWithFont>
+                        </LinearGradient>
+                      )}
+                      <TextWithFont
+                        styleProps={{
+                          fontWeight: 700,
+                        }}
+                      >
+                        {message.sender.firstName}
+                      </TextWithFont>
+                    </View>
+                  </View>
+                )}
                 {message.image && (
                   <View
                     style={{
@@ -544,92 +618,12 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
         </View>
       )}
       {replyMessage && (
-        <View // Container for replied message
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: theme.spacing(2),
-            backgroundColor: theme.colors.main[400],
-            width: "100%",
-            height: 60,
-            borderBottomColor: theme.colors.main[500],
-            borderBottomWidth: 1,
-            padding: theme.spacing(3),
-          }}
-        >
-          <Entypo
-            name="reply"
-            size={theme.fontSize(5)}
-            color={theme.colors.blue[400]}
-          />
-          <View // Container for replied message image and text
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: theme.spacing(2),
-              flex: 1,
-            }}
-          >
-            {replyMessage.image && (
-              <Image
-                source={{
-                  uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${replyMessage.image}`,
-                }}
-                style={{
-                  height: "100%",
-                  width: undefined,
-                  aspectRatio: 1,
-                }}
-              ></Image>
-            )}
-            <View // Container for replied message text
-              style={{
-                flexDirection: "column",
-              }}
-            >
-              <TextWithFont
-                styleProps={{
-                  color: theme.colors.blue[300],
-                }}
-              >
-                Reply to {replyMessage.sender.firstName}
-              </TextWithFont>
-              {replyMessage.image && !replyMessage.text && (
-                <TextWithFont // Chat text field
-                  numberOfLines={1}
-                  styleProps={{
-                    color: theme.colors.blue[300],
-                  }}
-                >
-                  Photo
-                </TextWithFont>
-              )}
-              {replyMessage.text && (
-                <TextWithFont
-                  numberOfLines={1}
-                  styleProps={{
-                    color: theme.colors.main[200],
-                  }}
-                >
-                  {replyMessage.text}
-                </TextWithFont>
-              )}
-            </View>
-          </View>
-          <TouchableOpacity onPress={() => setReplyMessage(null)}>
-            <Entypo
-              name="cross"
-              size={theme.fontSize(5)}
-              color={theme.colors.main[200]}
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            />
-          </TouchableOpacity>
-        </View>
+        <ReplyMessage
+          replyMessage={replyMessage}
+          setReplyMessage={setReplyMessage}
+        ></ReplyMessage>
       )}
+      {forwardMessages && <ForwardMessages></ForwardMessages>}
       <InputMessage
         replyMessage={replyMessage}
         setReplyMessage={setReplyMessage}

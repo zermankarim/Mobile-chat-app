@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
       .populate<Pick<IChatPopulatedAll, "participants">>("participants")
       .populate<Pick<IChatPopulatedAll, "messages">>("messages.sender")
       .populate<Pick<IChatPopulatedAll, "createdBy">>("createdBy")
-      .populate<{ child: IUser }>("messages.replyMessage.sender");
+      .populate<{ child: IUser }>("messages.replyMessage.sender")
 
     if (!searchReq) {
       socket.emit("getChatsByUserId", { success: true, chatsData });
@@ -89,17 +89,18 @@ io.on("connection", (socket) => {
       .populate<{ child: IUser }>("participants")
       .populate<{ child: IUser }>("messages.sender")
       .populate<{ child: IUser }>("createdBy")
-      .populate<{ child: IUser }>("messages.replyMessage.sender");
+      .populate<{ child: IUser }>("messages.replyMessage.sender")
+
     socket.emit("getChatById", { success: true, chatData });
   });
 
   // New message
-  socket.on("sendMessage", async (chatId, newMessage, participantsIds) => {
+  socket.on("sendMessage", async (chatId, newMessages, participantsIds) => {
     try {
       const foundAndUpdatedChat = await Chat.findOneAndUpdate(
         { _id: chatId },
         {
-          $push: { messages: newMessage },
+          $push: { messages: { $each: newMessages } },
         },
         {
           returnOriginal: false,
@@ -108,7 +109,7 @@ io.on("connection", (socket) => {
         .populate<{ child: IUser }>("participants")
         .populate<{ child: IUser }>("messages.sender")
         .populate<{ child: IUser }>("createdBy")
-        .populate<{ child: IUser }>("messages.replyMessage.sender");
+        .populate<{ child: IUser }>("messages.replyMessage.sender")
 
       if (!foundAndUpdatedChat) {
         socket.emit("getChatById", {
@@ -216,7 +217,7 @@ io.on("connection", (socket) => {
           .populate<{ child: IUser }>("participants")
           .populate<{ child: IUser }>("messages.sender")
           .populate<{ child: IUser }>("createdBy")
-          .populate<{ child: IUser }>("messages.replyMessage.sender");
+          .populate<{ child: IUser }>("messages.replyMessage.sender")
 
         if (!chat) {
           socket.emit("getChatById", {

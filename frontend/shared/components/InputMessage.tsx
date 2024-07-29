@@ -26,12 +26,10 @@ type InputMessageProps = {
   setReplyMessage: (newState: IMessagePopulated | null) => void;
 };
 
-const InputMessage: FC<InputMessageProps> = ({
-  replyMessage,
-  setReplyMessage,
-}) => {
+const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
   // Global context states
-  const { connectionState, chatLoading, setChatLoading } = useGlobalContext();
+  const { connectionState, forwardMessages, setForwardMessages } =
+    useGlobalContext();
 
   // Redux states and dispatch
   const currentChat = useSelector((state: RootState) => state.currentChat);
@@ -121,33 +119,62 @@ const InputMessage: FC<InputMessageProps> = ({
   };
 
   const onSend = async () => {
-    const newMessage: IMessage = {
-      _id: uuid.v4().toString(),
-      createdAt: new Date().toISOString(),
-      sender: user._id!,
-    };
+    const newMessagesArr: IMessage[] = [];
 
-    if (messageText) {
-      newMessage.text = messageText;
-      setMessageText("");
-    }
-    if (imageForMessageURI) {
-      const relativePath = await uploadImage();
-      newMessage.image = relativePath;
-    }
-
-    if (replyMessage) {
-      newMessage.replyMessage = {
-        _id: replyMessage._id,
-        createdAt: replyMessage.createdAt,
-        sender: replyMessage.sender._id!,
+    if (!forwardMessages) {
+      const newMessage: IMessage = {
+        _id: uuid.v4().toString(),
+        createdAt: new Date().toISOString(),
+        sender: user._id!,
+        isForward: false,
       };
-      if (replyMessage.text) {
-        newMessage.replyMessage.text = replyMessage.text;
+
+      if (messageText) {
+        newMessage.text = messageText;
+        setMessageText("");
       }
-      if (replyMessage.image) {
-        newMessage.replyMessage.image = replyMessage.image;
+      if (imageForMessageURI) {
+        const relativePath = await uploadImage();
+        newMessage.image = relativePath;
       }
+
+      if (replyMessage) {
+        newMessage.replyMessage = {
+          _id: replyMessage._id,
+          createdAt: replyMessage.createdAt,
+          sender: replyMessage.sender._id!,
+          isForward: false,
+        };
+        if (replyMessage.text) {
+          newMessage.replyMessage.text = replyMessage.text;
+        }
+        if (replyMessage.image) {
+          newMessage.replyMessage.image = replyMessage.image;
+        }
+      }
+
+      newMessagesArr.push(newMessage);
+    }
+
+    if (forwardMessages) {
+      const depopulatedForwardMessages: IMessage[] = forwardMessages.map(
+        (fwdMsg) => {
+          const depopulatedMessage: any = {
+            _id: uuid.v4().toString(),
+            createdAt: fwdMsg.createdAt,
+            sender: fwdMsg.sender._id,
+            isForward: true,
+          };
+          if (fwdMsg.text) {
+            depopulatedMessage.text = fwdMsg.text;
+          }
+          if (fwdMsg.image) {
+            depopulatedMessage.image = fwdMsg.image;
+          }
+          return depopulatedMessage;
+        }
+      );
+      newMessagesArr.push(...depopulatedForwardMessages);
     }
 
     const participantsIds: string[] = currentChat.participants.map(
@@ -156,13 +183,14 @@ const InputMessage: FC<InputMessageProps> = ({
     connectionState?.emit(
       "sendMessage",
       currentChat._id,
-      newMessage,
+      newMessagesArr,
       participantsIds
     );
 
     setImageForMessageURI(null);
     setVisibleModal(false);
     setDisabledSendButton(true);
+    setForwardMessages(null);
   };
 
   // Effects
@@ -208,17 +236,23 @@ const InputMessage: FC<InputMessageProps> = ({
           paddingVertical: 12,
         }}
       >
-        <Button
-          onPress={handlePickImage}
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            minWidth: 0,
-          }}
-        >
-          <Entypo name="attachment" size={20} color={theme.colors.blue[400]} />
-        </Button>
-        {!disabledSendButton ? (
+        {!forwardMessages && (
+          <Button
+            onPress={handlePickImage}
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              minWidth: 0,
+            }}
+          >
+            <Entypo
+              name="attachment"
+              size={20}
+              color={theme.colors.blue[400]}
+            />
+          </Button>
+        )}
+        {!disabledSendButton || forwardMessages ? (
           <Button
             onPress={onSend}
             style={{

@@ -29,12 +29,17 @@ const chatSchema = new Schema<IChat>({
             createdAt: { type: String, required: true },
             text: { type: String },
             image: { type: String },
-            sender: { type: Schema.Types.ObjectId, ref: "users", required: true },
+            sender: {
+              type: Schema.Types.ObjectId,
+              ref: "users",
+              required: true,
+            },
           },
           { _id: false }
         ),
         required: false,
       },
+      isForward: { type: Boolean },
     },
   ],
   participants: [{ type: Schema.Types.ObjectId, ref: "users", required: true }],

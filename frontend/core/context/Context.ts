@@ -1,6 +1,7 @@
 import { createContext, Dispatch, SetStateAction, useContext } from "react";
 import { Socket } from "socket.io-client";
 import {
+  IMessagePopulated,
   ISocketEmitEvent,
   ISocketOnEvent,
   IUserState,
@@ -14,6 +15,8 @@ export type GlobalStates = {
   setChatLoading: (newState: boolean) => void;
   createChatLoading: boolean;
   setCreateChatLoading: (newState: boolean) => void;
+  forwardMessages: IMessagePopulated[] | null;
+  setForwardMessages: (newState: IMessagePopulated[] | null) => void;
 
   connectionState: Socket<ISocketOnEvent, ISocketEmitEvent> | null;
   setConnectionState: Dispatch<
@@ -36,5 +39,8 @@ export const GlobalContext = createContext<GlobalStates>({
   setConnectionState: () => {},
   usersForChat: [],
   setUsersForChat: () => {},
+
+  forwardMessages: null,
+  setForwardMessages: () => {},
 });
 export const useGlobalContext = () => useContext(GlobalContext);

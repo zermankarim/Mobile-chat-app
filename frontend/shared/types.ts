@@ -24,6 +24,7 @@ export interface IMessage {
   image?: string;
   sender: string;
   replyMessage?: IMessage;
+  isForward: boolean;
 }
 
 export interface IMessagePopulated {
@@ -33,6 +34,7 @@ export interface IMessagePopulated {
   image?: string;
   sender: IUserState;
   replyMessage?: IMessagePopulated;
+  isForward: boolean;
 }
 
 export interface IChatPopulated {
@@ -80,7 +82,7 @@ export interface ISocketEmitEvent {
   getChatById: (chatId: string) => void;
   sendMessage: (
     chatId: string,
-    newMessage: IMessage,
+    newMessages: IMessage[],
     participantsIds: string[]
   ) => void;
   getUsersByCondition: (field: string, condition: string | string[]) => void;

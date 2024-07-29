@@ -40,6 +40,7 @@ export interface IMessage {
   image?: string;
   sender: Types.ObjectId;
   replyMessage?: IMessage;
+  isForward: boolean;
 }
 
 export interface IChat {
@@ -56,6 +57,7 @@ export interface IMessagePopulated {
   text?: string;
   sender: IUser;
   replyMessage?: IMessagePopulated;
+  isForward: boolean;
 }
 
 export interface IChatPopulatedAll {
@@ -98,7 +100,7 @@ export interface ISocketOnEvent {
   getChatById: (chatId: string) => void;
   sendMessage: (
     chatId: string,
-    newMessage: IMessage,
+    newMessages: IMessage[],
     participantsIds: string[]
   ) => void;
   getUsersForCreateChat: (userId: string, searchReq?: string) => void;
