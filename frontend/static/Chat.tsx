@@ -22,6 +22,8 @@ import { setCurrentChat } from "../core/reducers/currentChat";
 import { Ionicons } from "@expo/vector-icons";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 import InputMessage from "../shared/components/InputMessage";
+import { Entypo } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   // Global context states
@@ -149,57 +151,76 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
+              height: 40,
               width: "100%",
-              height: "100%",
               gap: theme.spacing(3),
-              paddingHorizontal: theme.spacing(3),
+              paddingHorizontal: theme.spacing(2),
             }}
           >
+            <TouchableOpacity
+              onPress={() => setSelectedMessages([])}
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: theme.spacing(2),
+                padding: theme.spacing(2),
+              }}
+            >
+              <Entypo
+                name="cross"
+                size={theme.fontSize(5)}
+                color={theme.colors.main[100]}
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              />
+              <TextWithFont
+                styleProps={{
+                  fontSize: theme.fontSize(4),
+                }}
+              >
+                {selectedMessages.length}
+              </TextWithFont>
+            </TouchableOpacity>
+
             <View
               style={{
                 flexDirection: "row",
-                height: 40,
-                gap: theme.spacing(3),
+                gap: theme.spacing(2),
               }}
             >
               <Button
+                onPress={() => navigation.navigate("Chats")}
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: theme.colors.blue[400],
                   borderRadius: 8,
                 }}
               >
-                <TextWithFont>Forward</TextWithFont>
+                <Entypo
+                  name="forward"
+                  size={theme.fontSize(5)}
+                  color={theme.colors.main[100]}
+                />
               </Button>
               <Button
                 onPress={handleDeleteMessages}
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
-                  backgroundColor: theme.colors.blue[400],
                   borderRadius: 8,
                 }}
               >
-                <TextWithFont>Delete</TextWithFont>
+                <MaterialCommunityIcons
+                  name="delete-outline"
+                  size={theme.fontSize(5)}
+                  color={theme.colors.main[100]}
+                />
               </Button>
             </View>
-            <Button
-              onPress={() => setSelectedMessages([])}
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 0,
-              }}
-            >
-              <TextWithFont
-                styleProps={{
-                  color: theme.colors.blue[300],
-                }}
-              >
-                Cancel
-              </TextWithFont>
-            </Button>
           </View>
         ) : oneRecipient ? (
           <TouchableOpacity
@@ -314,13 +335,14 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
         <ScrollView // Container for messages
           ref={scrollViewRef}
           style={{
+            position: "relative",
             flexDirection: "column",
           }}
           contentContainerStyle={{
             justifyContent: "flex-end",
             minHeight: "100%",
             paddingVertical: theme.spacing(3),
-            // gap: theme.spacing(3),
+            backgroundColor: theme.colors.main[500],
           }}
         >
           {messages.map((message) => (
