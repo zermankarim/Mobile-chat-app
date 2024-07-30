@@ -164,6 +164,7 @@ const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
             createdAt: fwdMsg.createdAt,
             sender: fwdMsg.sender._id,
             type: "forward",
+            forwarder: user._id,
           };
           if (fwdMsg.text) {
             depopulatedMessage.text = fwdMsg.text;

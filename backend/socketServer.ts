@@ -56,6 +56,7 @@ io.on("connection", (socket) => {
       .populate<Pick<IChatPopulatedAll, "messages">>("messages.sender")
       .populate<Pick<IChatPopulatedAll, "createdBy">>("createdBy")
       .populate<{ child: IUser }>("messages.replyMessage.sender")
+      .populate<{ child: IUser }>("messages.forwarder");
 
     if (!searchReq) {
       socket.emit("getChatsByUserId", { success: true, chatsData });
@@ -90,6 +91,7 @@ io.on("connection", (socket) => {
       .populate<{ child: IUser }>("messages.sender")
       .populate<{ child: IUser }>("createdBy")
       .populate<{ child: IUser }>("messages.replyMessage.sender")
+      .populate<{ child: IUser }>("messages.forwarder");
 
     socket.emit("getChatById", { success: true, chatData });
   });
@@ -110,6 +112,7 @@ io.on("connection", (socket) => {
         .populate<{ child: IUser }>("messages.sender")
         .populate<{ child: IUser }>("createdBy")
         .populate<{ child: IUser }>("messages.replyMessage.sender")
+        .populate<{ child: IUser }>("messages.forwarder");
 
       if (!foundAndUpdatedChat) {
         socket.emit("getChatById", {
@@ -218,6 +221,7 @@ io.on("connection", (socket) => {
           .populate<{ child: IUser }>("messages.sender")
           .populate<{ child: IUser }>("createdBy")
           .populate<{ child: IUser }>("messages.replyMessage.sender")
+          .populate<{ child: IUser }>("messages.forwarder");
 
         if (!chat) {
           socket.emit("getChatById", {

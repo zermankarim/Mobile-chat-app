@@ -25,6 +25,7 @@ export interface IMessage {
   sender: string;
   replyMessage?: IMessage;
   type: "default" | "forward";
+  forwarder?: string;
 }
 
 export interface IMessagePopulated {
@@ -35,6 +36,7 @@ export interface IMessagePopulated {
   sender: IUserState;
   replyMessage?: IMessagePopulated;
   type: "default" | "forward";
+  forwarder?: IUserState;
 }
 
 export interface IChatPopulated {
