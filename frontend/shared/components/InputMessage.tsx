@@ -26,7 +26,10 @@ type InputMessageProps = {
   setReplyMessage: (newState: IMessagePopulated | null) => void;
 };
 
-const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
+const InputMessage: FC<InputMessageProps> = ({
+  replyMessage,
+  setReplyMessage,
+}) => {
   // Global context states
   const { connectionState, forwardMessages, setForwardMessages } =
     useGlobalContext();
@@ -121,40 +124,38 @@ const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
   const onSend = async () => {
     const newMessagesArr: IMessage[] = [];
 
-    if (!forwardMessages) {
-      const newMessage: IMessage = {
-        _id: uuid.v4().toString(),
-        createdAt: new Date().toISOString(),
-        sender: user._id!,
+    const newMessage: IMessage = {
+      _id: uuid.v4().toString(),
+      createdAt: new Date().toISOString(),
+      sender: user._id!,
+      type: "default",
+    };
+
+    if (messageText) {
+      newMessage.text = messageText;
+      setMessageText("");
+    }
+    if (imageForMessageURI) {
+      const relativePath = await uploadImage();
+      newMessage.image = relativePath;
+    }
+
+    if (replyMessage) {
+      newMessage.replyMessage = {
+        _id: replyMessage._id,
+        createdAt: replyMessage.createdAt,
+        sender: replyMessage.sender._id!,
         type: "default",
       };
-
-      if (messageText) {
-        newMessage.text = messageText;
-        setMessageText("");
+      if (replyMessage.text) {
+        newMessage.replyMessage.text = replyMessage.text;
       }
-      if (imageForMessageURI) {
-        const relativePath = await uploadImage();
-        newMessage.image = relativePath;
+      if (replyMessage.image) {
+        newMessage.replyMessage.image = replyMessage.image;
       }
-
-      if (replyMessage) {
-        newMessage.replyMessage = {
-          _id: replyMessage._id,
-          createdAt: replyMessage.createdAt,
-          sender: replyMessage.sender._id!,
-          type: "default",
-        };
-        if (replyMessage.text) {
-          newMessage.replyMessage.text = replyMessage.text;
-        }
-        if (replyMessage.image) {
-          newMessage.replyMessage.image = replyMessage.image;
-        }
-      }
-
-      newMessagesArr.push(newMessage);
     }
+
+    newMessagesArr.push(newMessage);
 
     if (forwardMessages) {
       const depopulatedForwardMessages: IMessage[] = forwardMessages.map(
@@ -192,6 +193,7 @@ const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
     setVisibleModal(false);
     setDisabledSendButton(true);
     setForwardMessages(null);
+    setReplyMessage(null);
   };
 
   // Effects

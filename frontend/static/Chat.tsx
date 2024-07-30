@@ -94,6 +94,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
     } else {
       setReplyMessage(selectedFromMenu);
     }
+    setForwardMessages(null);
     setSelectedMessages([]);
   };
 
@@ -238,6 +239,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                 <TouchableOpacity
                   onPress={() => {
                     setForwardMessages(selectedMessages);
+                    setReplyMessage(null);
                     navigation.navigate("Chats");
                   }}
                   style={{
@@ -410,6 +412,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                 setSelectedMessages={setSelectedMessages}
                 handleDeleteMessages={handleDeleteMessages}
                 handleReplyMessage={handleReplyMessage}
+                setReplyMessage={setReplyMessage}
               ></Message>
             ))}
           </ScrollView>
@@ -441,24 +444,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
           replyMessage={replyMessage}
           setReplyMessage={setReplyMessage}
         ></InputMessage>
-        {/* <View
-          style={{
-            paddingTop: 50,
-            flexDirection: "row",
-            justifyContent: "center",
-          }}
-        >
-          <Menu
-            visible={visible}
-            onDismiss={closeMenu}
-            anchor={<Button onPress={openMenu}>Show menu</Button>}
-          >
-            <Menu.Item onPress={() => {}} title="Item 1" />
-            <Menu.Item onPress={() => {}} title="Item 2" />
-            <Divider />
-            <Menu.Item onPress={() => {}} title="Item 3" />
-          </Menu>
-        </View> */}
       </View>
     </PaperProvider>
   );

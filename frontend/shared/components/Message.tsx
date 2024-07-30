@@ -20,6 +20,7 @@ type MessageProps = {
   setSelectedMessages: (newState: IMessagePopulated[]) => void;
   handleDeleteMessages: (selectedMessageFromMenu?: IMessagePopulated) => void;
   handleReplyMessage: (selectedFromMenu?: IMessagePopulated) => void;
+  setReplyMessage: (newState: IMessagePopulated | null) => void;
 };
 
 const Message: FC<MessageProps> = ({
@@ -29,6 +30,7 @@ const Message: FC<MessageProps> = ({
   setSelectedMessages,
   handleDeleteMessages,
   handleReplyMessage,
+  setReplyMessage,
 }) => {
   // Global context
   const { setForwardMessages } = useGlobalContext();
@@ -334,6 +336,7 @@ const Message: FC<MessageProps> = ({
         <Menu.Item
           onPress={() => {
             setForwardMessages([message]);
+            setReplyMessage(null);
             navigation.navigate("Chats");
           }}
           title="Forward"
