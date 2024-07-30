@@ -74,15 +74,26 @@ const RootNavigator: FC = () => {
         const { chatsData } = data;
 
         // Sorting chats by last message date
-        // const sortedChatsData = chatsData!.sort(function (a, b) {
-        //   const dateA = new Date(
-        //     a.messages[a.messages.length - 1].createdAt
-        //   ).getTime();
-        //   const dateB = new Date(
-        //     b.messages[b.messages.length - 1].createdAt
-        //   ).getTime();
-        //   return dateB - dateA;
-        // });
+        const sortedChatsData = chatsData!.sort((a, b) => {
+          const aHasMessages = a.messages.length > 0;
+          const bHasMessages = b.messages.length > 0;
+
+          if (aHasMessages && bHasMessages) {
+            const dateA = new Date(
+              a.messages[a.messages.length - 1].createdAt
+            ).getTime();
+            const dateB = new Date(
+              b.messages[b.messages.length - 1].createdAt
+            ).getTime();
+            return dateB - dateA; // Sort by date of last message
+          } else if (aHasMessages) {
+            return -1; // Chats with messages above
+          } else if (bHasMessages) {
+            return 1; // Chat without messages below
+          } else {
+            return 0; // Two chats haven't messages, not sort
+          }
+        });
         dispatch(setChats(chatsData as IChatPopulated[]));
         setChatsLoading(false);
       }
