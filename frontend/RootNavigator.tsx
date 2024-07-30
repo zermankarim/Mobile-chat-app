@@ -94,7 +94,7 @@ const RootNavigator: FC = () => {
             return 0; // Two chats haven't messages, not sort
           }
         });
-        dispatch(setChats(chatsData as IChatPopulated[]));
+        dispatch(setChats(sortedChatsData as IChatPopulated[]));
         setChatsLoading(false);
       }
       function onGetChatById(data: {
