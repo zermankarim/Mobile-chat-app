@@ -124,38 +124,40 @@ const InputMessage: FC<InputMessageProps> = ({
   const onSend = async () => {
     const newMessagesArr: IMessage[] = [];
 
-    const newMessage: IMessage = {
-      _id: uuid.v4().toString(),
-      createdAt: new Date().toISOString(),
-      sender: user._id!,
-      type: "default",
-    };
-
     if (messageText) {
-      newMessage.text = messageText;
-      setMessageText("");
-    }
-    if (imageForMessageURI) {
-      const relativePath = await uploadImage();
-      newMessage.image = relativePath;
-    }
-
-    if (replyMessage) {
-      newMessage.replyMessage = {
-        _id: replyMessage._id,
-        createdAt: replyMessage.createdAt,
-        sender: replyMessage.sender._id!,
+      const newMessage: IMessage = {
+        _id: uuid.v4().toString(),
+        createdAt: new Date().toISOString(),
+        sender: user._id!,
         type: "default",
       };
-      if (replyMessage.text) {
-        newMessage.replyMessage.text = replyMessage.text;
-      }
-      if (replyMessage.image) {
-        newMessage.replyMessage.image = replyMessage.image;
-      }
-    }
 
-    newMessagesArr.push(newMessage);
+      if (messageText) {
+        newMessage.text = messageText;
+        setMessageText("");
+      }
+      if (imageForMessageURI) {
+        const relativePath = await uploadImage();
+        newMessage.image = relativePath;
+      }
+
+      if (replyMessage) {
+        newMessage.replyMessage = {
+          _id: replyMessage._id,
+          createdAt: replyMessage.createdAt,
+          sender: replyMessage.sender._id!,
+          type: "default",
+        };
+        if (replyMessage.text) {
+          newMessage.replyMessage.text = replyMessage.text;
+        }
+        if (replyMessage.image) {
+          newMessage.replyMessage.image = replyMessage.image;
+        }
+      }
+
+      newMessagesArr.push(newMessage);
+    }
 
     if (forwardMessages) {
       const depopulatedForwardMessages: IMessage[] = forwardMessages.map(
