@@ -272,9 +272,9 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
             </View>
           ) : oneRecipient ? (
             <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("Profile", { owner: oneRecipient })
-              }
+              onPress={() => {
+                navigation.navigate("Profile", { owner: oneRecipient });
+              }}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -291,6 +291,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   size={24}
                   color={theme.colors.main[200]}
                   onPress={() => {
+                    setForwardMessages(null);
+                    setReplyMessage(null);
                     dispatch(
                       setCurrentChat({
                         _id: "",

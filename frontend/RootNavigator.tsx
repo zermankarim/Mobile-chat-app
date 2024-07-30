@@ -1,6 +1,9 @@
 import { FC, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import {
+  createDrawerNavigator,
+  DrawerToggleButton,
+} from "@react-navigation/drawer";
 import { RootState } from "./core/store/store";
 import DrawerContent from "./shared/components/Drawer";
 import { theme } from "./shared/theme";
@@ -211,6 +214,25 @@ const RootNavigator: FC = () => {
           : () => (
               <SearchBarComponent searchType={"Chats"}></SearchBarComponent>
             ),
+        headerLeft: () =>
+          forwardMessages ? (
+            <Button
+              style={{
+                minWidth: 0,
+              }}
+            >
+              <Ionicons
+                name="arrow-back-outline"
+                size={24}
+                color={theme.colors.main[200]}
+                onPress={() => navigation.navigate("Chat")}
+              />
+            </Button>
+          ) : (
+            <DrawerToggleButton
+              tintColor={theme.colors.main[200]}
+            ></DrawerToggleButton>
+          ),
       }}
     >
       <Drawer.Screen name="Chats" component={Chats} />
