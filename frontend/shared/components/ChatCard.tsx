@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setMessages } from "../../core/reducers/messages";
 import { setCurrentChat } from "../../core/reducers/currentChat";
 import { Avatar, Badge } from "react-native-paper";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Entypo, MaterialIcons } from "@expo/vector-icons";
 import { formatMessageDate } from "../functions";
 import { LinearGradient } from "expo-linear-gradient";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
@@ -169,15 +169,23 @@ const ChatCard: FC<IChatCartProps> = ({
         >
           {messages.length ? (
             <>
-              {messages[messages.length - 1].sender._id === user._id && (
-                <TextWithFont
-                  numberOfLines={1}
-                  styleProps={{
-                    color: theme.colors.main[200],
-                  }}
-                >
-                  You:
-                </TextWithFont>
+              {messages[messages.length - 1].sender._id === user._id &&
+                messages[messages.length - 1].type !== "forward" && (
+                  <TextWithFont
+                    numberOfLines={1}
+                    styleProps={{
+                      color: theme.colors.main[200],
+                    }}
+                  >
+                    You:
+                  </TextWithFont>
+                )}
+              {messages[messages.length - 1].type === "forward" && (
+                <Entypo
+                  name="forward"
+                  size={theme.fontSize(4)}
+                  color={theme.colors.main[200]}
+                />
               )}
               {messages[messages.length - 1].image && (
                 <Image
