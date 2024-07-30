@@ -124,7 +124,7 @@ const InputMessage: FC<InputMessageProps> = ({
   const onSend = async () => {
     const newMessagesArr: IMessage[] = [];
 
-    if (messageText) {
+    if (messageText || imageForMessageURI) {
       const newMessage: IMessage = {
         _id: uuid.v4().toString(),
         createdAt: new Date().toISOString(),
