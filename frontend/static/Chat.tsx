@@ -65,21 +65,35 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   );
 
   // Functions
-  const handleDeleteMessages = () => {
+  const handleDeleteMessages = (selectedFromMenu?: IMessagePopulated) => {
     const participantsIds: string[] = currentChat.participants.map(
       (participant: IUserState) => participant._id!
     );
-    connectionState?.emit(
-      "deleteMessages",
-      currentChat._id,
-      selectedMessages,
-      participantsIds
-    );
+    if (selectedMessages) {
+      connectionState?.emit(
+        "deleteMessages",
+        currentChat._id,
+        selectedMessages,
+        participantsIds
+      );
+    }
+    if (selectedFromMenu) {
+      connectionState?.emit(
+        "deleteMessages",
+        currentChat._id,
+        [selectedFromMenu],
+        participantsIds
+      );
+    }
     setSelectedMessages([]);
   };
 
-  const handleReplyMessage = () => {
-    setReplyMessage(selectedMessages[0]);
+  const handleReplyMessage = (selectedFromMenu?: IMessagePopulated) => {
+    if (!selectedFromMenu) {
+      setReplyMessage(selectedMessages[0]);
+    } else {
+      setReplyMessage(selectedFromMenu);
+    }
     setSelectedMessages([]);
   };
 
@@ -239,7 +253,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   />
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={handleDeleteMessages}
+                  onPress={() => handleDeleteMessages()}
                   style={{
                     justifyContent: "center",
                     alignItems: "center",
@@ -390,9 +404,12 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
             {messages.map((message) => (
               <Message
                 key={uuid.v4() + "-messageComponent"}
+                navigation={navigation}
                 message={message}
                 selectedMessages={selectedMessages}
                 setSelectedMessages={setSelectedMessages}
+                handleDeleteMessages={handleDeleteMessages}
+                handleReplyMessage={handleReplyMessage}
               ></Message>
             ))}
           </ScrollView>

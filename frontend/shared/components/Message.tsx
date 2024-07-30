@@ -1,27 +1,38 @@
 import { FC, useState } from "react";
-import { IMessagePopulated } from "../types";
+import { ChatScreenNavigationProp, IMessagePopulated } from "../types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import uuid from "react-native-uuid";
-import { Image, TouchableOpacity, View } from "react-native";
+import { Dimensions, Image, TouchableOpacity, View } from "react-native";
 import { theme } from "../theme";
 import TextWithFont from "./TextWithFont";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import { LinearGradient } from "expo-linear-gradient";
 import { formatMessageDate } from "../functions";
 import { Button, Divider, Menu } from "react-native-paper";
+import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useGlobalContext } from "../../core/context/Context";
 
 type MessageProps = {
+  navigation: ChatScreenNavigationProp;
   message: IMessagePopulated;
   selectedMessages: IMessagePopulated[];
   setSelectedMessages: (newState: IMessagePopulated[]) => void;
+  handleDeleteMessages: (selectedMessageFromMenu?: IMessagePopulated) => void;
+  handleReplyMessage: (selectedFromMenu?: IMessagePopulated) => void;
 };
 
 const Message: FC<MessageProps> = ({
+  navigation,
   message,
   selectedMessages,
   setSelectedMessages,
+  handleDeleteMessages,
+  handleReplyMessage,
 }) => {
+  // Global context
+  const { setForwardMessages } = useGlobalContext();
+
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
   const messages = useSelector((state: RootState) => state.messages);
@@ -58,6 +69,10 @@ const Message: FC<MessageProps> = ({
         visible={visible}
         onDismiss={closeMenu}
         anchorPosition="top"
+        contentStyle={{
+          backgroundColor: theme.colors.main[300],
+          width: "100%",
+        }}
         style={{
           position: "absolute",
           right:
@@ -92,7 +107,7 @@ const Message: FC<MessageProps> = ({
                   message.forwarder?._id === user._id)
                   ? "flex-end"
                   : "flex-start",
-              width: "100%",
+              width: Dimensions.get("window").width,
               backgroundColor: selectedMessages.includes(message)
                 ? theme.colors.main[400]
                 : "transparent",
@@ -302,10 +317,53 @@ const Message: FC<MessageProps> = ({
           </TouchableOpacity>
         }
       >
-        <Menu.Item onPress={() => {}} title="Item 1" />
-        <Menu.Item onPress={() => {}} title="Item 2" />
-        <Divider />
-        <Menu.Item onPress={() => {}} title="Item 3" />
+        <Menu.Item
+          onPress={() => handleReplyMessage(message)}
+          title="Reply"
+          titleStyle={{
+            color: theme.colors.main[100],
+          }}
+          leadingIcon={() => (
+            <Entypo
+              name="reply"
+              size={theme.fontSize(5)}
+              color={theme.colors.main[200]}
+            />
+          )}
+        />
+        <Menu.Item
+          onPress={() => {
+            setForwardMessages([message]);
+            navigation.navigate("Chats");
+          }}
+          title="Forward"
+          titleStyle={{
+            color: theme.colors.main[100],
+          }}
+          leadingIcon={() => (
+            <Entypo
+              name="forward"
+              size={theme.fontSize(5)}
+              color={theme.colors.main[200]}
+            />
+          )}
+        />
+        <Menu.Item
+          onPress={() => {
+            handleDeleteMessages(message);
+          }}
+          title="Delete"
+          titleStyle={{
+            color: theme.colors.main[100],
+          }}
+          leadingIcon={() => (
+            <MaterialCommunityIcons
+              name="delete-outline"
+              size={theme.fontSize(5)}
+              color={theme.colors.main[200]}
+            />
+          )}
+        />
       </Menu>
     </View>
   );
