@@ -4,7 +4,7 @@ const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, path.resolve(__dirname, '..', 'public', 'avatars'));
+    cb(null, path.resolve(__dirname, "..", "public", "avatars"));
   },
   filename(req, file, cb) {
     cb(null, new Date().toISOString() + "-" + file.originalname);
@@ -21,4 +21,8 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-module.exports = multer({ storage, fileFilter });
+module.exports = multer({
+  storage,
+  fileFilter,
+  limits: { fieldSize: 25 * 1024 * 1024 },
+});
