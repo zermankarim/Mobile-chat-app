@@ -94,7 +94,9 @@ const RootNavigator: FC = () => {
           } else if (bHasMessages) {
             return 1; // Chat without messages below
           } else {
-            return 0; // Two chats haven't messages, not sort
+            const dateA = new Date(a.createdAt).getTime();
+            const dateB = new Date(b.createdAt).getTime();
+            return dateB - dateA; // Two chats haven't messages, sort by create date
           }
         });
         dispatch(setChats(sortedChatsData as IChatPopulated[]));
