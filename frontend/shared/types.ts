@@ -24,7 +24,7 @@ export interface IMessage {
   image?: string;
   sender: string;
   replyMessage?: IMessage;
-  isForward: boolean;
+  type: "default" | "forward";
 }
 
 export interface IMessagePopulated {
@@ -34,7 +34,7 @@ export interface IMessagePopulated {
   image?: string;
   sender: IUserState;
   replyMessage?: IMessagePopulated;
-  isForward: boolean;
+  type: "default" | "forward";
 }
 
 export interface IChatPopulated {

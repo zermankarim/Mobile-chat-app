@@ -373,6 +373,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
           width: "100%",
           height: "100%",
           tintColor: theme.colors.blue[100],
+          opacity: 0.7,
         }}
       ></Image>
       {messages.length ? (
@@ -401,7 +402,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                 position: "relative",
                 flexDirection: "row",
                 justifyContent:
-                  message.sender._id === user._id || message.isForward
+                  message.sender._id === user._id || message.type === "forward"
                     ? "flex-end"
                     : "flex-start",
                 width: "100%",
@@ -424,7 +425,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   flexDirection: "column",
                   gap: theme.spacing(1),
                   backgroundColor:
-                    message.sender._id === user._id || message.isForward
+                    message.sender._id === user._id ||
+                    message.type === "forward"
                       ? selectedMessages.includes(message)
                         ? theme.colors.blue[500]
                         : theme.colors.blue[200]
@@ -443,7 +445,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                   maxWidth: "80%",
                 }}
               >
-                {message.isForward && (
+                {message.type === "forward" && (
                   <View // Container for forward message info
                     style={{
                       flexDirection: "column",
@@ -589,7 +591,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
                     width: "100%",
                     fontSize: theme.fontSize(3),
                     color:
-                      message.sender._id === user._id
+                      message.sender._id === user._id ||
+                      message.type === "forward"
                         ? theme.colors.main[100]
                         : theme.colors.main[200],
                   }}

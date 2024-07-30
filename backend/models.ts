@@ -39,7 +39,7 @@ const chatSchema = new Schema<IChat>({
         ),
         required: false,
       },
-      isForward: { type: Boolean },
+      type: { type: String, required: true },
     },
   ],
   participants: [{ type: Schema.Types.ObjectId, ref: "users", required: true }],

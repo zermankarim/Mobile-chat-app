@@ -40,7 +40,7 @@ export interface IMessage {
   image?: string;
   sender: Types.ObjectId;
   replyMessage?: IMessage;
-  isForward: boolean;
+  type: "default" | "forward";
 }
 
 export interface IChat {
@@ -57,7 +57,7 @@ export interface IMessagePopulated {
   text?: string;
   sender: IUser;
   replyMessage?: IMessagePopulated;
-  isForward: boolean;
+  type: "default" | "forward";
 }
 
 export interface IChatPopulatedAll {

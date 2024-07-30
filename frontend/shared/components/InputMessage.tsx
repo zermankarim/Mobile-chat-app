@@ -126,7 +126,7 @@ const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
         _id: uuid.v4().toString(),
         createdAt: new Date().toISOString(),
         sender: user._id!,
-        isForward: false,
+        type: "default",
       };
 
       if (messageText) {
@@ -143,7 +143,7 @@ const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
           _id: replyMessage._id,
           createdAt: replyMessage.createdAt,
           sender: replyMessage.sender._id!,
-          isForward: false,
+          type: "default",
         };
         if (replyMessage.text) {
           newMessage.replyMessage.text = replyMessage.text;
@@ -163,7 +163,7 @@ const InputMessage: FC<InputMessageProps> = ({ replyMessage }) => {
             _id: uuid.v4().toString(),
             createdAt: fwdMsg.createdAt,
             sender: fwdMsg.sender._id,
-            isForward: true,
+            type: "forward",
           };
           if (fwdMsg.text) {
             depopulatedMessage.text = fwdMsg.text;
