@@ -22,6 +22,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../../core/context/Context";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import { createTheme } from "../theme";
+import Feather from "@expo/vector-icons/Feather";
+import Entypo from "@expo/vector-icons/Entypo";
 
 type DrawerProps = {
   state: DrawerNavigationState<ParamListBase>;
@@ -31,7 +33,8 @@ type DrawerProps = {
 
 function DrawerContent({ ...props }) {
   // Global context
-  const { connectionState, setConnectionState, appTheme } = useGlobalContext();
+  const { connectionState, setConnectionState, appTheme, setAppTheme } =
+    useGlobalContext();
   const theme = createTheme(appTheme);
 
   // Redux states and dispatch
@@ -40,6 +43,16 @@ function DrawerContent({ ...props }) {
 
   const handleLogountButton = () => {
     dispatch(logoutUser());
+  };
+
+  const handleChangeTheme = () => {
+    if (appTheme !== "light") {
+      setAppTheme("light");
+      connectionState?.emit("changeTheme", user._id!, "light");
+    } else {
+      setAppTheme("default");
+      connectionState?.emit("changeTheme", user._id!, "default");
+    }
   };
 
   const drawerButtonsData: IButtonDrawer[] = [
@@ -122,6 +135,8 @@ function DrawerContent({ ...props }) {
       >
         <View // Outer container for user avatar
           style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
             width: "100%",
           }}
         >
@@ -161,6 +176,15 @@ function DrawerContent({ ...props }) {
               </LinearGradient>
             )}
           </TouchableOpacity>
+          <View>
+            <TouchableOpacity onPress={handleChangeTheme}>
+              {appTheme === "light" ? (
+                <Entypo name="moon" size={24} color={theme.colors.main[100]} />
+              ) : (
+                <Feather name="sun" size={24} color={theme.colors.main[100]} />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         <View // Container for user name and email
           style={{
