@@ -94,6 +94,11 @@ export interface ISocketEmitEvent {
     message?: string;
     chat?: IChat;
   }) => void;
+  getUserById: (data: {
+    success: boolean;
+    message?: string;
+    userData?: IUser;
+  }) => void;
 }
 
 // Socket.IO client to server Interface
@@ -112,6 +117,7 @@ export interface ISocketOnEvent {
     messagesForDeleting: IMessage[],
     participantsIds: string[]
   ) => void;
+  getUserById: (userId: string) => void;
 }
 
 export interface IConnectedUser {

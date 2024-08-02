@@ -95,6 +95,7 @@ export interface ISocketEmitEvent {
     messagesForDeleting: IMessagePopulated[],
     participantsIds: string[]
   ) => void;
+  getUserById: (userId: string) => void;
 }
 
 // Socket.IO server to client Interface
@@ -128,6 +129,11 @@ export interface ISocketOnEvent {
     success: boolean;
     message?: string;
     chat?: IChatPopulated;
+  }) => void;
+  getUserById: (data: {
+    success: boolean;
+    message?: string;
+    usersData?: IUserState;
   }) => void;
 }
 

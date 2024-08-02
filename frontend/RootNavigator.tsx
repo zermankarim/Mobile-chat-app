@@ -19,7 +19,7 @@ import {
   RootStackParamList,
 } from "./shared/types";
 import Chat from "./static/Chat";
-import { Dimensions } from "react-native";
+import { Alert, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, Button } from "react-native-paper";
@@ -31,6 +31,7 @@ import { useGlobalContext } from "./core/context/Context";
 import { setMessages } from "./core/reducers/messages";
 import { setChats } from "./core/reducers/chats";
 import ChatSettings from "./static/ChatSettings";
+import { setUser } from "./core/reducers/user";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -162,16 +163,36 @@ const RootNavigator: FC = () => {
         setChatsLoading(false);
       }
 
+      function onGetUserById(data: {
+        success: boolean;
+        message?: string;
+        userData?: IUserState;
+      }) {
+        if (data) {
+          const { success } = data;
+          if (!success) {
+            const { message } = data;
+            console.error(message);
+            return;
+          }
+          const { userData } = data;
+          console.log(userData);
+          dispatch(setUser(userData!));
+        }
+      }
+
       connectionState?.on("getChatsByUserId", onGetChatsByUserId);
       connectionState?.on("getChatById", onGetChatById);
       connectionState?.on("getUsersForCreateChat", onGetUsersForCreateChat);
       connectionState?.on("openChatWithUser", onOpenChatWithUser);
+      connectionState?.on("getUserById", onGetUserById);
 
       return () => {
         connectionState?.off("getChatsByUserId", onGetChatsByUserId);
         connectionState?.off("getChatById", onGetChatById);
         connectionState?.off("getUsersForCreateChat", onGetUsersForCreateChat);
         connectionState?.off("openChatWithUser", onOpenChatWithUser);
+        connectionState?.off("getUserById", onGetUserById);
       };
     }
   }, [connectionState]);

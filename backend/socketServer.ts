@@ -267,6 +267,28 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on("getUserById", async (userId) => {
+    try {
+      const foundUser = await User.findOne({ _id: userId });
+
+      if (!foundUser) {
+        console.error("User with this ID not found");
+        return socket.emit("getUserById", {
+          success: false,
+          message: "User with this ID not found",
+        });
+      }
+
+      socket.emit("getUserById", { success: true, userData: foundUser });
+    } catch (e: any) {
+      console.error(`Error during finding user in getUserById: ${e.message}`);
+      socket.emit("getUserById", {
+        success: false,
+        message: `Error during finding user in getUserById: ${e.message}`,
+      });
+    }
+  });
+
   socket.on("disconnect", () => {
     const foundConnUserIdx = CONNECTED_USERS.findIndex(
       (connUser) => connUser.socketId === socket.id
