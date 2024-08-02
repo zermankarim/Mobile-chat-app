@@ -96,25 +96,22 @@ export const uploadNewImage = async (
   try {
     const { userId, chatId, type } = params;
     const base64Image = await blobToBase64(blob);
-
-    const formData = new FormData();
-    formData.append("image", base64Image);
-    formData.append("type", type);
+    const reqData: any = { image: base64Image, type };
 
     if (type === "avatar") {
-      formData.append("userId", userId!);
+      reqData.userId = userId;
     }
 
     if (type === "message") {
-      formData.append("chatId", chatId!);
+      reqData.chatId = chatId;
     }
 
     const { data } = await axios.post(
       `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/upload/newAvatar`,
-      formData,
+      JSON.stringify(reqData),
       {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       }
     );

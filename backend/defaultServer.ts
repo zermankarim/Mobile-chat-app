@@ -22,7 +22,7 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 

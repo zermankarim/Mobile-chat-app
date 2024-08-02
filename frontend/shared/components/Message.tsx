@@ -41,6 +41,10 @@ const Message: FC<MessageProps> = ({
 
   //States
   const [visible, setVisible] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 1,
+    height: 1,
+  });
 
   // Functions
   const openMenu = () => setVisible(true);
@@ -221,32 +225,16 @@ const Message: FC<MessageProps> = ({
                   </View>
                 </View>
               )}
-              {message.image && (
-                <View
-                  style={{
-                    width: "100%",
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${message.image}`,
-                    }}
-                    style={{
-                      width: "100%",
-                      height: undefined,
-                      aspectRatio: 1.5,
-                      objectFit: "cover",
-                    }}
-                  ></Image>
-                </View>
-              )}
               {message.replyMessage && (
                 <View
                   style={{
                     flexDirection: "row",
                     width: "100%",
                     borderRadius: theme.spacing(2),
-                    backgroundColor: theme.colors.blue[300],
+                    backgroundColor:
+                      message.sender._id === user._id
+                        ? theme.colors.blue[300]
+                        : theme.colors.main[300],
                     padding: theme.spacing(1),
                     gap: theme.spacing(2),
                     borderLeftColor: theme.colors.main[100],
@@ -287,8 +275,31 @@ const Message: FC<MessageProps> = ({
                         {message.replyMessage.text}
                       </TextWithFont>
                     )}
+                    {message.replyMessage.image &&
+                      !message.replyMessage.text && (
+                        <TextWithFont
+                          styleProps={{
+                            color: theme.colors.main[100],
+                          }}
+                        >
+                          Photo
+                        </TextWithFont>
+                      )}
                   </View>
                 </View>
+              )}
+              {message.image && (
+                <Image
+                  source={{
+                    uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${message.image}`,
+                  }}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    aspectRatio: 1,
+                    resizeMode: "cover",
+                  }}
+                ></Image>
               )}
               {message.text && (
                 <TextWithFont
