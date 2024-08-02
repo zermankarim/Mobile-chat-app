@@ -69,9 +69,36 @@ const Message: FC<MessageProps> = ({
     <View
       style={{
         flexDirection: "row",
+        alignItems: "center",
         width: "100%",
       }}
     >
+      {selectedMessages.length ? (
+        <View
+          style={{
+            position: "absolute",
+            left: theme.spacing(2),
+            width: 20,
+            height: 20,
+            borderRadius: 40,
+            borderColor: "green",
+            borderWidth: 1,
+            padding: theme.spacing(1),
+            zIndex: 1,
+          }}
+        >
+          {selectedMessages.includes(message) ? (
+            <View
+              style={{
+                backgroundColor: "green",
+                width: "100%",
+                height: "100%",
+                borderRadius: 50,
+              }}
+            ></View>
+          ) : null}
+        </View>
+      ) : null}
       <Menu
         theme={{ animation: { scale: 2 } }}
         visible={visible}
@@ -116,11 +143,12 @@ const Message: FC<MessageProps> = ({
                   ? "flex-end"
                   : "flex-start",
               width: Dimensions.get("window").width,
-              backgroundColor: selectedMessages.includes(message)
-                ? theme.colors.main[400]
-                : "transparent",
+              backgroundColor: "transparent",
               paddingHorizontal: theme.spacing(3),
               paddingVertical: theme.spacing(1.5),
+              paddingLeft: selectedMessages.includes(message)
+                ? theme.spacing(8)
+                : theme.spacing(3),
             }}
           >
             <TouchableOpacity // Container for message
