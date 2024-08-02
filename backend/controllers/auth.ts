@@ -68,12 +68,16 @@ const login = async (req: Request, res: Response) => {
 
   const { email, password } = req.body;
 
-  const user: IUser = await User.findOne({ email });
+  const user = await User.findOne({ email });
   if (!user) {
     return res.json({
       success: false,
       message: "User with this email wasn't found",
     });
+  }
+  if (!user.themeTitle) {
+    user.themeTitle = "default";
+    await user.save();
   }
   const validPassword = bcrypt.compareSync(password, user.password);
   if (!validPassword) {
