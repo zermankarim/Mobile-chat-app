@@ -97,6 +97,7 @@ export interface ISocketEmitEvent {
     participantsIds: string[]
   ) => void;
   getUserById: (userId: string) => void;
+  changeTheme: (userId: string, themeTitle: ThemeType) => void;
 }
 
 // Socket.IO server to client Interface
@@ -135,6 +136,11 @@ export interface ISocketOnEvent {
     success: boolean;
     message?: string;
     usersData?: IUserState;
+  }) => void;
+  changeTheme: (data: {
+    success: boolean;
+    message?: string;
+    userData?: IUserState;
   }) => void;
 }
 

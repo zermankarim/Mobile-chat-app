@@ -48,6 +48,7 @@ const RootNavigator: FC = () => {
     setChatLoading,
     forwardMessages,
     appTheme,
+    setAppTheme,
   } = useGlobalContext();
   const theme = createTheme(appTheme);
 
@@ -184,11 +185,31 @@ const RootNavigator: FC = () => {
         }
       }
 
+      function onChangeTheme(data: {
+        success: boolean;
+        message?: string;
+        userData?: IUserState;
+      }) {
+        if (data) {
+          const { success } = data;
+          if (!success) {
+            const { message } = data;
+            console.error(message);
+            Alert.alert(message!);
+            return;
+          }
+          const { userData } = data;
+          console.log(userData);
+          dispatch(setUser(userData!));
+        }
+      }
+
       connectionState?.on("getChatsByUserId", onGetChatsByUserId);
       connectionState?.on("getChatById", onGetChatById);
       connectionState?.on("getUsersForCreateChat", onGetUsersForCreateChat);
       connectionState?.on("openChatWithUser", onOpenChatWithUser);
       connectionState?.on("getUserById", onGetUserById);
+      connectionState?.on("changeTheme", onGetUserById);
 
       return () => {
         connectionState?.off("getChatsByUserId", onGetChatsByUserId);
@@ -196,6 +217,7 @@ const RootNavigator: FC = () => {
         connectionState?.off("getUsersForCreateChat", onGetUsersForCreateChat);
         connectionState?.off("openChatWithUser", onOpenChatWithUser);
         connectionState?.off("getUserById", onGetUserById);
+        connectionState?.off("changeTheme", onGetUserById);
       };
     }
   }, [connectionState]);
@@ -203,6 +225,7 @@ const RootNavigator: FC = () => {
   useEffect(() => {
     if (user._id && !connectionState) {
       connectToSocket(user._id);
+      setAppTheme(user.themeTitle);
     }
   }, []);
 

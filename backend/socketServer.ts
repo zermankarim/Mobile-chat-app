@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
     if (!mongoose.isValidObjectId(userId)) {
       socket.emit("getChatsByUserId", {
         success: false,
-        message: "User ID is not valid.",
+        message: "getChatsByUserId: User ID is not valid.",
       });
     }
     let chatsData = await Chat.find({
@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
     if (!mongoose.isValidObjectId(chatId)) {
       socket.emit("getChatById", {
         success: false,
-        message: "This chat ID is not valid.",
+        message: "getChatById: This chat ID is not valid.",
       });
     }
     const chatData: IChat = await Chat.findOne({
@@ -141,10 +141,13 @@ io.on("connection", (socket) => {
         });
       }
     } catch (e: any) {
-      console.error("Error during receiving updated chat: ", e.message);
+      console.error(
+        "getChatById: Error during receiving updated chat: ",
+        e.message
+      );
       socket.emit("getChatById", {
         success: false,
-        message: `Error during receiving updated chat: ${e.message}`,
+        message: `getChatById: Error during receiving updated chat: ${e.message}`,
       });
     }
   });
@@ -169,12 +172,12 @@ io.on("connection", (socket) => {
       socket.emit("getUsersForCreateChat", { success: true, usersData });
     } catch (e: any) {
       console.error(
-        "Error during receiving users data ad getUsersForCreateChat event: ",
+        "getUsersForCreateChat: Error during receiving users data ad getUsersForCreateChat event: ",
         e.message
       );
       socket.emit("getUsersForCreateChat", {
         success: false,
-        message: `Error during receiving users data ad getUsersForCreateChat event: ${e.message}`,
+        message: `getUsersForCreateChat: Error during receiving users data ad getUsersForCreateChat event: ${e.message}`,
       });
     }
   });
@@ -203,10 +206,12 @@ io.on("connection", (socket) => {
       ]);
       socket.emit("openChatWithUser", { success: true, chat: foundChat });
     } catch (e: any) {
-      console.error(`Error during opening chat with user: ${e.message}`);
+      console.error(
+        `openChatWithUser: Error during opening chat with user: ${e.message}`
+      );
       socket.emit("openChatWithUser", {
         success: false,
-        message: `Error during opening chat with user: ${e.message}`,
+        message: `openChatWithUser: Error during opening chat with user: ${e.message}`,
       });
     }
   });
@@ -226,7 +231,7 @@ io.on("connection", (socket) => {
         if (!chat) {
           socket.emit("getChatById", {
             success: false,
-            message: `Error during deleting messages from chat: Chat not found`,
+            message: `deleteMessages: Error during deleting messages from chat: Chat not found`,
           });
         }
         const filteredMessages: IMessage[] = chat.messages.filter(
@@ -258,10 +263,12 @@ io.on("connection", (socket) => {
           });
         }
       } catch (e) {
-        console.error(`Error during deleting messages from chat: ${e.message}`);
+        console.error(
+          `deleteMessages: Error during deleting messages from chat: ${e.message}`
+        );
         socket.emit("getChatById", {
           success: false,
-          message: `Error during deleting messages from chat: ${e.message}`,
+          message: `deleteMessages: Error during deleting messages from chat: ${e.message}`,
         });
       }
     }
@@ -272,19 +279,55 @@ io.on("connection", (socket) => {
       const foundUser = await User.findOne({ _id: userId });
 
       if (!foundUser) {
-        console.error("User with this ID not found");
+        console.error("getUserById: User with this ID not found");
         return socket.emit("getUserById", {
           success: false,
-          message: "User with this ID not found",
+          message: "getUserById: User with this ID not found",
         });
       }
 
       socket.emit("getUserById", { success: true, userData: foundUser });
     } catch (e: any) {
-      console.error(`Error during finding user in getUserById: ${e.message}`);
+      console.error(
+        `getUserById: Error during finding user in getUserById: ${e.message}`
+      );
       socket.emit("getUserById", {
         success: false,
-        message: `Error during finding user in getUserById: ${e.message}`,
+        message: `getUserById: Error during finding user in getUserById: ${e.message}`,
+      });
+    }
+  });
+
+  socket.on("changeTheme", async (userId, themeTitle) => {
+    try {
+      const foundAndUpdatedUser = await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          themeTitle,
+        },
+        {
+          new: true,
+        }
+      );
+      if (!foundAndUpdatedUser) {
+        console.error("changeTheme: User wasn't found or updated");
+        socket.emit("changeTheme", {
+          success: false,
+          message: "changeTheme: User wasn't found or updated",
+        });
+        return;
+      }
+      socket.emit("changeTheme", {
+        success: true,
+        userData: foundAndUpdatedUser,
+      });
+    } catch (e: any) {
+      console.error(
+        `changeTheme: Error during updating user theme: ${e.messate}`
+      );
+      socket.emit("changeTheme", {
+        success: false,
+        message: `changeTheme: Error during updating user theme: ${e.messate}`,
       });
     }
   });

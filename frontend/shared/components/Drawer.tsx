@@ -82,6 +82,7 @@ function DrawerContent({ ...props }) {
       ),
       onPress: () => {
         props.navigation.closeDrawer();
+        props.navigation.jumpTo("ChatSettings");
       },
     },
     {

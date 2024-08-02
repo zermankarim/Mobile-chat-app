@@ -72,6 +72,15 @@ export interface IChatPopulatedAll {
   participants: IUser[];
 }
 
+export type ThemeType =
+  | "default"
+  | "green"
+  | "purple"
+  | "yellow"
+  | "light"
+  | "darkBlue"
+  | "black";
+
 // Socket.IO interfaces
 
 // Socket.IO server to client Interface
@@ -101,6 +110,11 @@ export interface ISocketEmitEvent {
     message?: string;
     userData?: IUser;
   }) => void;
+  changeTheme: (data: {
+    success: boolean;
+    message?: string;
+    userData?: IUser;
+  }) => void;
 }
 
 // Socket.IO client to server Interface
@@ -120,6 +134,7 @@ export interface ISocketOnEvent {
     participantsIds: string[]
   ) => void;
   getUserById: (userId: string) => void;
+  changeTheme: (userId: string, themeTitle: ThemeType) => void;
 }
 
 export interface IConnectedUser {
