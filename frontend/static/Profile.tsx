@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import TextWithFont from "../shared/components/TextWithFont";
 import { theme } from "../shared/theme";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { uploadNewImage } from "../fetches/http";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
   // Redux states and dispatch
@@ -57,6 +58,7 @@ const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
       if (!success) {
         const { message } = data;
         console.error(message);
+        setAvatarUploading(false);
         return;
       }
       const { data: userData } = data;
@@ -113,10 +115,12 @@ const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
   };
 
   // Effects
-  useEffect(() => {
-    setOwnerState(owner);
-    setActiveImage(owner.avatars.length - 1);
-  }, [owner]);
+  useFocusEffect(
+    useCallback(() => {
+      setOwnerState(owner);
+      setActiveImage(owner.avatars.length - 1);
+    }, [owner])
+  );
 
   return (
     <ScrollView
