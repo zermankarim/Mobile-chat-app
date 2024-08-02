@@ -70,12 +70,12 @@ const themeColors: Record<ThemeType, ThemeColors> = {
     main: {
       100: "#1b1b1b",
       200: "#343b3e",
-      300: "#91aebd",
-      400: "#9ab4c2",
-      500: "#aecbd8",
+      300: "#c8dee9",
+      400: "#cfe4ee",
+      500: "#e1f3fb",
     },
     contrast: {
-      100: "#88b0c5",
+      100: "#96cbe7",
       200: "#75b8d4",
       300: "#5e8eab",
       400: "#517a8f",
