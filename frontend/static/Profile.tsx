@@ -340,41 +340,43 @@ const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
           </View>
         </View>
       </View>
-      <View // Container for settings
-        style={{
-          flexDirection: "column",
-          marginTop: theme.spacing(4),
-          width: "100%",
-          paddingHorizontal: theme.spacing(4),
-          paddingVertical: theme.spacing(2),
-          backgroundColor: theme.colors.main[400],
-        }}
-      >
-        <TextWithFont
-          styleProps={{
-            color: theme.colors.contrast[300],
-          }}
-        >
-          Settings
-        </TextWithFont>
-        <TouchableOpacity
-          onPress={() => navigation.navigate("ChatSettings")}
+      {owner._id === user._id && (
+        <View // Container for settings
           style={{
-            flexDirection: "row",
-            gap: theme.spacing(3),
-            paddingVertical: theme.spacing(3),
-            borderBottomColor: theme.colors.main[500],
-            borderBottomWidth: 0.5,
+            flexDirection: "column",
+            marginTop: theme.spacing(4),
+            width: "100%",
+            paddingHorizontal: theme.spacing(4),
+            paddingVertical: theme.spacing(2),
+            backgroundColor: theme.colors.main[400],
           }}
         >
-          <Ionicons
-            name="chatbubble-outline"
-            size={24}
-            color={theme.colors.main[200]}
-          />
-          <TextWithFont>Chat settings</TextWithFont>
-        </TouchableOpacity>
-      </View>
+          <TextWithFont
+            styleProps={{
+              color: theme.colors.contrast[300],
+            }}
+          >
+            Settings
+          </TextWithFont>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ChatSettings")}
+            style={{
+              flexDirection: "row",
+              gap: theme.spacing(3),
+              paddingVertical: theme.spacing(3),
+              borderBottomColor: theme.colors.main[500],
+              borderBottomWidth: 0.5,
+            }}
+          >
+            <Ionicons
+              name="chatbubble-outline"
+              size={24}
+              color={theme.colors.main[200]}
+            />
+            <TextWithFont>Chat settings</TextWithFont>
+          </TouchableOpacity>
+        </View>
+      )}
     </ScrollView>
   );
 };
