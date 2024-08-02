@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -7,7 +7,7 @@ import {
   TextInputChangeEventData,
   View,
 } from "react-native";
-import { theme } from "../theme";
+
 import { Button, Modal, TextInput } from "react-native-paper";
 import { IMessage, IMessagePopulated, IUserState } from "../types";
 import uuid from "react-native-uuid";
@@ -18,8 +18,8 @@ import { useGlobalContext } from "../../core/context/Context";
 import { Entypo } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { uploadNewImage } from "../../fetches/http";
-import TextWithFont from "./TextWithFont";
 import { useFocusEffect } from "@react-navigation/native";
+import { createTheme } from "../theme";
 
 type InputMessageProps = {
   replyMessage: IMessagePopulated | null;
@@ -31,8 +31,9 @@ const InputMessage: FC<InputMessageProps> = ({
   setReplyMessage,
 }) => {
   // Global context states
-  const { connectionState, forwardMessages, setForwardMessages } =
+  const { connectionState, forwardMessages, setForwardMessages, appTheme } =
     useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux states and dispatch
   const currentChat = useSelector((state: RootState) => state.currentChat);
@@ -253,7 +254,7 @@ const InputMessage: FC<InputMessageProps> = ({
             <Entypo
               name="attachment"
               size={20}
-              color={theme.colors.blue[400]}
+              color={theme.colors.contrast[400]}
             />
           </Button>
         )}
@@ -269,7 +270,7 @@ const InputMessage: FC<InputMessageProps> = ({
             <MaterialIcons
               name="send"
               size={24}
-              color={theme.colors.blue[400]}
+              color={theme.colors.contrast[400]}
             />
           </Button>
         ) : null}
@@ -352,7 +353,7 @@ const InputMessage: FC<InputMessageProps> = ({
             <MaterialIcons
               name="send"
               size={24}
-              color={theme.colors.blue[400]}
+              color={theme.colors.contrast[400]}
             />
           </Button>
         </View>

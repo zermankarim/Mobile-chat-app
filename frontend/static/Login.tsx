@@ -11,14 +11,15 @@ import { setUser } from "../core/reducers/user";
 import { LoginRouteProps } from "../shared/types";
 import TextWithFont from "../shared/components/TextWithFont";
 import { Button, TextInput } from "react-native-paper";
-import { theme } from "../shared/theme";
 import { signInWithEmailAndPassword } from "../fetches/http";
 import { useGlobalContext } from "../core/context/Context";
 import { connectToSocket } from "../shared/functions";
+import { createTheme } from "../shared/theme";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
   // Global context
-  const { setConnectionState } = useGlobalContext();
+  const { setConnectionState, appTheme, setAppTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux states and dispatch
   const dispatch = useDispatch();
@@ -77,6 +78,7 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
         setIsDisabledButton(false);
         const socket = connectToSocket(userData!._id!);
         setConnectionState(socket);
+        setAppTheme(userData?.themeTitle || "default");
       } else {
         setLoadingLogin(false);
         setIsDisabledButton(false);
@@ -221,7 +223,7 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
           >
             <TextWithFont
               styleProps={{
-                color: theme.colors.blue[300],
+                color: theme.colors.contrast[300],
               }}
             >
               Sign Up

@@ -19,6 +19,7 @@ export interface IUserBeforeSignUp {
   friends: string[];
   backgroundColors: string[];
   password: string;
+  themeTitle: string;
 }
 
 export interface IUser {
@@ -31,6 +32,7 @@ export interface IUser {
   friends: IUser[] | Types.ObjectId[];
   backgroundColors: string[];
   password?: string;
+  themeTitle: string;
 }
 
 export interface IMessage {

@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { theme } from "../theme";
+
 import TextWithFont from "./TextWithFont";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
@@ -21,6 +21,7 @@ import { logoutUser } from "../../core/reducers/user";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../../core/context/Context";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
+import { createTheme } from "../theme";
 
 type DrawerProps = {
   state: DrawerNavigationState<ParamListBase>;
@@ -30,7 +31,8 @@ type DrawerProps = {
 
 function DrawerContent({ ...props }) {
   // Global context
-  const { connectionState, setConnectionState } = useGlobalContext();
+  const { connectionState, setConnectionState, appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);

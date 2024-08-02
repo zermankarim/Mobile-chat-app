@@ -10,6 +10,7 @@ const initialState: IUserState = {
   avatars: [],
   friends: [],
   backgroundColors: [],
+  themeTitle: "default",
 };
 
 const userSlice = createSlice({
@@ -25,6 +26,7 @@ const userSlice = createSlice({
       state.friends = action.payload.friends;
       state.avatars = action.payload.avatars;
       state.backgroundColors = action.payload.backgroundColors;
+      state.themeTitle = action.payload.themeTitle || "default";
     },
     logoutUser: (state) => {
       state._id = null;
@@ -35,6 +37,7 @@ const userSlice = createSlice({
       state.friends = [];
       state.avatars = [];
       state.backgroundColors = [];
+      state.themeTitle = "default";
     },
   },
 });

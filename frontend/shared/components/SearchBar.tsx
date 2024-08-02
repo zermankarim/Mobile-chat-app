@@ -3,10 +3,10 @@ import { Alert, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import { Searchbar } from "react-native-paper";
-import { theme } from "../theme";
 import { IChatPopulated } from "../types";
 import { setChats } from "../../core/reducers/chats";
 import { useGlobalContext } from "../../core/context/Context";
+import { createTheme } from "../theme";
 
 type SearchBarComponentProps = {
   searchType: "Chats" | "UsersForCreateChat";
@@ -16,7 +16,10 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
   searchType,
 }) => {
   // Global context
-  const { connectionState, setCreateChatLoading } = useGlobalContext();
+  const { connectionState, setCreateChatLoading, appTheme } =
+    useGlobalContext();
+  const theme = createTheme(appTheme);
+
   // Redux states
   const user = useSelector((state: RootState) => state.user);
   const chats = useSelector((state: RootState) => state.chats);

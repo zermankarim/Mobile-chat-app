@@ -1,6 +1,5 @@
 import { FC, useCallback, useEffect } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { theme } from "../shared/theme";
 import TextWithFont from "../shared/components/TextWithFont";
 import { CreateChatRouteProps, IUserState } from "../shared/types";
 import { ActivityIndicator, Avatar } from "react-native-paper";
@@ -12,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
+import { createTheme } from "../shared/theme";
 
 const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
   // Global context states
@@ -22,7 +22,9 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
     createChatLoading,
     setCreateChatLoading,
     setChatLoading,
+    appTheme,
   } = useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);

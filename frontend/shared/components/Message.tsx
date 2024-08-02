@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import uuid from "react-native-uuid";
 import { Dimensions, Image, TouchableOpacity, View } from "react-native";
-import { theme } from "../theme";
+
 import TextWithFont from "./TextWithFont";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import { LinearGradient } from "expo-linear-gradient";
@@ -12,6 +12,7 @@ import { formatMessageDate } from "../functions";
 import { Button, Divider, Menu } from "react-native-paper";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useGlobalContext } from "../../core/context/Context";
+import { createTheme } from "../theme";
 
 type MessageProps = {
   navigation: ChatScreenNavigationProp;
@@ -33,7 +34,8 @@ const Message: FC<MessageProps> = ({
   setReplyMessage,
 }) => {
   // Global context
-  const { setForwardMessages } = useGlobalContext();
+  const { setForwardMessages, appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
@@ -140,8 +142,8 @@ const Message: FC<MessageProps> = ({
                   (message.type === "forward" &&
                     message.forwarder?._id === user._id)
                     ? selectedMessages.includes(message)
-                      ? theme.colors.blue[500]
-                      : theme.colors.blue[200]
+                      ? theme.colors.contrast[500]
+                      : theme.colors.contrast[200]
                     : selectedMessages.includes(message)
                     ? theme.colors.main[300]
                     : theme.colors.main[400],
@@ -233,7 +235,7 @@ const Message: FC<MessageProps> = ({
                     borderRadius: theme.spacing(2),
                     backgroundColor:
                       message.sender._id === user._id
-                        ? theme.colors.blue[300]
+                        ? theme.colors.contrast[300]
                         : theme.colors.main[300],
                     padding: theme.spacing(1),
                     gap: theme.spacing(2),

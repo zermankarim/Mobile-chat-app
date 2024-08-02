@@ -1,18 +1,23 @@
 import { Image, TouchableOpacity, View } from "react-native";
 import TextWithFont from "../shared/components/TextWithFont";
-import { theme } from "../shared/theme";
 import { useState } from "react";
+import { createTheme } from "../shared/theme";
+import { useGlobalContext } from "../core/context/Context";
 
 const ChatSettings = () => {
+  // Global context
+  const { appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
+
   // States
   const [bgContainerColor, setBgContainerColor] = useState<string>(
     theme.colors.main[500]
   );
   const [bgImageColor, setBgImageColor] = useState<string>(
-    theme.colors.blue[100]
+    theme.colors.contrast[100]
   );
   const [senderMsgBgColor, setSenderMsgBgColor] = useState<string>(
-    theme.colors.blue[500]
+    theme.colors.contrast[500]
   );
   const [recipientsMsgBgColor, setRecipientsMsgBgColor] = useState<string>(
     theme.colors.main[300]

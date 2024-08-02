@@ -10,15 +10,16 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../core/reducers/user";
 import { LoginRouteProps } from "../shared/types";
 import TextWithFont from "../shared/components/TextWithFont";
-import { theme } from "../shared/theme";
 import { Button, TextInput } from "react-native-paper";
 import { createUserWithEmailPassAndNames } from "../fetches/http";
 import { connectToSocket } from "../shared/functions";
 import { useGlobalContext } from "../core/context/Context";
+import { createTheme } from "../shared/theme";
 
 const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
   // Global context
-  const { setConnectionState } = useGlobalContext();
+  const { setConnectionState, appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux dispatch
   const dispatch = useDispatch();
@@ -231,7 +232,7 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
           >
             <TextWithFont
               styleProps={{
-                color: theme.colors.blue[300],
+                color: theme.colors.contrast[300],
               }}
             >
               Log In

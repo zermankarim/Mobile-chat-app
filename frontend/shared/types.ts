@@ -15,6 +15,7 @@ export interface IUserState {
   avatars: string[];
   friends: IUserState[] | string[];
   backgroundColors: string[];
+  themeTitle: ThemeType;
 }
 
 export interface IMessage {
@@ -147,6 +148,31 @@ export type RootStackParamList = {
   CreateChat: undefined;
   ChatSettings: undefined;
 };
+
+export type ThemeType =
+  | "default"
+  | "green"
+  | "purple"
+  | "yellow"
+  | "light"
+  | "darkBlue"
+  | "black";
+export interface ThemeColors {
+  main: {
+    100: string;
+    200: string;
+    300: string;
+    400: string;
+    500: string;
+  };
+  contrast: {
+    100: string;
+    200: string;
+    300: string;
+    400: string;
+    500: string;
+  };
+}
 
 export type LoginScreenNavigationProp = StackNavigationProp<
   RootStackParamList,

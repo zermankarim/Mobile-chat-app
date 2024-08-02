@@ -6,7 +6,7 @@ import {
 } from "@react-navigation/drawer";
 import { RootState } from "./core/store/store";
 import DrawerContent from "./shared/components/Drawer";
-import { theme } from "./shared/theme";
+
 import Chats from "./static/Chats";
 import Profile from "./static/Profile";
 import Login from "./static/Login";
@@ -32,6 +32,7 @@ import { setMessages } from "./core/reducers/messages";
 import { setChats } from "./core/reducers/chats";
 import ChatSettings from "./static/ChatSettings";
 import { setUser } from "./core/reducers/user";
+import { createTheme } from "./shared/theme";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -46,7 +47,9 @@ const RootNavigator: FC = () => {
     setCreateChatLoading,
     setChatLoading,
     forwardMessages,
+    appTheme,
   } = useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Navigation
   const navigation = useNavigation<ChatScreenNavigationProp>();

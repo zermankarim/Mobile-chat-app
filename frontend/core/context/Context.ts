@@ -5,6 +5,7 @@ import {
   ISocketEmitEvent,
   ISocketOnEvent,
   IUserState,
+  ThemeType,
 } from "../../shared/types";
 export type GlobalStates = {
   loading: boolean;
@@ -24,6 +25,8 @@ export type GlobalStates = {
   >;
   usersForChat: IUserState[];
   setUsersForChat: (newState: IUserState[]) => void;
+  appTheme: ThemeType;
+  setAppTheme: (newState: ThemeType) => void;
 };
 export const GlobalContext = createContext<GlobalStates>({
   loading: false,
@@ -42,5 +45,7 @@ export const GlobalContext = createContext<GlobalStates>({
 
   forwardMessages: null,
   setForwardMessages: () => {},
+  appTheme: "default",
+  setAppTheme: () => {},
 });
 export const useGlobalContext = () => useContext(GlobalContext);

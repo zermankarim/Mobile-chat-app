@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { FC, useCallback, useEffect, useState } from "react";
 import TextWithFont from "../shared/components/TextWithFont";
-import { theme } from "../shared/theme";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import { ActivityIndicator } from "react-native-paper";
@@ -24,8 +23,14 @@ import { uploadNewImage } from "../fetches/http";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { createTheme } from "../shared/theme";
+import { useGlobalContext } from "../core/context/Context";
 
 const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
+  // Global context
+  const { appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
+
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
@@ -248,7 +253,7 @@ const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
                 position: "absolute",
                 bottom: theme.spacing(-6),
                 right: theme.spacing(4),
-                backgroundColor: theme.colors.blue[400],
+                backgroundColor: theme.colors.contrast[400],
                 borderRadius: 50,
                 padding: theme.spacing(3),
               }}
@@ -347,7 +352,7 @@ const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
       >
         <TextWithFont
           styleProps={{
-            color: theme.colors.blue[300],
+            color: theme.colors.contrast[300],
           }}
         >
           Settings

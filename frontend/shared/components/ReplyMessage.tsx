@@ -1,10 +1,11 @@
-import { theme } from "../theme";
 import { Entypo } from "@expo/vector-icons";
 import { Image, TouchableOpacity, View } from "react-native";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import TextWithFont from "./TextWithFont";
 import { IMessagePopulated } from "../types";
 import { FC } from "react";
+import { createTheme } from "../theme";
+import { useGlobalContext } from "../../core/context/Context";
 
 type ReplyMessageProps = {
   replyMessage: IMessagePopulated;
@@ -15,6 +16,10 @@ const ReplyMessage: FC<ReplyMessageProps> = ({
   replyMessage,
   setReplyMessage,
 }) => {
+  // Global context
+  const { appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
+
   return (
     <View // Container for replied message
       style={{
@@ -32,7 +37,7 @@ const ReplyMessage: FC<ReplyMessageProps> = ({
       <Entypo
         name="reply"
         size={theme.fontSize(5)}
-        color={theme.colors.blue[400]}
+        color={theme.colors.contrast[400]}
       />
       <View // Container for replied message image and text
         style={{
@@ -61,7 +66,7 @@ const ReplyMessage: FC<ReplyMessageProps> = ({
         >
           <TextWithFont
             styleProps={{
-              color: theme.colors.blue[300],
+              color: theme.colors.contrast[300],
             }}
           >
             Reply to {replyMessage.sender.firstName}
@@ -70,7 +75,7 @@ const ReplyMessage: FC<ReplyMessageProps> = ({
             <TextWithFont // Chat text field
               numberOfLines={1}
               styleProps={{
-                color: theme.colors.blue[300],
+                color: theme.colors.contrast[300],
               }}
             >
               Photo

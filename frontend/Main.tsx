@@ -4,16 +4,12 @@ import * as appJSON from "./app.json";
 import App from "./App";
 import { store } from "./core/store/store";
 import { MD2DarkTheme, PaperProvider, useTheme } from "react-native-paper";
-import { theme } from "./shared/theme";
+
 import "react-native-gesture-handler";
-
-export type AppTheme = typeof theme;
-
-export const useAppTheme = () => useTheme<AppTheme>();
 
 const Main: React.FC = () => {
   return (
-    <PaperProvider theme={theme}>
+    <PaperProvider>
       <App />
     </PaperProvider>
   );

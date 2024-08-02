@@ -1,7 +1,6 @@
 import { ScrollView, View } from "react-native";
 import { FC, useCallback, useEffect, useState } from "react";
 import TextWithFont from "../shared/components/TextWithFont";
-import { theme } from "../shared/theme";
 import { ActivityIndicator } from "react-native-paper";
 import { ChatsRouteProps, IChatPopulated, IUserState } from "../shared/types";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,10 +11,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
+import { createTheme } from "../shared/theme";
 
 const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
   // Global context
-  const { connectionState, chatsLoading, setChatsLoading } = useGlobalContext();
+  const { connectionState, chatsLoading, setChatsLoading, appTheme } =
+    useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux states and dispatch
   const chats: IChatPopulated[] = useSelector(
@@ -123,7 +125,7 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
           position: "absolute",
           bottom: 12,
           right: 12,
-          backgroundColor: theme.colors.blue[500],
+          backgroundColor: theme.colors.contrast[500],
           padding: theme.spacing(4),
           borderRadius: 50,
         }}

@@ -1,4 +1,3 @@
-import { theme } from "../theme";
 import { Entypo } from "@expo/vector-icons";
 import { Image, TouchableOpacity, View } from "react-native";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
@@ -6,10 +5,13 @@ import TextWithFont from "./TextWithFont";
 import { IMessagePopulated } from "../types";
 import { FC } from "react";
 import { useGlobalContext } from "../../core/context/Context";
+import { createTheme } from "../theme";
 
 const ForwardMessages: FC = () => {
   // Global context states
-  const { forwardMessages, setForwardMessages } = useGlobalContext();
+  const { forwardMessages, setForwardMessages, appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
+
   return (
     <View // Container for replied message
       style={{
@@ -27,7 +29,7 @@ const ForwardMessages: FC = () => {
       <Entypo
         name="reply"
         size={theme.fontSize(5)}
-        color={theme.colors.blue[400]}
+        color={theme.colors.contrast[400]}
       />
       <View // Container for replied message image and text
         style={{
@@ -44,7 +46,7 @@ const ForwardMessages: FC = () => {
         >
           <TextWithFont
             styleProps={{
-              color: theme.colors.blue[300],
+              color: theme.colors.contrast[300],
             }}
           >
             Forward {forwardMessages?.length} messages

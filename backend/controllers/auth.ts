@@ -39,6 +39,7 @@ const registration = async (req: Request, res: Response) => {
       dateOfBirth: "",
       friends: [],
       backgroundColors: [getRandomColor(), getRandomColor()],
+      themeTitle: "default",
     };
     const user = new User(userDataBeforeSignUp);
     await user.save();
@@ -88,6 +89,7 @@ const login = async (req: Request, res: Response) => {
     friends: user.friends,
     backgroundColors: user.backgroundColors,
     avatars: user.avatars,
+    themeTitle: user.themeTitle || "default",
   };
   return res.json({ success: true, data: userWithoutPass });
 };

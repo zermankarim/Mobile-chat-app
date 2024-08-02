@@ -1,7 +1,7 @@
 import { Image, TouchableOpacity, View } from "react-native";
 import { FC } from "react";
 import TextWithFont from "../components/TextWithFont";
-import { theme } from "../theme";
+
 import { ChatScreenNavigationProp, IChatPopulated, IUserState } from "../types";
 import { useNavigation } from "@react-navigation/native";
 import { RootState } from "../../core/store/store";
@@ -13,6 +13,8 @@ import { Entypo, MaterialIcons } from "@expo/vector-icons";
 import { formatMessageDate } from "../functions";
 import { LinearGradient } from "expo-linear-gradient";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
+import { createTheme } from "../theme";
+import { useGlobalContext } from "../../core/context/Context";
 
 interface IChatCartProps {
   chat: IChatPopulated;
@@ -29,6 +31,11 @@ const ChatCard: FC<IChatCartProps> = ({
   isSelectedChat,
   oneRecipient,
 }) => {
+  // Global context
+  const { appTheme } = useGlobalContext();
+
+  const theme = createTheme(appTheme);
+
   const navigation = useNavigation<ChatScreenNavigationProp>();
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
@@ -205,7 +212,7 @@ const ChatCard: FC<IChatCartProps> = ({
                   <TextWithFont // Chat text field
                     numberOfLines={1}
                     styleProps={{
-                      color: theme.colors.blue[300],
+                      color: theme.colors.contrast[300],
                     }}
                   >
                     Photo

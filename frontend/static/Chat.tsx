@@ -1,5 +1,4 @@
 import { FC, RefObject, useCallback, useEffect, useRef, useState } from "react";
-import { theme } from "../shared/theme";
 import {
   Dimensions,
   Image,
@@ -35,6 +34,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ReplyMessage from "../shared/components/ReplyMessage";
 import ForwardMessages from "../shared/components/ForwardMessages";
 import Message from "../shared/components/Message";
+import { createTheme } from "../shared/theme";
 
 const Chat: FC<ChatRouteProps> = ({ navigation }) => {
   // Global context states
@@ -44,7 +44,9 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
     setChatLoading,
     forwardMessages,
     setForwardMessages,
+    appTheme,
   } = useGlobalContext();
+  const theme = createTheme(appTheme);
 
   // Redux states and dispatch
   const currentChat = useSelector((state: RootState) => state.currentChat);
@@ -387,7 +389,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
             position: "absolute",
             width: Dimensions.get("window").width,
             height: Dimensions.get("window").height,
-            tintColor: theme.colors.blue[100],
+            tintColor: theme.colors.contrast[100],
             opacity: 0.7,
           }}
         ></Image>

@@ -1,7 +1,8 @@
 import { FC } from "react";
 import { TextStyle } from "react-native";
 import { Text } from "react-native-paper";
-import { theme } from "../theme";
+import { createTheme } from "../theme";
+import { useGlobalContext } from "../../core/context/Context";
 
 type MyAppTextProps = {
   children: React.ReactNode;
@@ -14,6 +15,10 @@ const TextWithFont: FC<MyAppTextProps> = ({
   styleProps,
   numberOfLines,
 }) => {
+  // Global context
+  const { appTheme } = useGlobalContext();
+  const theme = createTheme(appTheme);
+
   return (
     <Text
       numberOfLines={numberOfLines}

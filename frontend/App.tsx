@@ -14,6 +14,7 @@ import {
   ISocketEmitEvent,
   ISocketOnEvent,
   IUserState,
+  ThemeType,
 } from "./shared/types";
 import { StatusBar } from "react-native";
 
@@ -28,6 +29,8 @@ const App: FC = () => {
   const [forwardMessages, setForwardMessages] = useState<
     IMessagePopulated[] | null
   >(null);
+
+  const [appTheme, setAppTheme] = useState<ThemeType>("default");
 
   const [connectionState, setConnectionState] = useState<Socket<
     ISocketOnEvent,
@@ -80,6 +83,8 @@ const App: FC = () => {
           setCreateChatLoading,
           forwardMessages,
           setForwardMessages,
+          appTheme,
+          setAppTheme,
         }}
       >
         <NavigationContainer>
