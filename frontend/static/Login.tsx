@@ -18,8 +18,8 @@ import { createTheme } from "../shared/theme";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
   // Global context
-  const { setConnectionState, appTheme, setAppTheme } = useGlobalContext();
-  const theme = createTheme(appTheme);
+  const { setConnectionState, setAppTheme } = useGlobalContext();
+  const theme = createTheme("default");
 
   // Redux states and dispatch
   const dispatch = useDispatch();
