@@ -10,7 +10,6 @@ const userSchema = new Schema<IUser>({
   friends: { type: [String], required: true },
   backgroundColors: { type: [String], required: true },
   password: { type: String, required: true },
-  themeTitle: { type: String, required: true },
 });
 
 const chatSchema = new Schema<IChat>({

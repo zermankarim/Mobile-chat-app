@@ -298,40 +298,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("changeTheme", async (userId, themeTitle) => {
-    try {
-      const foundAndUpdatedUser = await User.findOneAndUpdate(
-        { _id: userId },
-        {
-          themeTitle,
-        },
-        {
-          new: true,
-        }
-      );
-      if (!foundAndUpdatedUser) {
-        console.error("changeTheme: User wasn't found or updated");
-        socket.emit("changeTheme", {
-          success: false,
-          message: "changeTheme: User wasn't found or updated",
-        });
-        return;
-      }
-      socket.emit("changeTheme", {
-        success: true,
-        userData: foundAndUpdatedUser,
-      });
-    } catch (e: any) {
-      console.error(
-        `changeTheme: Error during updating user theme: ${e.messate}`
-      );
-      socket.emit("changeTheme", {
-        success: false,
-        message: `changeTheme: Error during updating user theme: ${e.messate}`,
-      });
-    }
-  });
-
   socket.on("disconnect", () => {
     const foundConnUserIdx = CONNECTED_USERS.findIndex(
       (connUser) => connUser.socketId === socket.id

@@ -306,7 +306,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 													backgroundColors: [],
 													avatars: [],
 													friends: [],
-													themeTitle: "default",
 												},
 												messages: [],
 												participants: [],

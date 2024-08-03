@@ -15,8 +15,8 @@ import {
 	ChatScreenNavigationProp,
 	IChatPopulated,
 	IUserState,
-	ProfileScreenNavigationProp,
 	RootStackParamList,
+	ThemeType,
 } from "./shared/types";
 import Chat from "./static/Chat";
 import { Alert, Dimensions } from "react-native";
@@ -33,8 +33,9 @@ import { setChats } from "./core/reducers/chats";
 import ChatSettings from "./static/ChatSettings";
 import { setUser } from "./core/reducers/user";
 import { createTheme } from "./shared/theme";
-import Animated from "react-native-reanimated";
 import AnimatedScreen from "./shared/components/AnimatedScreen";
+import storage from "./core/storage/storage";
+import uuid from "react-native-uuid";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -186,31 +187,11 @@ const RootNavigator: FC = () => {
 				}
 			}
 
-			function onChangeTheme(data: {
-				success: boolean;
-				message?: string;
-				userData?: IUserState;
-			}) {
-				if (data) {
-					const { success } = data;
-					if (!success) {
-						const { message } = data;
-						console.error(message);
-						Alert.alert(message!);
-						return;
-					}
-					const { userData } = data;
-					dispatch(setUser(userData!));
-					// setAppTheme(userData?.themeTitle!)
-				}
-			}
-
 			connectionState?.on("getChatsByUserId", onGetChatsByUserId);
 			connectionState?.on("getChatById", onGetChatById);
 			connectionState?.on("getUsersForCreateChat", onGetUsersForCreateChat);
 			connectionState?.on("openChatWithUser", onOpenChatWithUser);
 			connectionState?.on("getUserById", onGetUserById);
-			connectionState?.on("changeTheme", onChangeTheme);
 
 			return () => {
 				connectionState?.off("getChatsByUserId", onGetChatsByUserId);
@@ -218,7 +199,6 @@ const RootNavigator: FC = () => {
 				connectionState?.off("getUsersForCreateChat", onGetUsersForCreateChat);
 				connectionState?.off("openChatWithUser", onOpenChatWithUser);
 				connectionState?.off("getUserById", onGetUserById);
-				connectionState?.off("changeTheme", onChangeTheme);
 			};
 		}
 	}, [connectionState]);
@@ -226,7 +206,21 @@ const RootNavigator: FC = () => {
 	useEffect(() => {
 		if (user._id && !connectionState) {
 			connectToSocket(user._id);
-			setAppTheme(user.themeTitle);
+			const changeTheme = async () => {
+				const themeTitlesArr: ThemeType[] = await storage.getAllDataForKey(
+					"themeTitle"
+				);
+				if (!themeTitlesArr.length) {
+					setAppTheme("default");
+					return storage.save({
+						key: "themeTitle",
+						id: uuid.v4().toString(),
+						data: "default",
+					});
+				}
+				setAppTheme(themeTitlesArr[0]);
+			};
+			changeTheme();
 		}
 	}, []);
 

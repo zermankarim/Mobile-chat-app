@@ -19,7 +19,6 @@ export interface IUserBeforeSignUp {
   friends: string[];
   backgroundColors: string[];
   password: string;
-  themeTitle: string;
 }
 
 export interface IUser {
@@ -32,7 +31,6 @@ export interface IUser {
   friends: IUser[] | Types.ObjectId[];
   backgroundColors: string[];
   password?: string;
-  themeTitle: string;
 }
 
 export interface IMessage {
@@ -110,11 +108,6 @@ export interface ISocketEmitEvent {
     message?: string;
     userData?: IUser;
   }) => void;
-  changeTheme: (data: {
-    success: boolean;
-    message?: string;
-    userData?: IUser;
-  }) => void;
 }
 
 // Socket.IO client to server Interface
@@ -134,7 +127,6 @@ export interface ISocketOnEvent {
     participantsIds: string[]
   ) => void;
   getUserById: (userId: string) => void;
-  changeTheme: (userId: string, themeTitle: ThemeType) => void;
 }
 
 export interface IConnectedUser {
