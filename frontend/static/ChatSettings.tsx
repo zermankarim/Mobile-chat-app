@@ -1,18 +1,19 @@
-import { Image, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
 import TextWithFont from "../shared/components/TextWithFont";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { createTheme } from "../shared/theme";
 import { useGlobalContext } from "../core/context/Context";
-import { ThemeType } from "../shared/types";
+import { ChatSettingsRouteProps, ThemeType } from "../shared/types";
 import { ScrollView } from "react-native-gesture-handler";
 import uuid from "react-native-uuid";
 import { useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import storage from "../core/storage/storage";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-const ChatSettings = () => {
+const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 	// Global context
-	const { appTheme, setAppTheme, connectionState } = useGlobalContext();
+	const { appTheme, setAppTheme, wallpapers } = useGlobalContext();
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
@@ -70,12 +71,16 @@ const ChatSettings = () => {
 				}}
 			>
 				<Image
-					source={require("../assets/chat-background-items.png")}
+					source={
+						wallpapers.length
+							? { uri: wallpapers.find((wllp) => wllp.selected == true)?.uri }
+							: require("../assets/chat-background-items.png")
+					}
 					style={{
 						position: "absolute",
 						width: "100%",
 						height: "100%",
-						tintColor: theme.colors.contrast[100],
+						tintColor: wallpapers.length ? "none" : theme.colors.contrast[100],
 					}}
 				></Image>
 				<TouchableOpacity // Container for message row
@@ -172,6 +177,33 @@ const ChatSettings = () => {
 					</TouchableOpacity>
 				</TouchableOpacity>
 			</View>
+			<TouchableOpacity
+				onPress={() => navigation.navigate("ChangeWallpaper")}
+				style={{
+					flexDirection: "row",
+					alignItems: "center",
+					gap: theme.spacing(2),
+					width: "100%",
+					minHeight: 50,
+					padding: theme.spacing(4),
+					backgroundColor: theme.colors.main[400],
+					borderBottomColor: theme.colors.main[500],
+					borderBottomWidth: 1,
+				}}
+			>
+				<MaterialIcons
+					name="wallpaper"
+					size={24}
+					color={theme.colors.contrast[300]}
+				/>
+				<TextWithFont
+					styleProps={{
+						color: theme.colors.contrast[300],
+					}}
+				>
+					Change wallpaper
+				</TextWithFont>
+			</TouchableOpacity>
 			<View
 				style={{
 					width: "100%",

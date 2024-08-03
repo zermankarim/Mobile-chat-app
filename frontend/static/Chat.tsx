@@ -43,6 +43,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 		forwardMessages,
 		setForwardMessages,
 		appTheme,
+		wallpapers,
 	} = useGlobalContext();
 	const theme = createTheme(appTheme);
 
@@ -381,13 +382,17 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 					)}
 				</View>
 				{/* {Header container} */}
-				<Image // Background image
-					source={require("../assets/chat-background-items.png")}
+				<Image
+					source={
+						wallpapers.length
+							? { uri: wallpapers.find((wllp) => wllp.selected == true)?.uri }
+							: require("../assets/chat-background-items.png")
+					}
 					style={{
 						position: "absolute",
 						width: Dimensions.get("window").width,
 						height: Dimensions.get("window").height,
-						tintColor: theme.colors.contrast[100],
+						tintColor: wallpapers.length ? "none" : theme.colors.contrast[100],
 						opacity: 0.7,
 					}}
 				></Image>

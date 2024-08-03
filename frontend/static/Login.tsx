@@ -20,7 +20,7 @@ import { uuid } from "expo-modules-core";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
 	// Global context
-	const { setConnectionState, setAppTheme } = useGlobalContext();
+	const { setConnectionState, setAppTheme, setWallpapers } = useGlobalContext();
 	const theme = createTheme("default");
 
 	// Redux states and dispatch
@@ -92,6 +92,11 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
 					});
 				}
 				setAppTheme(themeTitlesArr[0]);
+
+				const base64Wallpapers = await storage.getAllDataForKey(
+					"base64Wallpapers"
+				);
+				setWallpapers(base64Wallpapers);
 			} else {
 				setLoadingLogin(false);
 				setIsDisabledButton(false);

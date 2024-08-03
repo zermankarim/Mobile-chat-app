@@ -36,6 +36,7 @@ import { createTheme } from "./shared/theme";
 import AnimatedScreen from "./shared/components/AnimatedScreen";
 import storage from "./core/storage/storage";
 import uuid from "react-native-uuid";
+import ChangeWallpaper from "./static/ChangeWallpaper";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -376,7 +377,6 @@ const RootNavigator: FC = () => {
 			</Drawer.Screen>
 			<Drawer.Screen
 				name="ChatSettings"
-				component={ChatSettings}
 				options={{
 					headerLeft: () => (
 						<Button
@@ -394,7 +394,49 @@ const RootNavigator: FC = () => {
 					),
 					headerTitle: undefined,
 				}}
-			/>
+			>
+				{(props) => (
+					<AnimatedScreen
+						styleProps={{
+							flex: 1,
+						}}
+						navType="forward"
+					>
+						<ChatSettings navigation={props.navigation}></ChatSettings>
+					</AnimatedScreen>
+				)}
+			</Drawer.Screen>
+			<Drawer.Screen
+				name="ChangeWallpaper"
+				options={{
+					headerLeft: () => (
+						<Button
+							style={{
+								minWidth: 0,
+							}}
+						>
+							<Ionicons
+								name="arrow-back-outline"
+								size={24}
+								color={theme.colors.main[200]}
+								onPress={() => navigation.navigate("ChatSettings")}
+							/>
+						</Button>
+					),
+					headerTitle: "Change wallpaper",
+				}}
+			>
+				{(props) => (
+					<AnimatedScreen
+						styleProps={{
+							flex: 1,
+						}}
+						navType="forward"
+					>
+						<ChangeWallpaper></ChangeWallpaper>
+					</AnimatedScreen>
+				)}
+			</Drawer.Screen>
 		</Drawer.Navigator>
 	) : (
 		<Drawer.Navigator
