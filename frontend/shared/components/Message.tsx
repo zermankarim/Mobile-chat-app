@@ -72,8 +72,8 @@ const Message: FC<MessageProps> = ({
 	useEffect(() => {
 		if (selectedMessages && leftPosSelectedMsg.value === -8) {
 			leftPosSelectedMsg.value = withTiming(8, {
-        duration: 50,
-      });
+				duration: 50,
+			});
 		} else {
 			leftPosSelectedMsg.value = withTiming(8);
 		}
