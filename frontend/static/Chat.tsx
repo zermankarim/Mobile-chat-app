@@ -33,6 +33,7 @@ import ReplyMessage from "../shared/components/ReplyMessage";
 import ForwardMessages from "../shared/components/ForwardMessages";
 import Message from "../shared/components/Message";
 import { createTheme } from "../shared/theme";
+import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 
 const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 	// Global context states
@@ -64,6 +65,10 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 	const [replyMessage, setReplyMessage] = useState<IMessagePopulated | null>(
 		null
 	);
+
+	// Animated
+	const userInfoHeight = useSharedValue(40);
+	const headerButtonsHeight = useSharedValue(0);
 
 	// Functions
 	const handleDeleteMessages = (selectedFromMenu?: IMessagePopulated) => {
@@ -138,6 +143,17 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 		setChatLoading(false);
 	}, [currentChat]);
 
+	useEffect(() => {
+		if (selectedMessages.length === 1) {
+			userInfoHeight.value = withTiming(0, { duration: 100 });
+			headerButtonsHeight.value = withTiming(40, { duration: 100 });
+		}
+		if (selectedMessages.length === 0) {
+			userInfoHeight.value = withTiming(40, { duration: 100 });
+			headerButtonsHeight.value = withTiming(0, { duration: 100 });
+		}
+	}, [selectedMessages]);
+
 	if (chatLoading) {
 		return (
 			<ActivityIndicator
@@ -175,12 +191,12 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 					}}
 				>
 					{selectedMessages.length ? (
-						<View
+						<Animated.View
 							style={{
 								flexDirection: "row",
 								alignItems: "center",
 								justifyContent: "space-between",
-								height: 40,
+								height: headerButtonsHeight,
 								width: "100%",
 								gap: theme.spacing(3),
 								paddingHorizontal: theme.spacing(2),
@@ -270,89 +286,91 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 									/>
 								</TouchableOpacity>
 							</View>
-						</View>
+						</Animated.View>
 					) : oneRecipient ? (
-						<TouchableOpacity
-							onPress={() => {
-								navigation.navigate("Profile", { owner: oneRecipient });
-							}}
-							style={{
-								flexDirection: "row",
-								alignItems: "center",
-								gap: theme.spacing(3),
-							}}
-						>
-							<Button
+						<Animated.View style={{ height: userInfoHeight }}>
+							<TouchableOpacity
+								onPress={() => {
+									navigation.navigate("Profile", { owner: oneRecipient });
+								}}
 								style={{
-									minWidth: 0,
+									flexDirection: "row",
+									alignItems: "center",
+									gap: theme.spacing(3),
 								}}
 							>
-								<Ionicons
-									name="arrow-back-outline"
-									size={24}
-									color={theme.colors.main[200]}
-									onPress={() => {
-										setForwardMessages(null);
-										setReplyMessage(null);
-										dispatch(
-											setCurrentChat({
-												_id: "",
-												createdAt: "",
-												createdBy: {
-													_id: "",
-													firstName: "",
-													lastName: "",
-													email: "",
-													dateOfBirth: "",
-													backgroundColors: [],
-													avatars: [],
-													friends: [],
-												},
-												messages: [],
-												participants: [],
-											})
-										);
-										navigation.navigate("Chats");
-									}}
-								/>
-							</Button>
-							{oneRecipient.avatars.length ? (
-								<Avatar.Image
-									size={36}
-									source={{
-										uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
-											oneRecipient.avatars[oneRecipient.avatars.length - 1]
-										}`,
-									}}
-								></Avatar.Image>
-							) : (
-								<LinearGradient
-									colors={oneRecipient.backgroundColors}
+								<Button
 									style={{
-										justifyContent: "center",
-										alignItems: "center",
-										height: 36,
-										width: 36,
-										borderRadius: 50,
+										minWidth: 0,
 									}}
 								>
-									<TextWithFont
-										styleProps={{
-											fontSize: theme.fontSize(3),
+									<Ionicons
+										name="arrow-back-outline"
+										size={24}
+										color={theme.colors.main[200]}
+										onPress={() => {
+											setForwardMessages(null);
+											setReplyMessage(null);
+											dispatch(
+												setCurrentChat({
+													_id: "",
+													createdAt: "",
+													createdBy: {
+														_id: "",
+														firstName: "",
+														lastName: "",
+														email: "",
+														dateOfBirth: "",
+														backgroundColors: [],
+														avatars: [],
+														friends: [],
+													},
+													messages: [],
+													participants: [],
+												})
+											);
+											navigation.navigate("Chats");
+										}}
+									/>
+								</Button>
+								{oneRecipient.avatars.length ? (
+									<Avatar.Image
+										size={36}
+										source={{
+											uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+												oneRecipient.avatars[oneRecipient.avatars.length - 1]
+											}`,
+										}}
+									></Avatar.Image>
+								) : (
+									<LinearGradient
+										colors={oneRecipient.backgroundColors}
+										style={{
+											justifyContent: "center",
+											alignItems: "center",
+											height: 36,
+											width: 36,
+											borderRadius: 50,
 										}}
 									>
-										{oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
-									</TextWithFont>
-								</LinearGradient>
-							)}
-							<TextWithFont
-								styleProps={{
-									fontSize: theme.fontSize(5),
-								}}
-							>
-								{oneRecipient.firstName + " " + oneRecipient.lastName}
-							</TextWithFont>
-						</TouchableOpacity>
+										<TextWithFont
+											styleProps={{
+												fontSize: theme.fontSize(3),
+											}}
+										>
+											{oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
+										</TextWithFont>
+									</LinearGradient>
+								)}
+								<TextWithFont
+									styleProps={{
+										fontSize: theme.fontSize(5),
+									}}
+								>
+									{oneRecipient.firstName + " " + oneRecipient.lastName}
+								</TextWithFont>
+							</TouchableOpacity>
+						</Animated.View>
 					) : (
 						<View
 							style={{
