@@ -3,9 +3,10 @@ import { Image, TouchableOpacity, View } from "react-native";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import TextWithFont from "./TextWithFont";
 import { IMessagePopulated } from "../types";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { createTheme } from "../theme";
 import { useGlobalContext } from "../../core/context/Context";
+import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 
 type ReplyMessageProps = {
   replyMessage: IMessagePopulated;
@@ -20,15 +21,21 @@ const ReplyMessage: FC<ReplyMessageProps> = ({
   const { appTheme } = useGlobalContext();
   const theme = createTheme(appTheme);
 
+  // Animated styles
+  const replyMsgHeight = useSharedValue(0);
+
+  useEffect(() => {
+    replyMsgHeight.value = withTiming(60);
+  }, []);
   return (
-    <View // Container for replied message
+    <Animated.View // Container for replied message
       style={{
         flexDirection: "row",
         alignItems: "center",
         gap: theme.spacing(2),
         backgroundColor: theme.colors.main[400],
         width: "100%",
-        height: 60,
+        height: replyMsgHeight,
         borderBottomColor: theme.colors.main[500],
         borderBottomWidth: 1,
         padding: theme.spacing(3),
@@ -105,7 +112,7 @@ const ReplyMessage: FC<ReplyMessageProps> = ({
           }}
         />
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 };
 

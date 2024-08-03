@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Dimensions, TouchableOpacity, View } from "react-native";
 import TextWithFont from "../shared/components/TextWithFont";
 import { CreateChatRouteProps, IUserState } from "../shared/types";
 import { ActivityIndicator, Avatar } from "react-native-paper";
@@ -12,6 +12,7 @@ import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 import { createTheme } from "../shared/theme";
+import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 
 const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
   // Global context states
@@ -61,7 +62,7 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
     );
   }
   return (
-    <View // Container for "Create chat" page
+    <Animated.View // Container for "Create chat" page
       style={{
         flex: 1,
         backgroundColor: theme.colors.main[400],
@@ -150,7 +151,7 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
-    </View>
+    </Animated.View>
   );
 };
 

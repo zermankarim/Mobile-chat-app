@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import TextWithFont from "../shared/components/TextWithFont";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
