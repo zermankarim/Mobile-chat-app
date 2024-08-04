@@ -1,4 +1,11 @@
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
+import {
+	Alert,
+	Dimensions,
+	Image,
+	Platform,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import TextWithFont from "../shared/components/TextWithFont";
 import { FC, useState } from "react";
 import { createTheme } from "../shared/theme";
@@ -10,10 +17,12 @@ import { useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import storage from "../core/storage/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { LinearGradient } from "expo-linear-gradient";
 
 const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 	// Global context
-	const { appTheme, setAppTheme, wallpaperPicture } = useGlobalContext();
+	const { appTheme, setAppTheme, wallpaperPicture, wallpaperGradient } =
+		useGlobalContext();
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
@@ -70,19 +79,47 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 					backgroundColor: theme.colors.main[500],
 				}}
 			>
-				<Image
-					source={
-						wallpaperPicture
-							? { uri: wallpaperPicture.uri }
-							: require("../assets/chat-background-items.png")
-					}
-					style={{
-						position: "absolute",
-						width: "100%",
-						height: "100%",
-						tintColor: wallpaperPicture ? "none" : theme.colors.contrast[100],
-					}}
-				></Image>
+				{wallpaperGradient ? (
+					<>
+						<LinearGradient
+							colors={wallpaperGradient.colors}
+							start={{ x: 0.1, y: 0.1 }}
+							end={{ x: 0.9, y: 0.9 }}
+							style={{
+								position: "absolute",
+								width: "100%",
+								height: "100%",
+							}}
+						></LinearGradient>
+						{wallpaperGradient.withImage && (
+							<Image
+								source={require("../assets/chat-background-items.png")}
+								style={{
+									position: "absolute",
+									opacity: 0.7,
+									width: "100%",
+									height: "100%",
+								}}
+								tintColor={wallpaperGradient.imageColor}
+							></Image>
+						)}
+					</>
+				) : (
+					<Image
+						source={
+							wallpaperPicture
+								? { uri: wallpaperPicture.uri }
+								: require("../assets/chat-background-items.png")
+						}
+						style={{
+							position: "absolute",
+							width: Dimensions.get("window").width,
+							height: Dimensions.get("window").height,
+							tintColor: wallpaperPicture ? "none" : theme.colors.contrast[100],
+							opacity: 0.7,
+						}}
+					></Image>
+				)}
 				<TouchableOpacity // Container for message row
 					style={{
 						position: "relative",
