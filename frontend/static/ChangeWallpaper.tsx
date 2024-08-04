@@ -8,26 +8,48 @@ import {
 	View,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { blobToBase64 } from "../shared/functions";
-import { FC, useCallback, useState } from "react";
+import {
+	blobToBase64,
+	getWallpapersGradientsAndSetState,
+	getWallpapersPicturesAndSetState,
+} from "../shared/functions";
+import { FC, useCallback, useEffect, useState } from "react";
 import { createTheme } from "../shared/theme";
 import { useGlobalContext } from "../core/context/Context";
 import TextWithFont from "../shared/components/TextWithFont";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import storage from "../core/storage/storage";
-import { IBase64Wallpaper } from "../shared/types";
+import {
+	ChangeWallpaperRouteProps,
+	IBase64Wallpaper,
+	IWallpaperGradient,
+} from "../shared/types";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import uuid from "react-native-uuid";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { LinearGradient } from "expo-linear-gradient";
 
-const ChangeWallpaper: FC = () => {
+const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 	// Global context states
-	const { appTheme, wallpapers, setWallpapers } = useGlobalContext();
+	const {
+		appTheme,
+		wallpaperPicture,
+		setWallpaperPicture,
+		setWallpaperGradient,
+	} = useGlobalContext();
 
 	// Theme
 	const theme = createTheme(appTheme);
+
+	// States
+	const [wallpapersPreview, setWallpapersPreview] = useState<
+		IBase64Wallpaper[]
+	>([]);
+	const [wallpapersGradientsPreview, setWallpapersGradientsPreview] = useState<
+		IWallpaperGradient[]
+	>([]);
 
 	// Functions
 	const handleClickImagePicker = async () => {
@@ -63,17 +85,6 @@ const ChangeWallpaper: FC = () => {
 		}
 	};
 
-	const getWallpapersAndSetState = async () => {
-		const base64Wallpapers: IBase64Wallpaper[] = await storage.getAllDataForKey(
-			"base64Wallpapers"
-		);
-		if (base64Wallpapers.length) {
-			setWallpapers(base64Wallpapers);
-		} else {
-			setWallpapers([]);
-		}
-	};
-
 	const uploadAndChangeWallpaper = async (base64Image: string) => {
 		try {
 			const base64Wallpapers: IBase64Wallpaper[] =
@@ -102,7 +113,10 @@ const ChangeWallpaper: FC = () => {
 					})
 				)
 			);
-			getWallpapersAndSetState();
+			getWallpapersPicturesAndSetState(
+				setWallpaperPicture,
+				setWallpapersPreview
+			);
 		} catch (e: any) {
 			console.error(
 				`changeWallpaper: Error during saving wallpaper: ${e.message}`
@@ -132,51 +146,88 @@ const ChangeWallpaper: FC = () => {
 				})
 			)
 		);
-		getWallpapersAndSetState();
+		getWallpapersPicturesAndSetState(setWallpaperPicture, setWallpapersPreview);
 	};
 
 	// Effects
 	useFocusEffect(
 		useCallback(() => {
-			getWallpapersAndSetState();
+			getWallpapersPicturesAndSetState(
+				setWallpaperPicture,
+				setWallpapersPreview
+			);
+			getWallpapersGradientsAndSetState(
+				setWallpaperGradient,
+				setWallpapersGradientsPreview
+			);
 		}, [])
 	);
 
 	return (
-		<View
+		<View // Container for Change Wallpaper Component
 			style={{
 				flex: 1,
 				gap: theme.spacing(3),
 				backgroundColor: theme.colors.main[500],
 			}}
 		>
-			<TouchableOpacity
-				onPress={handleClickImagePicker}
-				style={{
-					flexDirection: "row",
-					alignItems: "center",
-					gap: theme.spacing(2),
-					width: "100%",
-					minHeight: 50,
-					padding: theme.spacing(4),
-					backgroundColor: theme.colors.main[400],
-					borderBottomColor: theme.colors.main[500],
-					borderBottomWidth: 1,
-				}}
+			<View // Container for choose buttons
 			>
-				<MaterialIcons
-					name="wallpaper"
-					size={24}
-					color={theme.colors.contrast[300]}
-				/>
-				<TextWithFont
-					styleProps={{
-						color: theme.colors.contrast[300],
+				<TouchableOpacity
+					onPress={handleClickImagePicker}
+					style={{
+						flexDirection: "row",
+						alignItems: "center",
+						gap: theme.spacing(2),
+						width: "100%",
+						minHeight: 50,
+						padding: theme.spacing(4),
+						backgroundColor: theme.colors.main[400],
+						borderBottomColor: theme.colors.main[500],
+						borderBottomWidth: 1,
 					}}
 				>
-					Choose from gallery
-				</TextWithFont>
-			</TouchableOpacity>
+					<MaterialIcons
+						name="wallpaper"
+						size={24}
+						color={theme.colors.contrast[300]}
+					/>
+					<TextWithFont
+						styleProps={{
+							color: theme.colors.contrast[300],
+						}}
+					>
+						Choose from gallery
+					</TextWithFont>
+				</TouchableOpacity>
+				<TouchableOpacity
+					onPress={() => navigation.navigate("WallpaperGradient")}
+					style={{
+						flexDirection: "row",
+						alignItems: "center",
+						gap: theme.spacing(2),
+						width: "100%",
+						minHeight: 50,
+						padding: theme.spacing(4),
+						backgroundColor: theme.colors.main[400],
+						borderBottomColor: theme.colors.main[500],
+						borderBottomWidth: 1,
+					}}
+				>
+					<Ionicons
+						name="color-palette-outline"
+						size={24}
+						color={theme.colors.contrast[300]}
+					/>
+					<TextWithFont
+						styleProps={{
+							color: theme.colors.contrast[300],
+						}}
+					>
+						Set a gradient
+					</TextWithFont>
+				</TouchableOpacity>
+			</View>
 			<ScrollView
 				contentContainerStyle={{
 					flexDirection: "row",
@@ -188,8 +239,64 @@ const ChangeWallpaper: FC = () => {
 					backgroundColor: theme.colors.main[400],
 				}}
 			>
-				{wallpapers.length ? (
-					wallpapers.map((wallpaper) => (
+				{wallpapersGradientsPreview.length
+					? wallpapersGradientsPreview.map((wallpaper) => (
+							<TouchableOpacity
+								// onPress={() => changeWallpaperTo(wallpaper)}
+								key={uuid.v4() + "-containerWallpaper"}
+								style={{
+									justifyContent: "center",
+									alignItems: "center",
+									padding: theme.spacing(1),
+									width:
+										Dimensions.get("window").width / 3 - theme.spacing(1) * 3,
+									height: (Dimensions.get("window").width / 3) * 2,
+								}}
+							>
+								{wallpaper.selected && (
+									<View
+										style={{
+											position: "absolute",
+											zIndex: 1,
+											backgroundColor: theme.colors.main[500],
+											padding: theme.spacing(1),
+											borderRadius: 50,
+										}}
+									>
+										<AntDesign
+											name="checkcircleo"
+											size={24}
+											color={theme.colors.main[100]}
+										/>
+									</View>
+								)}
+								<LinearGradient
+									colors={wallpaper.colors}
+									start={{ x: 0.1, y: 0.1 }}
+									end={{ x: 0.9, y: 0.9 }}
+									style={{
+										position: "absolute",
+										width: "100%",
+										height: "100%",
+									}}
+								></LinearGradient>
+								{wallpaper.withImage && (
+									<Image
+										source={require("../assets/chat-background-items.png")}
+										style={{
+											position: "absolute",
+											opacity: 0.7,
+											width: "100%",
+											height: "100%",
+										}}
+										tintColor={wallpaper.imageColor}
+									></Image>
+								)}
+							</TouchableOpacity>
+					  ))
+					: null}
+				{wallpapersPreview.length || wallpapersGradientsPreview.length ? (
+					wallpapersPreview.map((wallpaper) => (
 						<TouchableOpacity
 							onPress={() => changeWallpaperTo(wallpaper)}
 							key={uuid.v4() + "-containerWallpaper"}
@@ -219,7 +326,8 @@ const ChangeWallpaper: FC = () => {
 							<Image
 								source={{ uri: wallpaper.uri }}
 								style={{
-									width: Dimensions.get("window").width / 3,
+									width:
+										Dimensions.get("window").width / 3 - theme.spacing(1) * 3,
 									height: (Dimensions.get("window").width / 3) * 2,
 								}}
 							></Image>

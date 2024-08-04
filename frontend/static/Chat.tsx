@@ -44,7 +44,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 		forwardMessages,
 		setForwardMessages,
 		appTheme,
-		wallpapers,
+		wallpaperPicture,
+		wallpaperGradient,
 	} = useGlobalContext();
 	const theme = createTheme(appTheme);
 
@@ -392,20 +393,45 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 					)}
 				</View>
 				{/* {Header container} */}
-				<Image
-					source={
-						wallpapers.length
-							? { uri: wallpapers.find((wllp) => wllp.selected == true)?.uri }
-							: require("../assets/chat-background-items.png")
-					}
-					style={{
-						position: "absolute",
-						width: Dimensions.get("window").width,
-						height: Dimensions.get("window").height,
-						tintColor: wallpapers.length ? "none" : theme.colors.contrast[100],
-						opacity: 0.7,
-					}}
-				></Image>
+				{wallpaperGradient ? (
+					<>
+						<LinearGradient
+							colors={wallpaperGradient.colors}
+							start={{ x: 0.1, y: 0.1 }}
+							end={{ x: 0.9, y: 0.9 }}
+							style={{
+								position: "absolute",
+								width: "100%",
+								height: "100%",
+							}}
+						></LinearGradient>
+						{wallpaperGradient.withImage && (
+							<Image
+								source={require("../assets/chat-background-items.png")}
+								style={{
+									position: "absolute",
+									opacity: 0.7,
+								}}
+								tintColor={wallpaperGradient.imageColor}
+							></Image>
+						)}
+					</>
+				) : (
+					<Image
+						source={
+							wallpaperPicture
+								? { uri: wallpaperPicture.uri }
+								: require("../assets/chat-background-items.png")
+						}
+						style={{
+							position: "absolute",
+							width: Dimensions.get("window").width,
+							height: Dimensions.get("window").height,
+							tintColor: wallpaperPicture ? "none" : theme.colors.contrast[100],
+							opacity: 0.7,
+						}}
+					></Image>
+				)}
 				{messages.length ? (
 					<ScrollView // Container for messages
 						ref={scrollViewRef}

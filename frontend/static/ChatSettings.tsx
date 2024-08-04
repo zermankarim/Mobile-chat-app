@@ -13,7 +13,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 	// Global context
-	const { appTheme, setAppTheme, wallpapers } = useGlobalContext();
+	const { appTheme, setAppTheme, wallpaperPicture } = useGlobalContext();
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
@@ -72,15 +72,15 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 			>
 				<Image
 					source={
-						wallpapers.length
-							? { uri: wallpapers.find((wllp) => wllp.selected == true)?.uri }
+						wallpaperPicture
+							? { uri: wallpaperPicture.uri }
 							: require("../assets/chat-background-items.png")
 					}
 					style={{
 						position: "absolute",
 						width: "100%",
 						height: "100%",
-						tintColor: wallpapers.length ? "none" : theme.colors.contrast[100],
+						tintColor: wallpaperPicture ? "none" : theme.colors.contrast[100],
 					}}
 				></Image>
 				<TouchableOpacity // Container for message row

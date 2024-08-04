@@ -37,6 +37,7 @@ import AnimatedScreen from "./shared/components/AnimatedScreen";
 import storage from "./core/storage/storage";
 import uuid from "react-native-uuid";
 import ChangeWallpaper from "./static/ChangeWallpaper";
+import WallpaperGradient from "./static/WallpaperGradient";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -433,7 +434,38 @@ const RootNavigator: FC = () => {
 						}}
 						navType="forward"
 					>
-						<ChangeWallpaper></ChangeWallpaper>
+						<ChangeWallpaper navigation={props.navigation}></ChangeWallpaper>
+					</AnimatedScreen>
+				)}
+			</Drawer.Screen>
+			<Drawer.Screen
+				name="WallpaperGradient"
+				options={{
+					headerLeft: () => (
+						<Button
+							style={{
+								minWidth: 0,
+							}}
+						>
+							<Ionicons
+								name="arrow-back-outline"
+								size={24}
+								color={theme.colors.main[200]}
+								onPress={() => navigation.navigate("ChangeWallpaper")}
+							/>
+						</Button>
+					),
+					headerTitle: "Choose gradient wallpaper",
+				}}
+			>
+				{(props) => (
+					<AnimatedScreen
+						styleProps={{
+							flex: 1,
+						}}
+						navType="forward"
+					>
+						<WallpaperGradient></WallpaperGradient>
 					</AnimatedScreen>
 				)}
 			</Drawer.Screen>

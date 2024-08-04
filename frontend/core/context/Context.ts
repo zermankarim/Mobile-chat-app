@@ -6,6 +6,7 @@ import {
 	ISocketEmitEvent,
 	ISocketOnEvent,
 	IUserState,
+	IWallpaperGradient,
 	ThemeType,
 } from "../../shared/types";
 export type GlobalStates = {
@@ -26,10 +27,13 @@ export type GlobalStates = {
 	>;
 	usersForChat: IUserState[];
 	setUsersForChat: (newState: IUserState[]) => void;
+
 	appTheme: ThemeType;
 	setAppTheme: (newState: ThemeType) => void;
-	wallpapers: IBase64Wallpaper[];
-	setWallpapers: (newState: IBase64Wallpaper[]) => void;
+	wallpaperPicture: IBase64Wallpaper | null;
+	setWallpaperPicture: (newState: IBase64Wallpaper | null) => void;
+	wallpaperGradient: IWallpaperGradient | null;
+	setWallpaperGradient: (newState: IWallpaperGradient | null) => void;
 };
 export const GlobalContext = createContext<GlobalStates>({
 	loading: false,
@@ -51,7 +55,9 @@ export const GlobalContext = createContext<GlobalStates>({
 
 	appTheme: "default",
 	setAppTheme: () => {},
-	wallpapers: [],
-	setWallpapers: () => {},
+	wallpaperPicture: null,
+	setWallpaperPicture: () => {},
+	wallpaperGradient: null,
+	setWallpaperGradient: () => {},
 });
 export const useGlobalContext = () => useContext(GlobalContext);

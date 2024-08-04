@@ -1,3 +1,4 @@
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -83,6 +84,13 @@ export interface IBase64Wallpaper {
 	selected: boolean;
 }
 
+export interface IWallpaperGradient {
+	colors: string[];
+	withImage: boolean;
+	imageColor: string;
+	selected: boolean;
+}
+
 // Socket.IO client to server Interface
 export interface ISocketEmitEvent {
 	getChatsByUserId: (userId: string, searchReq?: string) => void;
@@ -152,6 +160,7 @@ export type RootStackParamList = {
 	CreateChat: undefined;
 	ChatSettings: undefined;
 	ChangeWallpaper: undefined;
+	WallpaperGradient: undefined;
 };
 
 export type ThemeType =
@@ -179,15 +188,15 @@ export interface ThemeColors {
 	};
 }
 
-export type LoginScreenNavigationProp = StackNavigationProp<
+export type LoginScreenNavigationProp = DrawerNavigationProp<
 	RootStackParamList,
 	"Login"
 >;
-export type ChatScreenNavigationProp = StackNavigationProp<
+export type ChatScreenNavigationProp = DrawerNavigationProp<
 	RootStackParamList,
 	"Chat"
 >;
-export type SignUpScreenNavigationProp = StackNavigationProp<
+export type SignUpScreenNavigationProp = DrawerNavigationProp<
 	RootStackParamList,
 	"SignUp"
 >;
@@ -196,24 +205,29 @@ export type ChatsScreenNavigationProp = StackNavigationProp<
 	"Chats"
 >;
 
-export type CreateChatScreenNavigationProp = StackNavigationProp<
+export type CreateChatScreenNavigationProp = DrawerNavigationProp<
 	RootStackParamList,
 	"CreateChat"
 >;
 
-export type ChatSettingsScreenNavigationProp = StackNavigationProp<
+export type ChatSettingsScreenNavigationProp = DrawerNavigationProp<
 	RootStackParamList,
 	"ChatSettings"
 >;
 
-export type ChangeWallpaperScreenNavigationProp = StackNavigationProp<
+export type ChangeWallpaperScreenNavigationProp = DrawerNavigationProp<
 	RootStackParamList,
 	"ChatSettings"
 >;
 
-export type ProfileScreenNavigationProp = StackNavigationProp<
+export type ProfileScreenNavigationProp = DrawerNavigationProp<
 	RootStackParamList,
 	"Profile"
+>;
+
+export type WallpaperGradientScreenNavigationProp = DrawerNavigationProp<
+	RootStackParamList,
+	"WallpaperGradient"
 >;
 
 export type LoginRouteProps = {
@@ -238,6 +252,10 @@ export type ChatSettingsRouteProps = {
 
 export type ChangeWallpaperRouteProps = {
 	navigation: ChangeWallpaperScreenNavigationProp;
+};
+
+export type WallpaperGradientRouteProps = {
+	navigation: WallpaperGradientScreenNavigationProp;
 };
 
 type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;

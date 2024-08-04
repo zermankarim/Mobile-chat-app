@@ -8,19 +8,28 @@ import {
 import { FC, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "../core/reducers/user";
-import { LoginRouteProps, ThemeType } from "../shared/types";
+import { IBase64Wallpaper, LoginRouteProps, ThemeType } from "../shared/types";
 import TextWithFont from "../shared/components/TextWithFont";
 import { Button, TextInput } from "react-native-paper";
 import { signInWithEmailAndPassword } from "../fetches/http";
 import { useGlobalContext } from "../core/context/Context";
-import { connectToSocket } from "../shared/functions";
+import {
+	connectToSocket,
+	getWallpapersGradientsAndSetState,
+	getWallpapersPicturesAndSetState,
+} from "../shared/functions";
 import { createTheme } from "../shared/theme";
 import storage from "../core/storage/storage";
 import { uuid } from "expo-modules-core";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
 	// Global context
-	const { setConnectionState, setAppTheme, setWallpapers } = useGlobalContext();
+	const {
+		setConnectionState,
+		setAppTheme,
+		setWallpaperPicture,
+		setWallpaperGradient,
+	} = useGlobalContext();
 	const theme = createTheme("default");
 
 	// Redux states and dispatch
@@ -93,10 +102,8 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
 				}
 				setAppTheme(themeTitlesArr[0]);
 
-				const base64Wallpapers = await storage.getAllDataForKey(
-					"base64Wallpapers"
-				);
-				setWallpapers(base64Wallpapers);
+				getWallpapersPicturesAndSetState(setWallpaperPicture);
+				getWallpapersGradientsAndSetState(setWallpaperGradient);
 			} else {
 				setLoadingLogin(false);
 				setIsDisabledButton(false);

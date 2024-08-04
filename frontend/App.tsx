@@ -15,6 +15,7 @@ import {
 	ISocketEmitEvent,
 	ISocketOnEvent,
 	IUserState,
+	IWallpaperGradient,
 	ThemeType,
 } from "./shared/types";
 import { StatusBar } from "react-native";
@@ -32,7 +33,9 @@ const App: FC = () => {
 	>(null);
 
 	const [appTheme, setAppTheme] = useState<ThemeType>("default");
-	const [wallpapers, setWallpapers] = useState<IBase64Wallpaper[]>([]);
+	const [wallpaperPicture, setWallpaperPicture] = useState<IBase64Wallpaper | null>(null);
+	const [wallpaperGradient, setWallpaperGradient] =
+		useState<IWallpaperGradient | null>(null);
 
 	const [connectionState, setConnectionState] = useState<Socket<
 		ISocketOnEvent,
@@ -87,7 +90,10 @@ const App: FC = () => {
 					setForwardMessages,
 					appTheme,
 					setAppTheme,
-          wallpapers, setWallpapers
+					wallpaperPicture,
+					setWallpaperPicture,
+					wallpaperGradient,
+					setWallpaperGradient,
 				}}
 			>
 				<NavigationContainer>
