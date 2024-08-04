@@ -80,7 +80,6 @@ export const getWallpapersGradientsAndSetState = async (
 		);
 		if (foundSelectedWallpaperGradient) {
 			setWallpaperGradient(foundSelectedWallpaperGradient);
-			console.log(wallpapersGradients);
 			setWallpapersGradientsPreview
 				? setWallpapersGradientsPreview([...wallpapersGradients])
 				: null;

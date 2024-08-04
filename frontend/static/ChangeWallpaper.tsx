@@ -125,28 +125,78 @@ const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 		}
 	};
 
-	const changeWallpaperTo = async (wallpaper: IBase64Wallpaper) => {
+	const isBase64Wallpaper = (
+		wallpaper: IBase64Wallpaper | IWallpaperGradient
+	): wallpaper is IBase64Wallpaper => {
+		return (wallpaper as IBase64Wallpaper).uri !== undefined;
+	};
+
+	const changeWallpaperTo = async (
+		wallpaper: IBase64Wallpaper | IWallpaperGradient
+	) => {
 		const base64Wallpapers: IBase64Wallpaper[] = await storage.getAllDataForKey(
 			"base64Wallpapers"
 		);
 
-		const updatedWallpapers = base64Wallpapers.map((storageWallpaper) => ({
-			...storageWallpaper,
-			selected: storageWallpaper.uri === wallpaper.uri,
-		}));
+		const wallpapersGradients: IWallpaperGradient[] =
+			await storage.getAllDataForKey("wallpaperGradient");
+
+		let updatedBase64Wallpapers;
+		let updatedWallpapersGradients;
+
+		if (isBase64Wallpaper(wallpaper)) {
+			updatedBase64Wallpapers = base64Wallpapers.map((storageWallpaper) => ({
+				...storageWallpaper,
+				selected: storageWallpaper.uri === wallpaper.uri,
+			}));
+
+			updatedWallpapersGradients = wallpapersGradients.map(
+				(storageWallpaper) => ({
+					...storageWallpaper,
+					selected: false,
+				})
+			);
+		} else {
+			updatedBase64Wallpapers = base64Wallpapers.map((storageWallpaper) => ({
+				...storageWallpaper,
+				selected: false,
+			}));
+
+			updatedWallpapersGradients = wallpapersGradients.map(
+				(storageWallpaper) => ({
+					...storageWallpaper,
+					selected: storageWallpaper.id === wallpaper.id,
+				})
+			);
+		}
 
 		storage.clearMapForKey("base64Wallpapers");
+		storage.clearMapForKey("wallpaperGradient");
 
 		await Promise.all(
-			updatedWallpapers.map((updWallpaper) =>
+			updatedBase64Wallpapers.map((updatedBase64Wallpaper) =>
 				storage.save({
 					key: "base64Wallpapers",
 					id: uuid.v4().toString(),
-					data: updWallpaper,
+					data: updatedBase64Wallpaper,
 				})
 			)
 		);
+		await Promise.all(
+			updatedWallpapersGradients.map((updatedWallpapersGradient) =>
+				storage.save({
+					key: "wallpaperGradient",
+					id: uuid.v4().toString(),
+					data: updatedWallpapersGradient,
+				})
+			)
+		);
+
 		getWallpapersPicturesAndSetState(setWallpaperPicture, setWallpapersPreview);
+		getWallpapersGradientsAndSetState(
+			setWallpaperGradient,
+			setWallpapersGradientsPreview
+		);
 	};
 
 	// Effects
@@ -242,7 +292,7 @@ const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 				{wallpapersGradientsPreview.length
 					? wallpapersGradientsPreview.map((wallpaper) => (
 							<TouchableOpacity
-								// onPress={() => changeWallpaperTo(wallpaper)}
+								onPress={() => changeWallpaperTo(wallpaper)}
 								key={uuid.v4() + "-containerWallpaper"}
 								style={{
 									justifyContent: "center",

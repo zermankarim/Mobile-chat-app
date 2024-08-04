@@ -85,6 +85,7 @@ export interface IBase64Wallpaper {
 }
 
 export interface IWallpaperGradient {
+	id: string;
 	colors: string[];
 	withImage: boolean;
 	imageColor: string;

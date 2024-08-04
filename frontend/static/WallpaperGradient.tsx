@@ -18,10 +18,14 @@ import ColorPicker, {
 import { useFocusEffect } from "@react-navigation/native";
 import storage from "../core/storage/storage";
 import uuid from "react-native-uuid";
-import { IBase64Wallpaper, IWallpaperGradient } from "../shared/types";
+import {
+	IBase64Wallpaper,
+	IWallpaperGradient,
+	WallpaperGradientRouteProps,
+} from "../shared/types";
 import { getWallpapersGradientsAndSetState } from "../shared/functions";
 
-const WallpaperGradient: FC = () => {
+const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 	const deviceHeight = Dimensions.get("window").height;
 
 	// Global context states
@@ -171,6 +175,7 @@ const WallpaperGradient: FC = () => {
 			key: "wallpaperGradient",
 			id: uuid.v4().toString(),
 			data: {
+				id: uuid.v4(),
 				colors: gradientColors,
 				withImage,
 				imageColor,
@@ -179,19 +184,24 @@ const WallpaperGradient: FC = () => {
 		});
 
 		getWallpapersGradientsAndSetState(setWallpaperGradient);
+		navigation.navigate("ChangeWallpaper");
 	};
 
 	useFocusEffect(
 		useCallback(() => {
+			getWallpapersGradientsAndSetState(setWallpaperGradient);
+
 			return () => {
 				colorsContainerHeight.value = withTiming(0, { duration: 100 });
+				setCurrentChangingColorIdx(0);
+				setWithImage(false);
+				setGradientColors([
+					colorKit.randomRgbColor().hex(),
+					colorKit.randomRgbColor().hex(),
+					colorKit.randomRgbColor().hex(),
+					colorKit.randomRgbColor().hex(),
+				]);
 			};
-		}, [])
-	);
-
-	useFocusEffect(
-		useCallback(() => {
-			getWallpapersGradientsAndSetState(setWallpaperGradient);
 		}, [])
 	);
 
@@ -227,6 +237,7 @@ const WallpaperGradient: FC = () => {
 			<View // Container for messages example
 			>
 				<TouchableOpacity // Container for message row
+					key={uuid.v4() + "-containerForMessageRow"}
 					style={{
 						position: "relative",
 						flexDirection: "row",
@@ -237,6 +248,7 @@ const WallpaperGradient: FC = () => {
 					}}
 				>
 					<TouchableOpacity // Container for message
+						key={uuid.v4() + "-containerForMessage"}
 						style={{
 							flexDirection: "column",
 							gap: theme.spacing(1),
@@ -274,6 +286,7 @@ const WallpaperGradient: FC = () => {
 				</TouchableOpacity>
 
 				<TouchableOpacity // Container for message row
+					key={uuid.v4() + "-containerForMessageRow"}
 					style={{
 						position: "relative",
 						flexDirection: "row",
@@ -284,6 +297,7 @@ const WallpaperGradient: FC = () => {
 					}}
 				>
 					<TouchableOpacity // Container for message
+						key={uuid.v4() + "-containerForMessage"}
 						style={{
 							flexDirection: "column",
 							gap: theme.spacing(1),
@@ -431,6 +445,7 @@ const WallpaperGradient: FC = () => {
 						{gradientColors.map((grCol, idx) =>
 							idx === currentChangingColorIdx ? (
 								<View
+									key={uuid.v4() + "-containerForGradientColor"}
 									style={{
 										width: 20,
 										height: 20,

@@ -465,7 +465,9 @@ const RootNavigator: FC = () => {
 						}}
 						navType="forward"
 					>
-						<WallpaperGradient></WallpaperGradient>
+						<WallpaperGradient
+							navigation={props.navigation}
+						></WallpaperGradient>
 					</AnimatedScreen>
 				)}
 			</Drawer.Screen>
