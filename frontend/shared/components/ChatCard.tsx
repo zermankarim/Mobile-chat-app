@@ -34,9 +34,12 @@ const ChatCard: FC<IChatCartProps> = ({
   // Global context
   const { appTheme } = useGlobalContext();
 
+  // Theme
   const theme = createTheme(appTheme);
 
+  // Navigation
   const navigation = useNavigation<ChatScreenNavigationProp>();
+  
   // Redux states and dispatch
   const user = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
