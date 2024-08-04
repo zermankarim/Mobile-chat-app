@@ -44,10 +44,6 @@ const Message: FC<MessageProps> = ({
 
 	//States
 	const [visible, setVisible] = useState(false);
-	const [imageDimensions, setImageDimensions] = useState({
-		width: 1,
-		height: 1,
-	});
 
 	const leftPosSelectedMsg = useSharedValue(-8);
 
@@ -90,7 +86,7 @@ const Message: FC<MessageProps> = ({
 				<Animated.View
 					style={{
 						position: "absolute",
-						left: leftPosSelectedMsg,
+						left: 8,
 						width: 20,
 						height: 20,
 						borderRadius: 40,
@@ -159,7 +155,7 @@ const Message: FC<MessageProps> = ({
 							backgroundColor: "transparent",
 							paddingHorizontal: theme.spacing(3),
 							paddingVertical: theme.spacing(1.5),
-							paddingLeft: selectedMessages.includes(message)
+							paddingLeft: selectedMessages.length
 								? theme.spacing(8)
 								: theme.spacing(3),
 						}}

@@ -106,18 +106,26 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 
 	// Effects
 	useEffect(() => {
-		setChatLoading(true);
-	}, []);
-
-	useEffect(() => {
 		scrollToBottom(scrollViewRef);
 	}, [messages]);
 
 	useFocusEffect(
 		useCallback(() => {
+			setChatLoading(true);
+			if (currentChat._id && currentChat.participants.length === 2) {
+				const oneRecipientData: IUserState | undefined =
+					currentChat.participants.find(
+						(participant) => participant._id !== user._id
+					);
+				if (oneRecipientData) {
+					setOneRecipient(oneRecipientData);
+				}
+			} else {
+				setOneRecipient(null);
+			}
 			connectionState?.emit("getChatById", currentChat._id);
-			connectionState?.emit("getChatsByUserId", user._id!);
 			scrollToBottom(scrollViewRef);
+			setChatLoading(false);
 		}, [currentChat])
 	);
 
@@ -126,22 +134,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 			setSelectedMessages([]);
 		}, [])
 	);
-
-	useEffect(() => {
-		setChatLoading(true);
-		if (currentChat._id && currentChat.participants.length === 2) {
-			const oneRecipientData: IUserState | undefined =
-				currentChat.participants.find(
-					(participant) => participant._id !== user._id
-				);
-			if (oneRecipientData) {
-				setOneRecipient(oneRecipientData);
-			}
-		} else {
-			setOneRecipient(null);
-		}
-		setChatLoading(false);
-	}, [currentChat]);
 
 	useEffect(() => {
 		if (selectedMessages.length === 1) {

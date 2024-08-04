@@ -9,88 +9,90 @@ import { useGlobalContext } from "../../core/context/Context";
 import { createTheme } from "../theme";
 
 type SearchBarComponentProps = {
-  searchType: "Chats" | "UsersForCreateChat";
+	searchType: "Chats" | "UsersForCreateChat";
 };
 
 const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
-  searchType,
+	searchType,
 }) => {
-  // Global context
-  const { connectionState, setCreateChatLoading, appTheme } =
-    useGlobalContext();
-  const theme = createTheme(appTheme);
+	// Global context
+	const { connectionState, setCreateChatLoading, appTheme } =
+		useGlobalContext();
+	const theme = createTheme(appTheme);
 
-  // Redux states
-  const user = useSelector((state: RootState) => state.user);
-  const chats = useSelector((state: RootState) => state.chats);
-  const dispatch = useDispatch();
+	// Redux states
+	const user = useSelector((state: RootState) => state.user);
+	const chats = useSelector((state: RootState) => state.chats);
+	const dispatch = useDispatch();
 
-  // Context states
-  const { setChatsLoading } = useGlobalContext();
+	// Context states
+	const { setChatsLoading } = useGlobalContext();
 
-  // States
-  const [search, setSearch] = useState<string>("");
+	// States
+	const [search, setSearch] = useState<string>("");
 
-  // Functions
-  const updateChats = (text: string) => {
-    setChatsLoading(true);
-    try {
-      connectionState?.emit(
-        "getChatsByUserId",
-        user._id!,
-        text.toLocaleLowerCase()
-      );
-    } catch (error: any) {
-      Alert.alert("Error during updating chats: ", error.message);
-      console.error("Error during finding chats: ", error.message);
-    }
-  };
+	// Functions
+	const updateChats = (text: string) => {
+		setChatsLoading(true);
+		try {
+			connectionState?.emit(
+				"getChatsByUserId",
+				user._id!,
+				text.toLocaleLowerCase()
+			);
+		} catch (error: any) {
+			Alert.alert("Error during updating chats: ", error.message);
+			console.error("Error during finding chats: ", error.message);
+		}
+	};
 
-  const updateUsersForCreateChat = (text: string) => {
-    setCreateChatLoading(true);
-    try {
-      connectionState?.emit(
-        "getUsersForCreateChat",
-        user._id!,
-        text.toLocaleLowerCase()
-      );
-    } catch (error: any) {
-      Alert.alert("Error during updating chats: ", error.message);
-      console.error("Error during finding chats: ", error.message);
-    }
-  };
+	const updateUsersForCreateChat = (text: string) => {
+		setCreateChatLoading(true);
+		try {
+			connectionState?.emit(
+				"getUsersForCreateChat",
+				user._id!,
+				text.toLocaleLowerCase()
+			);
+		} catch (error: any) {
+			Alert.alert("Error during updating chats: ", error.message);
+			console.error("Error during finding chats: ", error.message);
+		}
+	};
 
-  const handleUpdateSearch = async (text: string) => {
-    setSearch(text);
-    if (searchType === "Chats") {
-      updateChats(text);
-    }
-    if (searchType === "UsersForCreateChat") {
-      updateUsersForCreateChat(text);
-    }
-  };
+	const handleUpdateSearch = async (text: string) => {
+		setSearch(text);
+		if (searchType === "Chats") {
+			updateChats(text);
+		}
+		if (searchType === "UsersForCreateChat") {
+			updateUsersForCreateChat(text);
+		}
+	};
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        width: 250,
-      }}
-    >
-      <Searchbar
-        placeholder="Search"
-        iconColor={theme.colors.main[200]}
-        placeholderTextColor={theme.colors.main[200]}
-        onChangeText={(text) => handleUpdateSearch(text)}
-        value={search}
-        style={{
-          backgroundColor: theme.colors.main[500],
-          width: "100%",
-        }}
-      />
-    </View>
-  );
+	return (
+		<View
+			style={{
+				flex: 1,
+				justifyContent: "center",
+				width: 250,
+				paddingHorizontal: theme.spacing(3),
+				paddingBottom: theme.spacing(2),
+			}}
+		>
+			<Searchbar
+				placeholder="Search"
+				iconColor={theme.colors.main[200]}
+				placeholderTextColor={theme.colors.main[200]}
+				onChangeText={(text) => handleUpdateSearch(text)}
+				value={search}
+				style={{
+					backgroundColor: theme.colors.main[500],
+					width: "100%",
+				}}
+			/>
+		</View>
+	);
 };
 
 export default SearchBarComponent;
