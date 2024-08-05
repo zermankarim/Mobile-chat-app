@@ -28,12 +28,20 @@ const App: FC = () => {
 	const [chatLoading, setChatLoading] = useState<boolean>(false);
 	const [chatsLoading, setChatsLoading] = useState<boolean>(false);
 	const [createChatLoading, setCreateChatLoading] = useState<boolean>(false);
+
 	const [forwardMessages, setForwardMessages] = useState<
 		IMessagePopulated[] | null
 	>(null);
+	const [selectedMessages, setSelectedMessages] = useState<IMessagePopulated[]>(
+		[]
+	);
+	const [replyMessage, setReplyMessage] = useState<IMessagePopulated | null>(
+		null
+	);
 
 	const [appTheme, setAppTheme] = useState<ThemeType>("default");
-	const [wallpaperPicture, setWallpaperPicture] = useState<IBase64Wallpaper | null>(null);
+	const [wallpaperPicture, setWallpaperPicture] =
+		useState<IBase64Wallpaper | null>(null);
 	const [wallpaperGradient, setWallpaperGradient] =
 		useState<IWallpaperGradient | null>(null);
 
@@ -94,6 +102,10 @@ const App: FC = () => {
 					setWallpaperPicture,
 					wallpaperGradient,
 					setWallpaperGradient,
+					selectedMessages,
+					setSelectedMessages,
+					replyMessage,
+					setReplyMessage,
 				}}
 			>
 				<NavigationContainer>

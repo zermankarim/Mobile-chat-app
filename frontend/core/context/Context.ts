@@ -18,8 +18,13 @@ export type GlobalStates = {
 	setChatLoading: (newState: boolean) => void;
 	createChatLoading: boolean;
 	setCreateChatLoading: (newState: boolean) => void;
+
 	forwardMessages: IMessagePopulated[] | null;
 	setForwardMessages: (newState: IMessagePopulated[] | null) => void;
+	selectedMessages: IMessagePopulated[];
+	setSelectedMessages: (newState: IMessagePopulated[]) => void;
+	replyMessage: IMessagePopulated | null;
+	setReplyMessage: (newState: IMessagePopulated | null) => void;
 
 	connectionState: Socket<ISocketOnEvent, ISocketEmitEvent> | null;
 	setConnectionState: Dispatch<
@@ -52,6 +57,10 @@ export const GlobalContext = createContext<GlobalStates>({
 
 	forwardMessages: null,
 	setForwardMessages: () => {},
+	selectedMessages: [],
+	setSelectedMessages: () => {},
+	replyMessage: null,
+	setReplyMessage: () => {},
 
 	appTheme: "default",
 	setAppTheme: () => {},

@@ -18,26 +18,25 @@ import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 type MessageProps = {
 	navigation: ScreenNavigationProp<"Chat">;
 	message: IMessagePopulated;
-	selectedMessages: IMessagePopulated[];
-	setSelectedMessages: (newState: IMessagePopulated[]) => void;
 	handleDeleteMessages: (selectedMessageFromMenu?: IMessagePopulated) => void;
 	handleReplyMessage: (selectedFromMenu?: IMessagePopulated) => void;
-	setReplyMessage: (newState: IMessagePopulated | null) => void;
 	theme: CustomTheme;
 };
 
 const Message: FC<MessageProps> = ({
 	navigation,
 	message,
-	selectedMessages,
-	setSelectedMessages,
 	handleDeleteMessages,
 	handleReplyMessage,
-	setReplyMessage,
 	theme,
 }) => {
 	// Global context
-	const { setForwardMessages, appTheme } = useGlobalContext();
+	const {
+		setForwardMessages,
+		selectedMessages,
+		setSelectedMessages,
+		setReplyMessage,
+	} = useGlobalContext();
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
