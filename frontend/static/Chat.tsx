@@ -1,5 +1,6 @@
 import { FC, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import {
+	Alert,
 	Dimensions,
 	Image,
 	ScrollView,
@@ -34,6 +35,9 @@ import ForwardMessages from "../shared/components/ForwardMessages";
 import Message from "../shared/components/Message";
 import { createTheme } from "../shared/theme";
 import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
+import { logoutUserIfTokenHasProblems, verifyJWTToken } from "../fetches/http";
+import storage from "../core/storage/storage";
+import { logoutUser } from "../core/reducers/user";
 
 const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 	// Global context states
@@ -133,6 +137,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 	useFocusEffect(
 		useCallback(() => {
 			setSelectedMessages([]);
+			logoutUserIfTokenHasProblems(dispatch, navigation);
 		}, [])
 	);
 
@@ -161,78 +166,98 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 	}
 
 	return (
-		<PaperProvider>
-			<View
-				style={{
-					flex: 1,
-					backgroundColor: theme.colors.main[500],
-				}}
-			>
-				{/* {Header container} */}
+		user._id && (
+			<PaperProvider>
 				<View
 					style={{
-						position: "absolute",
-						flexDirection: "row",
-						gap: theme.spacing(4),
-						width: "100%",
-						paddingVertical: theme.spacing(2),
-						paddingTop: StatusBar?.currentHeight
-							? StatusBar.currentHeight + theme.spacing(2)
-							: 0,
-						backgroundColor: theme.colors.main[400],
-						zIndex: 1,
+						flex: 1,
+						backgroundColor: theme.colors.main[500],
 					}}
 				>
-					{selectedMessages.length ? (
-						<Animated.View
-							style={{
-								flexDirection: "row",
-								alignItems: "center",
-								justifyContent: "space-between",
-								height: headerButtonsHeight,
-								width: "100%",
-								gap: theme.spacing(3),
-								paddingHorizontal: theme.spacing(2),
-							}}
-						>
-							<TouchableOpacity
-								onPress={() => setSelectedMessages([])}
+					{/* {Header container} */}
+					<View
+						style={{
+							position: "absolute",
+							flexDirection: "row",
+							gap: theme.spacing(4),
+							width: "100%",
+							paddingVertical: theme.spacing(2),
+							paddingTop: StatusBar?.currentHeight
+								? StatusBar.currentHeight + theme.spacing(2)
+								: 0,
+							backgroundColor: theme.colors.main[400],
+							zIndex: 1,
+						}}
+					>
+						{selectedMessages.length ? (
+							<Animated.View
 								style={{
 									flexDirection: "row",
-									justifyContent: "center",
 									alignItems: "center",
-									gap: theme.spacing(2),
-									padding: theme.spacing(2),
+									justifyContent: "space-between",
+									height: headerButtonsHeight,
+									width: "100%",
+									gap: theme.spacing(3),
+									paddingHorizontal: theme.spacing(2),
 								}}
 							>
-								<Entypo
-									name="cross"
-									size={theme.fontSize(5)}
-									color={theme.colors.main[100]}
+								<TouchableOpacity
+									onPress={() => setSelectedMessages([])}
 									style={{
-										display: "flex",
+										flexDirection: "row",
 										justifyContent: "center",
 										alignItems: "center",
-									}}
-								/>
-								<TextWithFont
-									styleProps={{
-										fontSize: theme.fontSize(4),
+										gap: theme.spacing(2),
+										padding: theme.spacing(2),
 									}}
 								>
-									{selectedMessages.length}
-								</TextWithFont>
-							</TouchableOpacity>
+									<Entypo
+										name="cross"
+										size={theme.fontSize(5)}
+										color={theme.colors.main[100]}
+										style={{
+											display: "flex",
+											justifyContent: "center",
+											alignItems: "center",
+										}}
+									/>
+									<TextWithFont
+										styleProps={{
+											fontSize: theme.fontSize(4),
+										}}
+									>
+										{selectedMessages.length}
+									</TextWithFont>
+								</TouchableOpacity>
 
-							<View
-								style={{
-									flexDirection: "row",
-									gap: theme.spacing(6),
-								}}
-							>
-								{selectedMessages.length === 1 && (
+								<View
+									style={{
+										flexDirection: "row",
+										gap: theme.spacing(6),
+									}}
+								>
+									{selectedMessages.length === 1 && (
+										<TouchableOpacity
+											onPress={() => handleReplyMessage()}
+											style={{
+												justifyContent: "center",
+												alignItems: "center",
+												borderRadius: 8,
+											}}
+										>
+											<Entypo
+												name="reply"
+												size={theme.fontSize(5)}
+												color={theme.colors.main[100]}
+											/>
+										</TouchableOpacity>
+									)}
 									<TouchableOpacity
-										onPress={() => handleReplyMessage()}
+										onPress={() => {
+											setForwardMessages(selectedMessages);
+											setReplyMessage(null);
+											navigation.navigate("Chats");
+										}}
 										style={{
 											justifyContent: "center",
 											alignItems: "center",
@@ -240,256 +265,241 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 										}}
 									>
 										<Entypo
-											name="reply"
+											name="forward"
 											size={theme.fontSize(5)}
 											color={theme.colors.main[100]}
 										/>
 									</TouchableOpacity>
-								)}
-								<TouchableOpacity
-									onPress={() => {
-										setForwardMessages(selectedMessages);
-										setReplyMessage(null);
-										navigation.navigate("Chats");
-									}}
-									style={{
-										justifyContent: "center",
-										alignItems: "center",
-										borderRadius: 8,
-									}}
-								>
-									<Entypo
-										name="forward"
-										size={theme.fontSize(5)}
-										color={theme.colors.main[100]}
-									/>
-								</TouchableOpacity>
-								<TouchableOpacity
-									onPress={() => handleDeleteMessages()}
-									style={{
-										justifyContent: "center",
-										alignItems: "center",
-										borderRadius: 8,
-									}}
-								>
-									<MaterialCommunityIcons
-										name="delete-outline"
-										size={theme.fontSize(5)}
-										color={theme.colors.main[100]}
-									/>
-								</TouchableOpacity>
-							</View>
-						</Animated.View>
-					) : oneRecipient ? (
-						<Animated.View style={{ height: userInfoHeight }}>
-							<TouchableOpacity
-								onPress={() => {
-									navigation.navigate("Profile", { owner: oneRecipient });
-								}}
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-									gap: theme.spacing(3),
-								}}
-							>
-								<Button
-									style={{
-										minWidth: 0,
-									}}
-								>
-									<Ionicons
-										name="arrow-back-outline"
-										size={24}
-										color={theme.colors.main[200]}
-										onPress={() => {
-											setForwardMessages(null);
-											setReplyMessage(null);
-											dispatch(
-												setCurrentChat({
-													_id: "",
-													createdAt: "",
-													createdBy: {
-														_id: "",
-														firstName: "",
-														lastName: "",
-														email: "",
-														dateOfBirth: "",
-														backgroundColors: [],
-														avatars: [],
-														friends: [],
-													},
-													messages: [],
-													participants: [],
-												})
-											);
-											navigation.navigate("Chats");
-										}}
-									/>
-								</Button>
-								{oneRecipient.avatars.length ? (
-									<Avatar.Image
-										size={36}
-										source={{
-											uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
-												oneRecipient.avatars[oneRecipient.avatars.length - 1]
-											}`,
-										}}
-									></Avatar.Image>
-								) : (
-									<LinearGradient
-										colors={oneRecipient.backgroundColors}
+									<TouchableOpacity
+										onPress={() => handleDeleteMessages()}
 										style={{
 											justifyContent: "center",
 											alignItems: "center",
-											height: 36,
-											width: 36,
-											borderRadius: 50,
+											borderRadius: 8,
 										}}
 									>
-										<TextWithFont
-											styleProps={{
-												fontSize: theme.fontSize(3),
-											}}
-										>
-											{oneRecipient?.firstName![0] + oneRecipient?.lastName![0]}
-										</TextWithFont>
-									</LinearGradient>
-								)}
-								<TextWithFont
-									styleProps={{
-										fontSize: theme.fontSize(5),
+										<MaterialCommunityIcons
+											name="delete-outline"
+											size={theme.fontSize(5)}
+											color={theme.colors.main[100]}
+										/>
+									</TouchableOpacity>
+								</View>
+							</Animated.View>
+						) : oneRecipient ? (
+							<Animated.View style={{ height: userInfoHeight }}>
+								<TouchableOpacity
+									onPress={() => {
+										navigation.navigate("Profile", { owner: oneRecipient });
+									}}
+									style={{
+										flexDirection: "row",
+										alignItems: "center",
+										gap: theme.spacing(3),
 									}}
 								>
-									{oneRecipient.firstName + " " + oneRecipient.lastName}
+									<Button
+										style={{
+											minWidth: 0,
+										}}
+									>
+										<Ionicons
+											name="arrow-back-outline"
+											size={24}
+											color={theme.colors.main[200]}
+											onPress={() => {
+												setForwardMessages(null);
+												setReplyMessage(null);
+												dispatch(
+													setCurrentChat({
+														_id: "",
+														createdAt: "",
+														createdBy: {
+															_id: "",
+															firstName: "",
+															lastName: "",
+															email: "",
+															dateOfBirth: "",
+															backgroundColors: [],
+															avatars: [],
+															friends: [],
+														},
+														messages: [],
+														participants: [],
+													})
+												);
+												navigation.navigate("Chats");
+											}}
+										/>
+									</Button>
+									{oneRecipient.avatars.length ? (
+										<Avatar.Image
+											size={36}
+											source={{
+												uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
+													oneRecipient.avatars[oneRecipient.avatars.length - 1]
+												}`,
+											}}
+										></Avatar.Image>
+									) : (
+										<LinearGradient
+											colors={oneRecipient.backgroundColors}
+											style={{
+												justifyContent: "center",
+												alignItems: "center",
+												height: 36,
+												width: 36,
+												borderRadius: 50,
+											}}
+										>
+											<TextWithFont
+												styleProps={{
+													fontSize: theme.fontSize(3),
+												}}
+											>
+												{oneRecipient?.firstName![0] +
+													oneRecipient?.lastName![0]}
+											</TextWithFont>
+										</LinearGradient>
+									)}
+									<TextWithFont
+										styleProps={{
+											fontSize: theme.fontSize(5),
+										}}
+									>
+										{oneRecipient.firstName + " " + oneRecipient.lastName}
+									</TextWithFont>
+								</TouchableOpacity>
+							</Animated.View>
+						) : (
+							<View
+								style={{
+									flexDirection: "row",
+									alignItems: "center",
+									gap: theme.spacing(2),
+								}}
+							>
+								<MaterialIcons
+									name="groups"
+									size={48}
+									color={theme.colors.main[200]}
+								/>
+								<TextWithFont>
+									{currentChat.participants
+										.filter(
+											(participant, index) =>
+												participant._id !== user._id && index < 3
+										)
+										.map(
+											(participant) =>
+												participant.firstName + " " + participant.lastName
+										)
+										.join(", ") + " and other.."}
 								</TextWithFont>
-							</TouchableOpacity>
-						</Animated.View>
+							</View>
+						)}
+					</View>
+					{/* {Header container} */}
+					{wallpaperGradient ? (
+						<>
+							<LinearGradient
+								colors={wallpaperGradient.colors}
+								start={{ x: 0.1, y: 0.1 }}
+								end={{ x: 0.9, y: 0.9 }}
+								style={{
+									position: "absolute",
+									width: "100%",
+									height: "100%",
+								}}
+							></LinearGradient>
+							{wallpaperGradient.withImage && (
+								<Image
+									source={require("../assets/chat-background-items.png")}
+									style={{
+										position: "absolute",
+										opacity: 0.7,
+									}}
+									tintColor={wallpaperGradient.imageColor}
+								></Image>
+							)}
+						</>
+					) : (
+						<Image
+							source={
+								wallpaperPicture
+									? { uri: wallpaperPicture.uri }
+									: require("../assets/chat-background-items.png")
+							}
+							style={{
+								position: "absolute",
+								width: Dimensions.get("window").width,
+								height: Dimensions.get("window").height,
+								tintColor: wallpaperPicture
+									? "none"
+									: theme.colors.contrast[100],
+								opacity: 0.7,
+							}}
+						></Image>
+					)}
+					{messages.length ? (
+						<ScrollView // Container for messages
+							ref={scrollViewRef}
+							style={{
+								position: "relative",
+								flexDirection: "column",
+								marginTop: 60,
+							}}
+							contentContainerStyle={{
+								justifyContent: "flex-end",
+								minHeight: "100%",
+								paddingVertical: theme.spacing(3),
+							}}
+						>
+							{messages.map((message) => (
+								<Message
+									key={uuid.v4() + "-messageComponent"}
+									navigation={navigation}
+									message={message}
+									selectedMessages={selectedMessages}
+									setSelectedMessages={setSelectedMessages}
+									handleDeleteMessages={handleDeleteMessages}
+									handleReplyMessage={handleReplyMessage}
+									setReplyMessage={setReplyMessage}
+									theme={theme}
+								></Message>
+							))}
+						</ScrollView>
 					) : (
 						<View
 							style={{
-								flexDirection: "row",
+								flex: 1,
+								justifyContent: "center",
 								alignItems: "center",
-								gap: theme.spacing(2),
 							}}
 						>
-							<MaterialIcons
-								name="groups"
-								size={48}
-								color={theme.colors.main[200]}
-							/>
-							<TextWithFont>
-								{currentChat.participants
-									.filter(
-										(participant, index) =>
-											participant._id !== user._id && index < 3
-									)
-									.map(
-										(participant) =>
-											participant.firstName + " " + participant.lastName
-									)
-									.join(", ") + " and other.."}
+							<TextWithFont
+								styleProps={{
+									color: theme.colors.main[200],
+								}}
+							>
+								Enter Your first message!
 							</TextWithFont>
 						</View>
 					)}
-				</View>
-				{/* {Header container} */}
-				{wallpaperGradient ? (
-					<>
-						<LinearGradient
-							colors={wallpaperGradient.colors}
-							start={{ x: 0.1, y: 0.1 }}
-							end={{ x: 0.9, y: 0.9 }}
-							style={{
-								position: "absolute",
-								width: "100%",
-								height: "100%",
-							}}
-						></LinearGradient>
-						{wallpaperGradient.withImage && (
-							<Image
-								source={require("../assets/chat-background-items.png")}
-								style={{
-									position: "absolute",
-									opacity: 0.7,
-								}}
-								tintColor={wallpaperGradient.imageColor}
-							></Image>
-						)}
-					</>
-				) : (
-					<Image
-						source={
-							wallpaperPicture
-								? { uri: wallpaperPicture.uri }
-								: require("../assets/chat-background-items.png")
-						}
-						style={{
-							position: "absolute",
-							width: Dimensions.get("window").width,
-							height: Dimensions.get("window").height,
-							tintColor: wallpaperPicture ? "none" : theme.colors.contrast[100],
-							opacity: 0.7,
-						}}
-					></Image>
-				)}
-				{messages.length ? (
-					<ScrollView // Container for messages
-						ref={scrollViewRef}
-						style={{
-							position: "relative",
-							flexDirection: "column",
-							marginTop: 60,
-						}}
-						contentContainerStyle={{
-							justifyContent: "flex-end",
-							minHeight: "100%",
-							paddingVertical: theme.spacing(3),
-						}}
-					>
-						{messages.map((message) => (
-							<Message
-								key={uuid.v4() + "-messageComponent"}
-								navigation={navigation}
-								message={message}
-								selectedMessages={selectedMessages}
-								setSelectedMessages={setSelectedMessages}
-								handleDeleteMessages={handleDeleteMessages}
-								handleReplyMessage={handleReplyMessage}
-								setReplyMessage={setReplyMessage}
-								theme={theme}
-							></Message>
-						))}
-					</ScrollView>
-				) : (
-					<View
-						style={{
-							flex: 1,
-							justifyContent: "center",
-							alignItems: "center",
-						}}
-					>
-						<TextWithFont
-							styleProps={{
-								color: theme.colors.main[200],
-							}}
-						>
-							Enter Your first message!
-						</TextWithFont>
-					</View>
-				)}
-				{replyMessage && (
-					<ReplyMessage
+					{replyMessage && (
+						<ReplyMessage
+							replyMessage={replyMessage}
+							setReplyMessage={setReplyMessage}
+						></ReplyMessage>
+					)}
+					{forwardMessages && <ForwardMessages></ForwardMessages>}
+					<InputMessage
 						replyMessage={replyMessage}
 						setReplyMessage={setReplyMessage}
-					></ReplyMessage>
-				)}
-				{forwardMessages && <ForwardMessages></ForwardMessages>}
-				<InputMessage
-					replyMessage={replyMessage}
-					setReplyMessage={setReplyMessage}
-				></InputMessage>
-			</View>
-		</PaperProvider>
+					></InputMessage>
+				</View>
+			</PaperProvider>
+		)
 	);
 };
 

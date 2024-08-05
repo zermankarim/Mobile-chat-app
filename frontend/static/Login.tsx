@@ -11,7 +11,7 @@ import { setUser } from "../core/reducers/user";
 import { IBase64Wallpaper, LoginRouteProps, ThemeType } from "../shared/types";
 import TextWithFont from "../shared/components/TextWithFont";
 import { Button, TextInput } from "react-native-paper";
-import { signInWithEmailAndPassword } from "../fetches/http";
+import { signInWithEmailAndPassword, verifyJWTToken } from "../fetches/http";
 import { useGlobalContext } from "../core/context/Context";
 import {
 	connectToSocket,
@@ -83,12 +83,32 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
 					return;
 				}
 
-				const { data: userData } = response;
+				const { data: userData, token } = response;
+
+				const tokenDataFromStor = await storage.getAllDataForKey("token");
+
+				if (!tokenDataFromStor.length) {
+					await storage.save({
+						key: "token",
+						id: uuid.v4().toString(),
+						data: token,
+					});
+				} else {
+					storage.clearMapForKey("token");
+					await storage.save({
+						key: "token",
+						id: uuid.v4().toString(),
+						data: token,
+					});
+				}
+
 				dispatch(setUser(userData!));
 				setLoadingLogin(false);
 				setIsDisabledButton(false);
+
 				const socket = connectToSocket(userData!._id!);
 				setConnectionState(socket);
+
 				const themeTitlesArr: ThemeType[] = await storage.getAllDataForKey(
 					"themeTitle"
 				);

@@ -1,9 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import {
-	ChatScreenNavigationProp,
-	CustomTheme,
-	IMessagePopulated,
-} from "../types";
+import { ScreenNavigationProp, CustomTheme, IMessagePopulated } from "../types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import uuid from "react-native-uuid";
@@ -20,7 +16,7 @@ import { createTheme } from "../theme";
 import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 
 type MessageProps = {
-	navigation: ChatScreenNavigationProp;
+	navigation: ScreenNavigationProp<"Chat">;
 	message: IMessagePopulated;
 	selectedMessages: IMessagePopulated[];
 	setSelectedMessages: (newState: IMessagePopulated[]) => void;

@@ -7,10 +7,9 @@ import {
 	ISocketOnEvent,
 	IWallpaperGradient,
 } from "./types";
-import { Ref, RefObject } from "react";
+import { RefObject } from "react";
 import { ScrollView } from "react-native";
 import storage from "../core/storage/storage";
-import { useGlobalContext } from "../core/context/Context";
 
 export const connectToSocket = (userId: string) => {
 	const URL = `${SERVER_URL_SOCKET}:${SERVER_PORT_SOCKET}/?userId=${userId}`;

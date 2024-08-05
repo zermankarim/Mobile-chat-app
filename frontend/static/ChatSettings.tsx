@@ -7,17 +7,19 @@ import {
 	View,
 } from "react-native";
 import TextWithFont from "../shared/components/TextWithFont";
-import { FC, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { createTheme } from "../shared/theme";
 import { useGlobalContext } from "../core/context/Context";
 import { ChatSettingsRouteProps, ThemeType } from "../shared/types";
 import { ScrollView } from "react-native-gesture-handler";
 import uuid from "react-native-uuid";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import storage from "../core/storage/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect } from "@react-navigation/native";
+import { logoutUserIfTokenHasProblems } from "../fetches/http";
 
 const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 	// Global context
@@ -26,6 +28,7 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
+	const dispatch = useDispatch();
 
 	// Theme states
 	const theme = createTheme(appTheme);
@@ -65,6 +68,13 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 			setAppTheme(updatedThemeTitles[0]);
 		}
 	};
+
+	// Effects
+	useFocusEffect(
+		useCallback(() => {
+			logoutUserIfTokenHasProblems(dispatch, navigation);
+		}, [])
+	);
 
 	return (
 		<View

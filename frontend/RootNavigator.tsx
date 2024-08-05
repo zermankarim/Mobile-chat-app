@@ -12,7 +12,7 @@ import Profile from "./static/Profile";
 import Login from "./static/Login";
 import SearchBarComponent from "./shared/components/SearchBar";
 import {
-	ChatScreenNavigationProp,
+	ScreenNavigationProp,
 	IChatPopulated,
 	IUserState,
 	RootStackParamList,
@@ -58,7 +58,7 @@ const RootNavigator: FC = () => {
 	const theme = createTheme(appTheme);
 
 	// Navigation
-	const navigation = useNavigation<ChatScreenNavigationProp>();
+	const navigation = useNavigation<ScreenNavigationProp<"Chat">>();
 
 	// Redux states and dispatch
 	const dispatch = useDispatch();

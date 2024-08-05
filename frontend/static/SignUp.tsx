@@ -71,7 +71,25 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
 					return Alert.alert(message!);
 				}
 
-				const { data: newUserState } = response;
+				const { data: newUserState, token } = response;
+
+				const tokenDataFromStor = await storage.getAllDataForKey("token");
+
+				if (!tokenDataFromStor.length) {
+					await storage.save({
+						key: "token",
+						id: uuid.v4().toString(),
+						data: token,
+					});
+				} else {
+					storage.clearMapForKey("token");
+					await storage.save({
+						key: "token",
+						id: uuid.v4().toString(),
+						data: token,
+					});
+				}
+
 				dispatch(setUser(newUserState!));
 				setLoadingSignUp(false);
 				const socket = connectToSocket(newUserState!._id!);

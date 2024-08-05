@@ -30,6 +30,8 @@ import uuid from "react-native-uuid";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
+import { logoutUserIfTokenHasProblems } from "../fetches/http";
+import { useDispatch } from "react-redux";
 
 const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 	// Global context states
@@ -39,6 +41,9 @@ const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 		setWallpaperPicture,
 		setWallpaperGradient,
 	} = useGlobalContext();
+
+	// Redux states and dispatch
+	const dispatch = useDispatch();
 
 	// Theme
 	const theme = createTheme(appTheme);
@@ -202,6 +207,8 @@ const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 	// Effects
 	useFocusEffect(
 		useCallback(() => {
+			logoutUserIfTokenHasProblems(dispatch, navigation);
+			
 			getWallpapersPicturesAndSetState(
 				setWallpaperPicture,
 				setWallpapersPreview

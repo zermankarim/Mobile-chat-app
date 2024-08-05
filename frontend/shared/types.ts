@@ -71,6 +71,7 @@ export interface IAuthData {
 	success: boolean;
 	message?: string;
 	data?: IUserState;
+	token?: string;
 }
 
 export interface IUploadImageData {
@@ -214,79 +215,40 @@ export interface ThemeColors {
 	};
 }
 
-export type LoginScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"Login"
->;
-export type ChatScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"Chat"
->;
-export type SignUpScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"SignUp"
->;
-export type ChatsScreenNavigationProp = StackNavigationProp<
-	RootStackParamList,
-	"Chats"
->;
-
-export type CreateChatScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"CreateChat"
->;
-
-export type ChatSettingsScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"ChatSettings"
->;
-
-export type ChangeWallpaperScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"ChatSettings"
->;
-
-export type ProfileScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"Profile"
->;
-
-export type WallpaperGradientScreenNavigationProp = DrawerNavigationProp<
-	RootStackParamList,
-	"WallpaperGradient"
->;
+export type ScreenNavigationProp<T extends keyof RootStackParamList> =
+	DrawerNavigationProp<RootStackParamList, T>;
 
 export type LoginRouteProps = {
-	navigation: LoginScreenNavigationProp;
+	navigation: ScreenNavigationProp<"Login">;
 };
 
 export type ChatsRouteProps = {
-	navigation: ChatsScreenNavigationProp;
+	navigation: ScreenNavigationProp<"Chats">;
 };
 
 export type CreateChatRouteProps = {
-	navigation: ChatsScreenNavigationProp;
+	navigation: ScreenNavigationProp<"CreateChat">;
 };
 
 export type ChatRouteProps = {
-	navigation: ChatScreenNavigationProp;
+	navigation: ScreenNavigationProp<"Chat">;
 };
 
 export type ChatSettingsRouteProps = {
-	navigation: ChatsScreenNavigationProp;
+	navigation: ScreenNavigationProp<"ChatSettings">;
 };
 
 export type ChangeWallpaperRouteProps = {
-	navigation: ChangeWallpaperScreenNavigationProp;
+	navigation: ScreenNavigationProp<"ChangeWallpaper">;
 };
 
 export type WallpaperGradientRouteProps = {
-	navigation: WallpaperGradientScreenNavigationProp;
+	navigation: ScreenNavigationProp<"WallpaperGradient">;
 };
 
 type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;
 
 export type ProfileRouteProps = {
 	route: ProfileRouteProp;
-	navigation: ProfileScreenNavigationProp;
+	navigation: ScreenNavigationProp<"Profile">;
 };
