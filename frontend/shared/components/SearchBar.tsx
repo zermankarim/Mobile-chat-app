@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, View } from "react-native";
+import { Alert, Dimensions, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import { Searchbar } from "react-native-paper";
@@ -75,9 +75,7 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
 			style={{
 				flex: 1,
 				justifyContent: "center",
-				width: 250,
-				paddingHorizontal: theme.spacing(3),
-				paddingBottom: theme.spacing(2),
+				width: Dimensions.get("window").width * 0.5,
 			}}
 		>
 			<Searchbar
@@ -87,8 +85,12 @@ const SearchBarComponent: React.FunctionComponent<SearchBarComponentProps> = ({
 				onChangeText={(text) => handleUpdateSearch(text)}
 				value={search}
 				style={{
+					height: 38,
 					backgroundColor: theme.colors.main[500],
 					width: "100%",
+				}}
+				inputStyle={{
+					minHeight: 0,
 				}}
 			/>
 		</View>

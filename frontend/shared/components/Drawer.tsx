@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View } from "react-native";
+import { SafeAreaView, View } from "react-native";
 
 import TextWithFont from "./TextWithFont";
 import { useDispatch, useSelector } from "react-redux";
@@ -162,10 +162,10 @@ function DrawerContent({ ...props }) {
 	];
 
 	return (
-		<View // Container for Drawer
+		<SafeAreaView // Container for Drawer
 			style={{
 				flex: 1,
-				backgroundColor: theme.colors.main[400],
+				backgroundColor: theme.colors.main[300],
 			}}
 		>
 			<View // Container for Drawer header
@@ -285,6 +285,7 @@ function DrawerContent({ ...props }) {
 					flexDirection: "column",
 					backgroundColor: theme.colors.main[400],
 					width: "100%",
+					minHeight: "100%",
 					padding: theme.spacing(2),
 				}}
 			>
@@ -312,7 +313,7 @@ function DrawerContent({ ...props }) {
 					</TouchableOpacity>
 				))}
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 }
 

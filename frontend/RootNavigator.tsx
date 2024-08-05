@@ -19,7 +19,7 @@ import {
 	ThemeType,
 } from "./shared/types";
 import Chat from "./static/Chat";
-import { Alert, Dimensions } from "react-native";
+import { Dimensions, SafeAreaView, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, Button } from "react-native-paper";
@@ -38,6 +38,7 @@ import storage from "./core/storage/storage";
 import uuid from "react-native-uuid";
 import ChangeWallpaper from "./static/ChangeWallpaper";
 import WallpaperGradient from "./static/WallpaperGradient";
+import HeaderForChat from "./shared/components/HeaderForChat";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -258,7 +259,15 @@ const RootNavigator: FC = () => {
 				headerTitle: forwardMessages
 					? "Forward..."
 					: () => (
-							<SearchBarComponent searchType={"Chats"}></SearchBarComponent>
+							<View
+								style={{
+									width: "100%",
+									height: "100%",
+									padding: 8,
+								}}
+							>
+								<SearchBarComponent searchType={"Chats"}></SearchBarComponent>
+							</View>
 					  ),
 				headerLeft: () =>
 					forwardMessages ? (
@@ -359,10 +368,24 @@ const RootNavigator: FC = () => {
 			<Drawer.Screen
 				name="Chat"
 				options={{
-					headerShown: false,
 					headerStyle: {
 						backgroundColor: theme.colors.main[400],
 					},
+					header: (props) => (
+						<SafeAreaView
+							style={{
+								backgroundColor: theme.colors.main[400],
+							}}
+						>
+							{/* <View
+								style={{
+									padding: theme.spacing(2),
+								}}
+							> */}
+							<HeaderForChat navigation={props.navigation}></HeaderForChat>
+							{/* </View> */}
+						</SafeAreaView>
+					),
 				}}
 			>
 				{(props) => (
