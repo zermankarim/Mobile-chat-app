@@ -128,10 +128,12 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
 
 			<TouchableOpacity
 				onPress={() => navigation.navigate("CreateChat")}
-				style={{
+				containerStyle={{
 					position: "absolute",
 					bottom: 12,
 					right: 12,
+				}}
+				style={{
 					backgroundColor: theme.colors.contrast[500],
 					padding: theme.spacing(4),
 					borderRadius: 50,
