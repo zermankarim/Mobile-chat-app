@@ -19,7 +19,7 @@ import {
 	ThemeType,
 } from "./shared/types";
 import Chat from "./static/Chat";
-import { Dimensions, SafeAreaView, View } from "react-native";
+import { Dimensions, SafeAreaView, StatusBar, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator, Button } from "react-native-paper";
@@ -372,19 +372,15 @@ const RootNavigator: FC = () => {
 						backgroundColor: theme.colors.main[400],
 					},
 					header: (props) => (
-						<SafeAreaView
-							style={{
-								backgroundColor: theme.colors.main[400],
-							}}
-						>
-							{/* <View
+						<>
+							<SafeAreaView
 								style={{
-									padding: theme.spacing(2),
+									backgroundColor: theme.colors.main[400],
+									height: StatusBar.currentHeight,
 								}}
-							> */}
+							></SafeAreaView>
 							<HeaderForChat navigation={props.navigation}></HeaderForChat>
-							{/* </View> */}
-						</SafeAreaView>
+						</>
 					),
 				}}
 			>

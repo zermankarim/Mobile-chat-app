@@ -50,8 +50,8 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 	const theme = createTheme(appTheme);
 
 	// Animated
-	const userInfoHeight = useSharedValue(40);
-	const headerButtonsHeight = useSharedValue(0);
+	const userInfoOpacity = useSharedValue(40);
+	const headerButtonOpacity = useSharedValue(0);
 
 	// Functions
 	const handleReplyMessage = (selectedFromMenu?: IMessagePopulated) => {
@@ -90,12 +90,12 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 	// Effects
 	useEffect(() => {
 		if (selectedMessages.length === 1) {
-			userInfoHeight.value = withTiming(0, { duration: 100 });
-			headerButtonsHeight.value = withTiming(40, { duration: 100 });
+			userInfoOpacity.value = withTiming(0, { duration: 300 });
+			headerButtonOpacity.value = withTiming(1, { duration: 300 });
 		}
 		if (selectedMessages.length === 0) {
-			userInfoHeight.value = withTiming(40, { duration: 100 });
-			headerButtonsHeight.value = withTiming(0, { duration: 100 });
+			userInfoOpacity.value = withTiming(40, { duration: 300 });
+			headerButtonOpacity.value = withTiming(0, { duration: 300 });
 		}
 	}, [selectedMessages]);
 
@@ -113,8 +113,6 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 			} else {
 				setOneRecipient(null);
 			}
-			connectionState?.emit("getChatById", currentChat._id);
-			// scrollToBottom(scrollViewRef);
 			setChatLoading(false);
 		}, [currentChat])
 	);
@@ -125,8 +123,8 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 				flexDirection: "row",
 				gap: theme.spacing(4),
 				width: "100%",
-				height: 40,
-				// paddingVertical: theme.spacing(2),
+				paddingVertical: theme.spacing(2),
+				minHeight: 40,
 				backgroundColor: theme.colors.main[400],
 			}}
 		>
@@ -136,10 +134,10 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						flexDirection: "row",
 						alignItems: "center",
 						justifyContent: "space-between",
-						height: headerButtonsHeight,
 						width: "100%",
 						gap: theme.spacing(3),
 						paddingHorizontal: theme.spacing(2),
+						opacity: headerButtonOpacity,
 					}}
 				>
 					<TouchableOpacity
@@ -228,7 +226,43 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 					</View>
 				</Animated.View>
 			) : oneRecipient ? (
-				<Animated.View style={{ height: userInfoHeight }}>
+				<Animated.View
+					style={{ flexDirection: "row", opacity: userInfoOpacity }}
+				>
+					<Button
+						style={{
+							minWidth: 0,
+						}}
+						onPress={() => {
+							setForwardMessages(null);
+							setReplyMessage(null);
+							dispatch(
+								setCurrentChat({
+									_id: "",
+									createdAt: "",
+									createdBy: {
+										_id: "",
+										firstName: "",
+										lastName: "",
+										email: "",
+										dateOfBirth: "",
+										backgroundColors: [],
+										avatars: [],
+										friends: [],
+									},
+									messages: [],
+									participants: [],
+								})
+							);
+							navigation.navigate("Chats");
+						}}
+					>
+						<Ionicons
+							name="arrow-back-outline"
+							size={24}
+							color={theme.colors.main[200]}
+						/>
+					</Button>
 					<TouchableOpacity
 						onPress={() => {
 							navigation.navigate("Profile", { owner: oneRecipient });
@@ -239,40 +273,6 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 							gap: theme.spacing(3),
 						}}
 					>
-						<Button
-							style={{
-								minWidth: 0,
-							}}
-						>
-							<Ionicons
-								name="arrow-back-outline"
-								size={24}
-								color={theme.colors.main[200]}
-								onPress={() => {
-									setForwardMessages(null);
-									setReplyMessage(null);
-									dispatch(
-										setCurrentChat({
-											_id: "",
-											createdAt: "",
-											createdBy: {
-												_id: "",
-												firstName: "",
-												lastName: "",
-												email: "",
-												dateOfBirth: "",
-												backgroundColors: [],
-												avatars: [],
-												friends: [],
-											},
-											messages: [],
-											participants: [],
-										})
-									);
-									navigation.navigate("Chats");
-								}}
-							/>
-						</Button>
 						{oneRecipient.avatars.length ? (
 							<Avatar.Image
 								size={36}

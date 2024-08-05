@@ -99,15 +99,11 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 		setSelectedMessages([]);
 	};
 
-	// Effects
-	useEffect(() => {
-		scrollToBottom(scrollViewRef);
-	}, [messages]);
-
 	useFocusEffect(
 		useCallback(() => {
 			setSelectedMessages([]);
 			logoutUserIfTokenHasProblems(dispatch, navigation);
+			scrollToBottom(scrollViewRef);
 		}, [])
 	);
 
