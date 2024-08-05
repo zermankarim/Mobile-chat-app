@@ -1,6 +1,7 @@
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { MD2DarkTheme } from "react-native-paper";
 
 export interface ILoginInputsState {
 	login: string | null;
@@ -90,6 +91,30 @@ export interface IWallpaperGradient {
 	withImage: boolean;
 	imageColor: string;
 	selected: boolean;
+}
+
+export interface CustomTheme {
+	myOwnProperty: boolean;
+	colors: {
+		main: {
+			100: string;
+			200: string;
+			300: string;
+			400: string;
+			500: string;
+		};
+		contrast: {
+			100: string;
+			200: string;
+			300: string;
+			400: string;
+			500: string;
+		};
+	};
+	spacing: (space: number) => number;
+	fontFamily: string;
+	fontSize: (fSize: number) => number;
+	borderRadius: (bRadius: number) => number;
 }
 
 // Socket.IO client to server Interface
