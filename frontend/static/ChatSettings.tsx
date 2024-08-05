@@ -113,8 +113,8 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 						}
 						style={{
 							position: "absolute",
-							width: Dimensions.get("window").width,
-							height: Dimensions.get("window").height,
+							width: "100%",
+							height: "100%",
 							tintColor: wallpaperPicture ? "none" : theme.colors.contrast[100],
 							opacity: 0.7,
 						}}

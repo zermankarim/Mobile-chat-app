@@ -49,14 +49,8 @@ const AnimatedScreen: FC<AnimatedScreenProps> = ({
 				easing: Easing.inOut(Easing.ease),
 			});
 			return () => {
-				offset.value = withTiming(width, {
-					duration: 200,
-					easing: Easing.inOut(Easing.ease),
-				});
-				opacity.value = withTiming(0, {
-					duration: 300,
-					easing: Easing.inOut(Easing.ease),
-				});
+				offset.value = width;
+				opacity.value = 0;
 			};
 		}, [])
 	);
