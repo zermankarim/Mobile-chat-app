@@ -229,6 +229,7 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 					source={require("../assets/chat-background-items.png")}
 					style={{
 						position: "absolute",
+						width:"100%",
 						opacity: 0.7,
 					}}
 					tintColor={imageColor}

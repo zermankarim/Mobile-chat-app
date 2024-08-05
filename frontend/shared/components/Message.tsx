@@ -323,6 +323,7 @@ const Message: FC<MessageProps> = ({
 									style={{
 										width: "100%",
 										height: "auto",
+										maxHeight: Dimensions.get("window").height * 0.5,
 										aspectRatio: 1,
 										resizeMode: "cover",
 									}}
