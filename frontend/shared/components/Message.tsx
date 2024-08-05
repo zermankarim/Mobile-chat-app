@@ -1,5 +1,9 @@
 import { FC, useEffect, useState } from "react";
-import { ChatScreenNavigationProp, IMessagePopulated } from "../types";
+import {
+	ChatScreenNavigationProp,
+	CustomTheme,
+	IMessagePopulated,
+} from "../types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import uuid from "react-native-uuid";
@@ -23,6 +27,7 @@ type MessageProps = {
 	handleDeleteMessages: (selectedMessageFromMenu?: IMessagePopulated) => void;
 	handleReplyMessage: (selectedFromMenu?: IMessagePopulated) => void;
 	setReplyMessage: (newState: IMessagePopulated | null) => void;
+	theme: CustomTheme;
 };
 
 const Message: FC<MessageProps> = ({
@@ -33,19 +38,16 @@ const Message: FC<MessageProps> = ({
 	handleDeleteMessages,
 	handleReplyMessage,
 	setReplyMessage,
+	theme,
 }) => {
 	// Global context
 	const { setForwardMessages, appTheme } = useGlobalContext();
-	const theme = createTheme(appTheme);
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
-	const messages = useSelector((state: RootState) => state.messages);
 
 	//States
 	const [visible, setVisible] = useState(false);
-
-	const leftPosSelectedMsg = useSharedValue(-8);
 
 	// Functions
 	const openMenu = () => setVisible(true);
@@ -65,15 +67,6 @@ const Message: FC<MessageProps> = ({
 		}
 	};
 
-	useEffect(() => {
-		if (selectedMessages && leftPosSelectedMsg.value === -8) {
-			leftPosSelectedMsg.value = withTiming(8, {
-				duration: 50,
-			});
-		} else {
-			leftPosSelectedMsg.value = withTiming(8);
-		}
-	}, [selectedMessages]);
 	return (
 		<View
 			style={{
@@ -82,7 +75,7 @@ const Message: FC<MessageProps> = ({
 				width: "100%",
 			}}
 		>
-			{selectedMessages.length ? (
+			{!selectedMessages.length ? null : (
 				<Animated.View
 					style={{
 						position: "absolute",
@@ -96,7 +89,7 @@ const Message: FC<MessageProps> = ({
 						zIndex: 1,
 					}}
 				>
-					{selectedMessages.includes(message) ? (
+					{selectedMessages.includes(message) && (
 						<View
 							style={{
 								backgroundColor: "green",
@@ -105,9 +98,9 @@ const Message: FC<MessageProps> = ({
 								borderRadius: 50,
 							}}
 						></View>
-					) : null}
+					)}
 				</Animated.View>
-			) : null}
+			)}
 			<Menu
 				theme={{ animation: { scale: 2 } }}
 				visible={visible}

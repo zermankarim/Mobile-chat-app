@@ -456,6 +456,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 								handleDeleteMessages={handleDeleteMessages}
 								handleReplyMessage={handleReplyMessage}
 								setReplyMessage={setReplyMessage}
+								theme={theme}
 							></Message>
 						))}
 					</ScrollView>
