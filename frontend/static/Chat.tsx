@@ -180,7 +180,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 							style={{
 								position: "relative",
 								flexDirection: "column",
-								marginTop: 60,
 							}}
 							contentContainerStyle={{
 								justifyContent: "flex-end",
