@@ -9,7 +9,7 @@ import TextWithFont from "./TextWithFont";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import { LinearGradient } from "expo-linear-gradient";
 import { formatMessageDate } from "../functions";
-import { Button, Divider, Menu } from "react-native-paper";
+import { ActivityIndicator, Button, Divider, Menu } from "react-native-paper";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useGlobalContext } from "../../core/context/Context";
 import { createTheme } from "../theme";
@@ -21,6 +21,8 @@ type MessageProps = {
 	handleDeleteMessages: (selectedMessageFromMenu?: IMessagePopulated) => void;
 	handleReplyMessage: (selectedFromMenu?: IMessagePopulated) => void;
 	theme: CustomTheme;
+	selected: boolean;
+	selectedMessagesIsEmpty: boolean;
 };
 
 const Message: FC<MessageProps> = ({
@@ -29,6 +31,8 @@ const Message: FC<MessageProps> = ({
 	handleDeleteMessages,
 	handleReplyMessage,
 	theme,
+	selected,
+	selectedMessagesIsEmpty,
 }) => {
 	// Global context
 	const {
@@ -62,6 +66,12 @@ const Message: FC<MessageProps> = ({
 		}
 	};
 
+	useEffect(() => {
+		if (message.type === "forward" && message.forwarder?._id === user._id) {
+			console.log("here");
+		}
+	}, [message]);
+
 	return (
 		<View
 			style={{
@@ -70,7 +80,7 @@ const Message: FC<MessageProps> = ({
 				width: "100%",
 			}}
 		>
-			{!selectedMessages.length ? null : (
+			{selectedMessagesIsEmpty ? null : (
 				<Animated.View
 					style={{
 						position: "absolute",
@@ -84,7 +94,7 @@ const Message: FC<MessageProps> = ({
 						zIndex: 1,
 					}}
 				>
-					{selectedMessages.includes(message) && (
+					{selected && (
 						<View
 							style={{
 								backgroundColor: "green",
@@ -122,7 +132,7 @@ const Message: FC<MessageProps> = ({
 					<TouchableOpacity // Container for message row
 						key={uuid.v4() + "-containerRowMessage"}
 						onPress={() => {
-							if (selectedMessages.length) {
+							if (!selectedMessagesIsEmpty) {
 								handleSelectMessage(message);
 							}
 							openMenu();
@@ -143,7 +153,7 @@ const Message: FC<MessageProps> = ({
 							backgroundColor: "transparent",
 							paddingHorizontal: theme.spacing(3),
 							paddingVertical: theme.spacing(1.5),
-							paddingLeft: selectedMessages.length
+							paddingLeft: !selectedMessagesIsEmpty
 								? theme.spacing(8)
 								: theme.spacing(3),
 						}}
@@ -153,7 +163,7 @@ const Message: FC<MessageProps> = ({
 								handleSelectMessage(message);
 							}}
 							onPress={() => {
-								if (selectedMessages.length) {
+								if (!selectedMessagesIsEmpty) {
 									handleSelectMessage(message);
 								}
 								openMenu();
@@ -166,10 +176,10 @@ const Message: FC<MessageProps> = ({
 									message.sender._id === user._id ||
 									(message.type === "forward" &&
 										message.forwarder?._id === user._id)
-										? selectedMessages.includes(message)
+										? selected
 											? theme.colors.contrast[500]
 											: theme.colors.contrast[200]
-										: selectedMessages.includes(message)
+										: selected
 										? theme.colors.main[300]
 										: theme.colors.main[400],
 								paddingVertical: theme.spacing(2),

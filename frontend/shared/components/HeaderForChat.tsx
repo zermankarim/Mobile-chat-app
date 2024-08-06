@@ -102,19 +102,21 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 	useFocusEffect(
 		useCallback(() => {
 			setChatLoading(true);
-			if (currentChat._id && currentChat.participants.length === 2) {
-				const oneRecipientData: IUserState | undefined =
-					currentChat.participants.find(
-						(participant) => participant._id !== user._id
-					);
-				if (oneRecipientData) {
-					setOneRecipient(oneRecipientData);
+			if(currentChat) {
+				if (currentChat._id && currentChat.participants.length === 2) {
+					const oneRecipientData: IUserState =
+						currentChat.participants[0]._id !== user._id
+							? currentChat.participants[0]
+							: currentChat.participants[1];
+					if (oneRecipientData) {
+						setOneRecipient(oneRecipientData);
+					}
+				} else {
+					setOneRecipient(null);
 				}
-			} else {
-				setOneRecipient(null);
+				setChatLoading(false);
 			}
-			setChatLoading(false);
-		}, [currentChat])
+		}, [currentChat!])
 	);
 
 	return (
@@ -236,24 +238,24 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						onPress={() => {
 							setForwardMessages(null);
 							setReplyMessage(null);
-							dispatch(
-								setCurrentChat({
-									_id: "",
-									createdAt: "",
-									createdBy: {
-										_id: "",
-										firstName: "",
-										lastName: "",
-										email: "",
-										dateOfBirth: "",
-										backgroundColors: [],
-										avatars: [],
-										friends: [],
-									},
-									messages: [],
-									participants: [],
-								})
-							);
+							// dispatch(
+							// 	setCurrentChat({
+							// 		_id: "",
+							// 		createdAt: "",
+							// 		createdBy: {
+							// 			_id: "",
+							// 			firstName: "",
+							// 			lastName: "",
+							// 			email: "",
+							// 			dateOfBirth: "",
+							// 			backgroundColors: [],
+							// 			avatars: [],
+							// 			friends: [],
+							// 		},
+							// 		messages: [],
+							// 		participants: [],
+							// 	})
+							// );
 							navigation.navigate("Chats");
 						}}
 					>

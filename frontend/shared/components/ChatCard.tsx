@@ -6,8 +6,6 @@ import { ScreenNavigationProp, IChatPopulated, IUserState } from "../types";
 import { useNavigation } from "@react-navigation/native";
 import { RootState } from "../../core/store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { setMessages } from "../../core/reducers/messages";
-import { setCurrentChat } from "../../core/reducers/currentChat";
 import { Avatar, Badge } from "react-native-paper";
 import { Entypo, MaterialIcons } from "@expo/vector-icons";
 import { formatMessageDate } from "../functions";
@@ -32,7 +30,7 @@ const ChatCard: FC<IChatCartProps> = ({
 	oneRecipient,
 }) => {
 	// Global context
-	const { appTheme } = useGlobalContext();
+	const { appTheme, setChatLoading } = useGlobalContext();
 
 	// Theme
 	const theme = createTheme(appTheme);
@@ -75,12 +73,11 @@ const ChatCard: FC<IChatCartProps> = ({
 				paddingHorizontal: theme.spacing(4),
 			}}
 			onPress={() => {
-				if (selectedChats && selectedChats.length) {
+				if (selectedChats?.length) {
 					handleSelectChat();
 				} else {
-					dispatch(setMessages(chat.messages));
-					dispatch(setCurrentChat(chat));
-					navigation.navigate("Chat");
+					setChatLoading(true);
+					navigation.navigate("Chat", { chat: chat });
 				}
 			}}
 			onLongPress={handleSelectChat}
