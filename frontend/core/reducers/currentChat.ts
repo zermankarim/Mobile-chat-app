@@ -1,4 +1,4 @@
-import { IChatPopulated, IChat } from "./../../shared/types";
+import { IChatPopulated } from "./../../shared/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: IChatPopulated = {
