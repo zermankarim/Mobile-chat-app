@@ -179,7 +179,7 @@ export interface ISocketOnEvent {
 
 // Routes props
 export type RootStackParamList = {
-	Chat: undefined;
+	Chat: undefined | { chat: IChatPopulated };
 	Chats: undefined;
 	Login: undefined;
 	SignUp: undefined;
@@ -230,10 +230,6 @@ export type CreateChatRouteProps = {
 	navigation: ScreenNavigationProp<"CreateChat">;
 };
 
-export type ChatRouteProps = {
-	navigation: ScreenNavigationProp<"Chat">;
-};
-
 export type ChatSettingsRouteProps = {
 	navigation: ScreenNavigationProp<"ChatSettings">;
 };
@@ -251,4 +247,11 @@ type ProfileRouteProp = RouteProp<RootStackParamList, "Profile">;
 export type ProfileRouteProps = {
 	route: ProfileRouteProp;
 	navigation: ScreenNavigationProp<"Profile">;
+};
+
+type ChatRouteProp = RouteProp<RootStackParamList, "Chat">;
+
+export type ChatRouteProps = {
+	navigation: ScreenNavigationProp<"Chat">;
+	route: ChatRouteProp;
 };

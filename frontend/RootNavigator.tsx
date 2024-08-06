@@ -391,7 +391,7 @@ const RootNavigator: FC = () => {
 						}}
 						navType="forward"
 					>
-						<Chat navigation={props.navigation}></Chat>
+						<Chat navigation={props.navigation} route={props.route}></Chat>
 					</AnimatedScreen>
 				)}
 			</Drawer.Screen>

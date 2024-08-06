@@ -1,20 +1,14 @@
-import { FC, RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { FC, RefObject, useCallback, useRef } from "react";
 import {
-	Alert,
 	Dimensions,
 	Image,
 	ScrollView,
-	StatusBar,
-	TouchableOpacity,
 	View,
 } from "react-native";
 import {
 	ActivityIndicator,
-	Avatar,
-	Button,
 	PaperProvider,
 } from "react-native-paper";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import uuid from "react-native-uuid";
@@ -25,21 +19,15 @@ import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { setCurrentChat } from "../core/reducers/currentChat";
-import { Ionicons } from "@expo/vector-icons";
-import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../config";
 import InputMessage from "../shared/components/InputMessage";
-import { Entypo } from "@expo/vector-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ReplyMessage from "../shared/components/ReplyMessage";
 import ForwardMessages from "../shared/components/ForwardMessages";
 import Message from "../shared/components/Message";
 import { createTheme } from "../shared/theme";
-import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
-import { logoutUserIfTokenHasProblems, verifyJWTToken } from "../fetches/http";
-import storage from "../core/storage/storage";
-import { logoutUser } from "../core/reducers/user";
+import { logoutUserIfTokenHasProblems } from "../fetches/http";
+import { setMessages } from "../core/reducers/messages";
 
-const Chat: FC<ChatRouteProps> = ({ navigation }) => {
+const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 	// Global context states
 	const {
 		connectionState,
@@ -53,6 +41,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 		setSelectedMessages,
 		replyMessage,
 		setReplyMessage,
+		setChatLoading,
 	} = useGlobalContext();
 	const theme = createTheme(appTheme);
 
@@ -101,10 +90,15 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 
 	useFocusEffect(
 		useCallback(() => {
+			const { params } = route;
+			setChatLoading(true);
 			setSelectedMessages([]);
+			dispatch(setMessages(params?.chat.messages!));
+			dispatch(setCurrentChat(params?.chat!));
 			logoutUserIfTokenHasProblems(dispatch, navigation);
 			scrollToBottom(scrollViewRef);
-		}, [])
+			setChatLoading(false);
+		}, [route.params?.chat])
 	);
 
 	if (chatLoading) {
@@ -152,7 +146,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 								></Image>
 							)}
 						</>
-					) : (
+					) : ( 
 						<Image
 							source={
 								wallpaperPicture
@@ -183,16 +177,19 @@ const Chat: FC<ChatRouteProps> = ({ navigation }) => {
 								paddingVertical: theme.spacing(3),
 							}}
 						>
-							{messages.map((message) => (
-								<Message
-									key={uuid.v4() + "-messageComponent"}
-									navigation={navigation}
-									message={message}
-									handleDeleteMessages={handleDeleteMessages}
-									handleReplyMessage={handleReplyMessage}
-									theme={theme}
-								></Message>
-							))}
+							{!chatLoading &&
+								messages.map((message) => (
+									<Message
+										key={uuid.v4() + "-messageComponent"}
+										navigation={navigation}
+										message={message}
+										handleDeleteMessages={handleDeleteMessages}
+										handleReplyMessage={handleReplyMessage}
+										theme={theme}
+										selected={selectedMessages.includes(message)}
+										selectedMessagesIsEmpty={!selectedMessages.length}
+									></Message>
+								))}
 						</ScrollView>
 					) : (
 						<View
