@@ -6,7 +6,6 @@ import { ChatsRouteProps, IChatPopulated, IUserState } from "../shared/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import ChatCard from "../shared/components/ChatCard";
-import uuid from "react-native-uuid";
 import { MaterialIcons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useGlobalContext } from "../core/context/Context";
@@ -93,7 +92,7 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
 					) : (
 						chats.map((chat) => (
 							<ChatCard
-								key={uuid.v4() + "-chatCard"}
+								key={chat._id + "-chatCard"}
 								chat={chat}
 								isSelectedChat={selectedChats.includes(chat)}
 								selectedChats={selectedChats}

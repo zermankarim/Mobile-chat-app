@@ -1,18 +1,14 @@
 import {
-	Alert,
-	Dimensions,
 	Image,
-	Platform,
 	TouchableOpacity,
 	View,
 } from "react-native";
 import TextWithFont from "../shared/components/TextWithFont";
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback } from "react";
 import { createTheme } from "../shared/theme";
 import { useGlobalContext } from "../core/context/Context";
 import { ChatSettingsRouteProps, ThemeType } from "../shared/types";
 import { ScrollView } from "react-native-gesture-handler";
-import uuid from "react-native-uuid";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -267,7 +263,7 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 						const themeExample = createTheme(themeTitle);
 						return (
 							<TouchableOpacity
-								key={uuid.v4() + "-containerThemeExample"}
+								key={themeTitle + "-containerThemeExample"}
 								onPress={() => handleSetNewTheme(themeTitle)}
 								style={{
 									padding: themeExample.spacing(2),

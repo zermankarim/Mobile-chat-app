@@ -3,7 +3,6 @@ import { Dimensions, Image, ScrollView, View } from "react-native";
 import { ActivityIndicator, PaperProvider } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
-import uuid from "react-native-uuid";
 import TextWithFont from "../shared/components/TextWithFont";
 import { ChatRouteProps, IMessagePopulated, IUserState } from "../shared/types";
 import { scrollToBottom } from "../shared/functions";
@@ -173,7 +172,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 							{!chatLoading &&
 								messages.map((message) => (
 									<Message
-										key={uuid.v4() + "-messageComponent"}
+										key={message._id + "-messageComponent"}
 										navigation={navigation}
 										message={message}
 										handleDeleteMessages={handleDeleteMessages}

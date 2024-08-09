@@ -170,7 +170,7 @@ const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
 								.map((avatar, index) => {
 									return (
 										<View
-											key={uuid.v4() + "avatarsDots"}
+											key={index + "avatarsDots"}
 											style={{
 												flex: 1,
 												height: 1,
@@ -209,7 +209,7 @@ const Profile: FC<ProfileRouteProps> = ({ route, navigation }) => {
 							{ownerState.avatars
 								.map((avatarRelativePath, index) => (
 									<Image
-										key={uuid.v4() + "-userAvatar"}
+										key={avatarRelativePath + "-userAvatar"}
 										source={{
 											uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${avatarRelativePath}`,
 										}}

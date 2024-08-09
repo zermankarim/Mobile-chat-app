@@ -1,19 +1,17 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { ScreenNavigationProp, CustomTheme, IMessagePopulated } from "../types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
-import uuid from "react-native-uuid";
 import { Dimensions, Image, TouchableOpacity, View } from "react-native";
 
 import TextWithFont from "./TextWithFont";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import { LinearGradient } from "expo-linear-gradient";
 import { formatMessageDate } from "../functions";
-import { ActivityIndicator, Button, Divider, Menu } from "react-native-paper";
+import { Menu } from "react-native-paper";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useGlobalContext } from "../../core/context/Context";
-import { createTheme } from "../theme";
-import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, {  } from "react-native-reanimated";
 
 type MessageProps = {
 	navigation: ScreenNavigationProp<"Chat">;
@@ -124,7 +122,6 @@ const Message: FC<MessageProps> = ({
 				}}
 				anchor={
 					<TouchableOpacity // Container for message row
-						key={uuid.v4() + "-containerRowMessage"}
 						onPress={() => {
 							if (!selectedMessagesIsEmpty) {
 								handleSelectMessage(message);

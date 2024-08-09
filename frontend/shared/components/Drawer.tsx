@@ -273,7 +273,7 @@ function DrawerContent({ ...props }) {
 			>
 				{drawerButtonsData.map((buttonData: IButtonDrawer) => (
 					<TouchableOpacity // Container for drawer button
-						key={uuid.v4() + "-containerDrawerButton"}
+						key={buttonData.title + "-containerDrawerButton"}
 						onPress={buttonData.onPress}
 						style={{
 							flexDirection: "row",

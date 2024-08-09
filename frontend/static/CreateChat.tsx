@@ -83,7 +83,7 @@ const CreateChat: FC<CreateChatRouteProps> = ({ navigation }) => {
 						.sort((a, b) => a.firstName!.localeCompare(b.firstName!))
 						.map((userForChat) => (
 							<TouchableOpacity // Container for one user for creating the chat
-								key={uuid.v4() + "-userForChat-container"}
+								key={userForChat._id + "-userForChat-container"}
 								onPress={() => handleOpenChatWithUser(userForChat)}
 								style={{
 									flexDirection: "row",

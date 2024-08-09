@@ -202,7 +202,6 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 			<View // Container for messages example
 			>
 				<TouchableOpacity // Container for message row
-					key={uuid.v4() + "-containerForMessageRow"}
 					style={{
 						position: "relative",
 						flexDirection: "row",
@@ -213,7 +212,6 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 					}}
 				>
 					<TouchableOpacity // Container for message
-						key={uuid.v4() + "-containerForMessage"}
 						style={{
 							flexDirection: "column",
 							gap: theme.spacing(1),
@@ -251,7 +249,6 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 				</TouchableOpacity>
 
 				<TouchableOpacity // Container for message row
-					key={uuid.v4() + "-containerForMessageRow"}
 					style={{
 						position: "relative",
 						flexDirection: "row",
@@ -262,7 +259,6 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 					}}
 				>
 					<TouchableOpacity // Container for message
-						key={uuid.v4() + "-containerForMessage"}
 						style={{
 							flexDirection: "column",
 							gap: theme.spacing(1),
@@ -410,7 +406,7 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 						{gradientColors.map((grCol, idx) =>
 							idx === currentChangingColorIdx ? (
 								<View
-									key={uuid.v4() + "-containerForGradientColor"}
+									key={grCol + "-containerForGradientColor"}
 									style={{
 										width: 20,
 										height: 20,
@@ -431,7 +427,7 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 								</View>
 							) : (
 								<TouchableOpacity
-									key={uuid.v4() + "-containerForGradientColor"}
+									key={grCol + "-containerForGradientColor"}
 									onPress={() => setCurrentChangingColorIdx(idx)}
 									style={{
 										width: 20,
