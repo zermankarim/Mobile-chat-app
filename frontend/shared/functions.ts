@@ -9,7 +9,6 @@ import {
 } from "./types";
 import { RefObject } from "react";
 import { ScrollView } from "react-native";
-import storage from "../core/storage/storage";
 
 export const connectToSocket = (userId: string) => {
 	const URL = `${SERVER_URL_SOCKET}:${SERVER_PORT_SOCKET}/?userId=${userId}`;
@@ -65,50 +64,4 @@ export const getRandomColor = () => {
 		color += letters[Math.floor(Math.random() * 16)];
 	}
 	return color;
-};
-
-export const getWallpapersGradientsAndSetState = async (
-	setWallpaperGradient: (newState: IWallpaperGradient | null) => void,
-	setWallpapersGradientsPreview?: (newState: IWallpaperGradient[]) => void
-) => {
-	const wallpapersGradients: IWallpaperGradient[] =
-		await storage.getAllDataForKey("wallpaperGradient");
-	if (wallpapersGradients.length) {
-		const foundSelectedWallpaperGradient = wallpapersGradients.find(
-			(wlpGrd) => wlpGrd.selected === true
-		);
-		if (foundSelectedWallpaperGradient) {
-			setWallpaperGradient(foundSelectedWallpaperGradient);
-			setWallpapersGradientsPreview
-				? setWallpapersGradientsPreview([...wallpapersGradients])
-				: null;
-		}
-	} else {
-		setWallpaperGradient(null);
-		setWallpapersGradientsPreview && setWallpapersGradientsPreview([]);
-	}
-};
-
-export const getWallpapersPicturesAndSetState = async (
-	setWallpaperPicture: (newState: IBase64Wallpaper | null) => void,
-	setWallpapersPreview?: (newState: IBase64Wallpaper[]) => void
-) => {
-	const base64Wallpapers: IBase64Wallpaper[] = await storage.getAllDataForKey(
-		"base64Wallpapers"
-	);
-	if (base64Wallpapers.length) {
-		const foundSelectedWallpaper = base64Wallpapers.find(
-			(wallpaper) => wallpaper.selected === true
-		);
-		if (foundSelectedWallpaper) {
-			setWallpaperPicture(foundSelectedWallpaper);
-			setWallpapersPreview && setWallpapersPreview(base64Wallpapers);
-		} else {
-			setWallpaperPicture(null);
-			setWallpapersPreview && setWallpapersPreview([]);
-		}
-	} else {
-		setWallpaperPicture(null);
-		setWallpapersPreview && setWallpapersPreview([]);
-	}
 };

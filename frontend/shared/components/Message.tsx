@@ -66,12 +66,6 @@ const Message: FC<MessageProps> = ({
 		}
 	};
 
-	useEffect(() => {
-		if (message.type === "forward" && message.forwarder?._id === user._id) {
-			console.log("here");
-		}
-	}, [message]);
-
 	return (
 		<View
 			style={{

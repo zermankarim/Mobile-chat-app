@@ -8,28 +8,27 @@ import {
 import { FC, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser } from "../core/reducers/user";
-import { IBase64Wallpaper, LoginRouteProps, ThemeType } from "../shared/types";
+import {
+	IBase64Wallpaper,
+	IWallpaperGradient,
+	LoginRouteProps,
+	ThemeType,
+} from "../shared/types";
 import TextWithFont from "../shared/components/TextWithFont";
 import { Button, TextInput } from "react-native-paper";
 import { signInWithEmailAndPassword, verifyJWTToken } from "../fetches/http";
 import { useGlobalContext } from "../core/context/Context";
-import {
-	connectToSocket,
-	getWallpapersGradientsAndSetState,
-	getWallpapersPicturesAndSetState,
-} from "../shared/functions";
+import { connectToSocket } from "../shared/functions";
 import { createTheme } from "../shared/theme";
-import storage from "../core/storage/storage";
 import { uuid } from "expo-modules-core";
+import { storageMMKV } from "../core/storage/storageMMKV";
+import { useMMKVString } from "react-native-mmkv";
 
 const Login: FC<LoginRouteProps> = ({ navigation }) => {
+	// MMKV states
+	const [wallpapersStor] = useMMKVString("wallpapersStor");
 	// Global context
-	const {
-		setConnectionState,
-		setAppTheme,
-		setWallpaperPicture,
-		setWallpaperGradient,
-	} = useGlobalContext();
+	const { setConnectionState, setAppTheme, setWallpaper } = useGlobalContext();
 	const theme = createTheme("default");
 
 	// Redux states and dispatch
@@ -85,22 +84,7 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
 
 				const { data: userData, token } = response;
 
-				const tokenDataFromStor = await storage.getAllDataForKey("token");
-
-				if (!tokenDataFromStor.length) {
-					await storage.save({
-						key: "token",
-						id: uuid.v4().toString(),
-						data: token,
-					});
-				} else {
-					storage.clearMapForKey("token");
-					await storage.save({
-						key: "token",
-						id: uuid.v4().toString(),
-						data: token,
-					});
-				}
+				storageMMKV.set("token", token!);
 
 				dispatch(setUser(userData!));
 				setLoadingLogin(false);
@@ -109,26 +93,34 @@ const Login: FC<LoginRouteProps> = ({ navigation }) => {
 				const socket = connectToSocket(userData!._id!);
 				setConnectionState(socket);
 
-				const themeTitlesArr: ThemeType[] = await storage.getAllDataForKey(
+				const themeTitle: ThemeType | undefined = storageMMKV.getString(
 					"themeTitle"
-				);
-				if (!themeTitlesArr.length) {
+				) as ThemeType;
+				if (!themeTitle) {
 					setAppTheme("default");
-					return storage.save({
-						key: "themeTitle",
-						id: uuid.v4().toString(),
-						data: "default",
-					});
+					return storageMMKV.set("themeTitle", "default");
 				}
-				setAppTheme(themeTitlesArr[0]);
-
-				getWallpapersPicturesAndSetState(setWallpaperPicture);
-				getWallpapersGradientsAndSetState(setWallpaperGradient);
+				setAppTheme(themeTitle);
 			} else {
 				setLoadingLogin(false);
 				setIsDisabledButton(false);
 				Alert.alert("Error on logging in");
 				throw new Error("No response");
+			}
+
+			if (wallpapersStor) {
+				const wallpapersStorParse: (IWallpaperGradient | IBase64Wallpaper)[] =
+					JSON.parse(wallpapersStor);
+				const selectedWallpaper = wallpapersStorParse.find(
+					(wllp) => wllp.selected === true
+				);
+				if (selectedWallpaper) {
+					setWallpaper(selectedWallpaper);
+				} else {
+					setWallpaper(null);
+				}
+			} else {
+				setWallpaper(null);
 			}
 		} catch (e: any) {
 			setLoadingLogin(false);

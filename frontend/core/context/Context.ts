@@ -35,10 +35,8 @@ export type GlobalStates = {
 
 	appTheme: ThemeType;
 	setAppTheme: (newState: ThemeType) => void;
-	wallpaperPicture: IBase64Wallpaper | null;
-	setWallpaperPicture: (newState: IBase64Wallpaper | null) => void;
-	wallpaperGradient: IWallpaperGradient | null;
-	setWallpaperGradient: (newState: IWallpaperGradient | null) => void;
+	wallpaper: IBase64Wallpaper | IWallpaperGradient | null;
+	setWallpaper: (newState: IBase64Wallpaper | IWallpaperGradient | null) => void;
 };
 export const GlobalContext = createContext<GlobalStates>({
 	loading: false,
@@ -64,9 +62,7 @@ export const GlobalContext = createContext<GlobalStates>({
 
 	appTheme: "default",
 	setAppTheme: () => {},
-	wallpaperPicture: null,
-	setWallpaperPicture: () => {},
-	wallpaperGradient: null,
-	setWallpaperGradient: () => {},
+	wallpaper: null,
+	setWallpaper: () => {},
 });
 export const useGlobalContext = () => useContext(GlobalContext);

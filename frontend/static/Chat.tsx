@@ -1,14 +1,6 @@
 import { FC, RefObject, useCallback, useRef } from "react";
-import {
-	Dimensions,
-	Image,
-	ScrollView,
-	View,
-} from "react-native";
-import {
-	ActivityIndicator,
-	PaperProvider,
-} from "react-native-paper";
+import { Dimensions, Image, ScrollView, View } from "react-native";
+import { ActivityIndicator, PaperProvider } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import uuid from "react-native-uuid";
@@ -35,8 +27,7 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 		forwardMessages,
 		setForwardMessages,
 		appTheme,
-		wallpaperPicture,
-		wallpaperGradient,
+		wallpaper,
 		selectedMessages,
 		setSelectedMessages,
 		replyMessage,
@@ -96,9 +87,14 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 			dispatch(setMessages(params?.chat.messages!));
 			dispatch(setCurrentChat(params?.chat!));
 			logoutUserIfTokenHasProblems(dispatch, navigation);
-			scrollToBottom(scrollViewRef);
 			setChatLoading(false);
 		}, [route.params?.chat])
+	);
+
+	useFocusEffect(
+		useCallback(() => {
+			scrollToBottom(scrollViewRef);
+		}, [messages])
 	);
 
 	if (chatLoading) {
@@ -123,10 +119,10 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 						backgroundColor: theme.colors.main[500],
 					}}
 				>
-					{wallpaperGradient ? (
+					{wallpaper?.type === "wallpaperGradient" ? (
 						<>
 							<LinearGradient
-								colors={wallpaperGradient.colors}
+								colors={wallpaper.colors}
 								start={{ x: 0.1, y: 0.1 }}
 								end={{ x: 0.9, y: 0.9 }}
 								style={{
@@ -135,31 +131,28 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 									height: "100%",
 								}}
 							></LinearGradient>
-							{wallpaperGradient.withImage && (
+							{wallpaper.withImage && (
 								<Image
 									source={require("../assets/chat-background-items.png")}
 									style={{
 										position: "absolute",
 										opacity: 0.7,
 									}}
-									tintColor={wallpaperGradient.imageColor}
+									tintColor={wallpaper.imageColor}
 								></Image>
 							)}
 						</>
-					) : ( 
+					) : (
 						<Image
 							source={
-								wallpaperPicture
-									? { uri: wallpaperPicture.uri }
+								wallpaper
+									? { uri: wallpaper.uri }
 									: require("../assets/chat-background-items.png")
 							}
 							style={{
 								position: "absolute",
 								width: Dimensions.get("window").width,
 								height: Dimensions.get("window").height,
-								tintColor: wallpaperPicture
-									? "none"
-									: theme.colors.contrast[100],
 								opacity: 0.7,
 							}}
 						></Image>

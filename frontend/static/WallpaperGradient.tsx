@@ -1,5 +1,5 @@
 import { FC, useCallback, useState } from "react";
-import { Checkbox, Modal } from "react-native-paper";
+import { Checkbox } from "react-native-paper";
 import TextWithFont from "../shared/components/TextWithFont";
 import { useGlobalContext } from "../core/context/Context";
 import { createTheme } from "../shared/theme";
@@ -9,27 +9,26 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
 import ColorPicker, {
 	colorKit,
-	OpacitySlider,
 	Panel2,
-	Panel5,
 	returnedResults,
-	SaturationSlider,
 } from "reanimated-color-picker";
 import { useFocusEffect } from "@react-navigation/native";
-import storage from "../core/storage/storage";
 import uuid from "react-native-uuid";
 import {
 	IBase64Wallpaper,
 	IWallpaperGradient,
 	WallpaperGradientRouteProps,
 } from "../shared/types";
-import { getWallpapersGradientsAndSetState } from "../shared/functions";
+import { useMMKVString } from "react-native-mmkv";
 
 const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 	const deviceHeight = Dimensions.get("window").height;
 
+	// MMKV states
+	const [wallpapersStor, setWallpapersStor] = useMMKVString("wallpapersStor");
+
 	// Global context states
-	const { appTheme, setWallpaperGradient } = useGlobalContext();
+	const { appTheme, setWallpaper } = useGlobalContext();
 
 	// Theme
 	const theme = createTheme(appTheme);
@@ -129,68 +128,33 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 	};
 
 	const handleClickSetWallpaper = async () => {
-		const base64Wallpapers: IBase64Wallpaper[] = await storage.getAllDataForKey(
-			"base64Wallpapers"
-		);
-
-		const updatedWallpapers = base64Wallpapers.map((storageWallpaper) => ({
-			...storageWallpaper,
-			selected: false,
-		}));
-
-		storage.clearMapForKey("base64Wallpapers");
-
-		await Promise.all(
-			updatedWallpapers.map((updWallpaper) =>
-				storage.save({
-					key: "base64Wallpapers",
-					id: uuid.v4().toString(),
-					data: updWallpaper,
-				})
-			)
-		);
-
-		const wallpapersGradients: IBase64Wallpaper[] =
-			await storage.getAllDataForKey("wallpaperGradient");
-
-		const updatedwallpapersGradients = wallpapersGradients.map(
-			(storageWallpaperGradient) => ({
-				...storageWallpaperGradient,
-				selected: false,
-			})
-		);
-
-		storage.clearMapForKey("wallpaperGradient");
-
-		await Promise.all(
-			updatedwallpapersGradients.map((updWallpaperGradient) =>
-				storage.save({
-					key: "wallpaperGradient",
-					id: uuid.v4().toString(),
-					data: updWallpaperGradient,
-				})
-			)
-		);
-		await storage.save({
-			key: "wallpaperGradient",
+		const newGradientWallpaper: IWallpaperGradient = {
 			id: uuid.v4().toString(),
-			data: {
-				id: uuid.v4(),
-				colors: gradientColors,
-				withImage,
-				imageColor,
-				selected: true,
-			},
-		});
-
-		getWallpapersGradientsAndSetState(setWallpaperGradient);
+			colors: gradientColors,
+			withImage,
+			imageColor,
+			selected: true,
+			type: "wallpaperGradient",
+		};
+		if (wallpapersStor) {
+			const wallpapersStorParse: (IBase64Wallpaper | IWallpaperGradient)[] =
+				JSON.parse(wallpapersStor);
+			const updWallpapersStorParse: (IBase64Wallpaper | IWallpaperGradient)[] =
+				wallpapersStorParse.map((wallpaper) => ({
+					...wallpaper,
+					selected: false,
+				}));
+			setWallpapersStor(
+				JSON.stringify([newGradientWallpaper, ...updWallpapersStorParse])
+			);
+		} else {
+			setWallpapersStor(JSON.stringify([newGradientWallpaper]));
+		}
 		navigation.navigate("ChangeWallpaper");
 	};
 
 	useFocusEffect(
 		useCallback(() => {
-			getWallpapersGradientsAndSetState(setWallpaperGradient);
-
 			return () => {
 				colorsContainerHeight.value = withTiming(0, { duration: 100 });
 				setCurrentChangingColorIdx(0);
@@ -229,7 +193,7 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 					source={require("../assets/chat-background-items.png")}
 					style={{
 						position: "absolute",
-						width:"100%",
+						width: "100%",
 						opacity: 0.7,
 					}}
 					tintColor={imageColor}
@@ -467,6 +431,7 @@ const WallpaperGradient: FC<WallpaperGradientRouteProps> = ({ navigation }) => {
 								</View>
 							) : (
 								<TouchableOpacity
+									key={uuid.v4() + "-containerForGradientColor"}
 									onPress={() => setCurrentChangingColorIdx(idx)}
 									style={{
 										width: 20,

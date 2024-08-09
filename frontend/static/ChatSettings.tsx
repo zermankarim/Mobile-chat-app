@@ -15,16 +15,15 @@ import { ScrollView } from "react-native-gesture-handler";
 import uuid from "react-native-uuid";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
-import storage from "../core/storage/storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect } from "@react-navigation/native";
 import { logoutUserIfTokenHasProblems } from "../fetches/http";
+import { storageMMKV } from "../core/storage/storageMMKV";
 
 const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 	// Global context
-	const { appTheme, setAppTheme, wallpaperPicture, wallpaperGradient } =
-		useGlobalContext();
+	const { appTheme, setAppTheme, wallpaper } = useGlobalContext();
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
@@ -44,28 +43,19 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 	];
 
 	// Functions
-	const handleSetNewTheme = async (themeTitle: ThemeType) => {
-		const themeTitlesArr: ThemeType[] = await storage.getAllDataForKey(
+	const handleSetNewTheme = async (newThemeTitle: ThemeType) => {
+		const themeTitle: ThemeType | undefined = storageMMKV.getString(
 			"themeTitle"
-		);
-		const themeTitleIds = await storage.getIdsForKey("themeTitle");
-		if (!themeTitlesArr.length || !themeTitleIds.length) {
+		) as ThemeType | undefined;
+		if (!themeTitle) {
 			setAppTheme("default");
-			return storage.save({
-				key: "themeTitle",
-				id: uuid.v4().toString(),
-				data: "default",
-			});
+			return storageMMKV.set("themeTitle", "default");
 		} else {
-			await storage.save({
-				key: "themeTitle",
-				id: themeTitleIds[0],
-				data: themeTitle,
-			});
-			const updatedThemeTitles: ThemeType[] = await storage.getAllDataForKey(
+			storageMMKV.set("themeTitle", newThemeTitle);
+			const updatedThemeTitle: ThemeType = storageMMKV.getString(
 				"themeTitle"
-			);
-			setAppTheme(updatedThemeTitles[0]);
+			) as ThemeType;
+			setAppTheme(updatedThemeTitle);
 		}
 	};
 
@@ -89,10 +79,10 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 					backgroundColor: theme.colors.main[500],
 				}}
 			>
-				{wallpaperGradient ? (
+				{wallpaper?.type === "wallpaperGradient" ? (
 					<>
 						<LinearGradient
-							colors={wallpaperGradient.colors}
+							colors={wallpaper.colors}
 							start={{ x: 0.1, y: 0.1 }}
 							end={{ x: 0.9, y: 0.9 }}
 							style={{
@@ -101,7 +91,7 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 								height: "100%",
 							}}
 						></LinearGradient>
-						{wallpaperGradient.withImage && (
+						{wallpaper.withImage && (
 							<Image
 								source={require("../assets/chat-background-items.png")}
 								style={{
@@ -110,22 +100,22 @@ const ChatSettings: FC<ChatSettingsRouteProps> = ({ navigation }) => {
 									width: "100%",
 									height: "100%",
 								}}
-								tintColor={wallpaperGradient.imageColor}
+								tintColor={wallpaper.imageColor}
 							></Image>
 						)}
 					</>
 				) : (
 					<Image
 						source={
-							wallpaperPicture
-								? { uri: wallpaperPicture.uri }
+							wallpaper
+								? { uri: wallpaper.uri }
 								: require("../assets/chat-background-items.png")
 						}
 						style={{
 							position: "absolute",
 							width: "100%",
 							height: "100%",
-							tintColor: wallpaperPicture ? "none" : theme.colors.contrast[100],
+							tintColor: wallpaper ? "none" : theme.colors.contrast[100],
 							opacity: 0.7,
 						}}
 					></Image>

@@ -15,8 +15,8 @@ import { createUserWithEmailPassAndNames } from "../fetches/http";
 import { connectToSocket } from "../shared/functions";
 import { useGlobalContext } from "../core/context/Context";
 import { createTheme } from "../shared/theme";
-import storage from "../core/storage/storage";
 import uuid from "react-native-uuid";
+import { storageMMKV } from "../core/storage/storageMMKV";
 
 const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
 	// Global context
@@ -73,32 +73,13 @@ const SignUp: FC<LoginRouteProps> = ({ navigation }) => {
 
 				const { data: newUserState, token } = response;
 
-				const tokenDataFromStor = await storage.getAllDataForKey("token");
-
-				if (!tokenDataFromStor.length) {
-					await storage.save({
-						key: "token",
-						id: uuid.v4().toString(),
-						data: token,
-					});
-				} else {
-					storage.clearMapForKey("token");
-					await storage.save({
-						key: "token",
-						id: uuid.v4().toString(),
-						data: token,
-					});
-				}
+				storageMMKV.set("token", token!);
 
 				dispatch(setUser(newUserState!));
 				setLoadingSignUp(false);
 				const socket = connectToSocket(newUserState!._id!);
 				setConnectionState(socket);
-				storage.save({
-					key: "themeTitle",
-					id: uuid.v4().toString(),
-					data: "default",
-				});
+				storageMMKV.set("themeTitle", "defaul");
 			} else {
 				throw new Error("Error during receiving response");
 			}

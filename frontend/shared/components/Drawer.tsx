@@ -24,16 +24,8 @@ import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import { createTheme } from "../theme";
 import Feather from "@expo/vector-icons/Feather";
 import Entypo from "@expo/vector-icons/Entypo";
-import Animated, {
-	StretchInX,
-	StretchOutX,
-	StretchOutY,
-	useSharedValue,
-	withSpring,
-	withTiming,
-} from "react-native-reanimated";
-import storage from "../../core/storage/storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
+import { storageMMKV } from "../../core/storage/storageMMKV";
 
 type DrawerProps = {
 	state: DrawerNavigationState<ParamListBase>;
@@ -60,34 +52,24 @@ function DrawerContent({ ...props }) {
 	};
 
 	const handleChangeTheme = async () => {
-		const themeTitlesArr = await storage.getAllDataForKey("themeTitle");
-		const themeTitleIds = await storage.getIdsForKey("themeTitle");
-		if (!themeTitlesArr.length || !themeTitleIds.length) {
+		const themeTitle: ThemeType | undefined = storageMMKV.getString(
+			"themeTitle"
+		) as ThemeType | undefined;
+		if (!themeTitle) {
 			setAppTheme("default");
-			return storage.save({
-				key: "themeTitle",
-				id: uuid.v4().toString(),
-				data: "default",
-			});
+			return storageMMKV.set("themeTitle", "default");
 		}
 
-		if (themeTitlesArr[0] !== "light") {
-			await storage.save({
-				key: "themeTitle",
-				id: themeTitleIds[0],
-				data: "light",
-			});
+		if (themeTitle !== "light") {
+			storageMMKV.set("themeTitle", "light");
 		} else {
-			await storage.save({
-				key: "themeTitle",
-				id: themeTitleIds[0],
-				data: "default",
-			});
+			storageMMKV.set("themeTitle", "default");
 		}
-		const updatedThemeTitlesArr: ThemeType[] = await storage.getAllDataForKey(
+		const updatedThemeTitle: ThemeType = storageMMKV.getString(
 			"themeTitle"
-		);
-		setAppTheme(updatedThemeTitlesArr[0]);
+		) as ThemeType;
+
+		setAppTheme(updatedThemeTitle);
 	};
 
 	useEffect(() => {

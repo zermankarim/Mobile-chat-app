@@ -40,10 +40,9 @@ const App: FC = () => {
 	);
 
 	const [appTheme, setAppTheme] = useState<ThemeType>("default");
-	const [wallpaperPicture, setWallpaperPicture] =
-		useState<IBase64Wallpaper | null>(null);
-	const [wallpaperGradient, setWallpaperGradient] =
-		useState<IWallpaperGradient | null>(null);
+	const [wallpaper, setWallpaper] = useState<
+		IBase64Wallpaper | IWallpaperGradient | null
+	>(null);
 
 	const [connectionState, setConnectionState] = useState<Socket<
 		ISocketOnEvent,
@@ -98,10 +97,8 @@ const App: FC = () => {
 					setForwardMessages,
 					appTheme,
 					setAppTheme,
-					wallpaperPicture,
-					setWallpaperPicture,
-					wallpaperGradient,
-					setWallpaperGradient,
+					wallpaper,
+					setWallpaper,
 					selectedMessages,
 					setSelectedMessages,
 					replyMessage,

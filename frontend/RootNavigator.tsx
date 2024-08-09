@@ -34,11 +34,10 @@ import ChatSettings from "./static/ChatSettings";
 import { setUser } from "./core/reducers/user";
 import { createTheme } from "./shared/theme";
 import AnimatedScreen from "./shared/components/AnimatedScreen";
-import storage from "./core/storage/storage";
-import uuid from "react-native-uuid";
 import ChangeWallpaper from "./static/ChangeWallpaper";
 import WallpaperGradient from "./static/WallpaperGradient";
 import HeaderForChat from "./shared/components/HeaderForChat";
+import { storageMMKV } from "./core/storage/storageMMKV";
 
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
@@ -210,18 +209,14 @@ const RootNavigator: FC = () => {
 		if (user._id && !connectionState) {
 			connectToSocket(user._id);
 			const changeTheme = async () => {
-				const themeTitlesArr: ThemeType[] = await storage.getAllDataForKey(
+				const themeTitle: ThemeType | undefined = storageMMKV.getString(
 					"themeTitle"
-				);
-				if (!themeTitlesArr.length) {
+				) as ThemeType;
+				if (!themeTitle) {
 					setAppTheme("default");
-					return storage.save({
-						key: "themeTitle",
-						id: uuid.v4().toString(),
-						data: "default",
-					});
+					return storageMMKV.set("themeTitle", "default");
 				}
-				setAppTheme(themeTitlesArr[0]);
+				setAppTheme(themeTitle);
 			};
 			changeTheme();
 		}

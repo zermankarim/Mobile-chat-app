@@ -82,8 +82,10 @@ export interface IUploadImageData {
 }
 
 export interface IBase64Wallpaper {
+	id: string;
 	uri: string;
 	selected: boolean;
+	type: "base64Wallpaper";
 }
 
 export interface IWallpaperGradient {
@@ -92,6 +94,7 @@ export interface IWallpaperGradient {
 	withImage: boolean;
 	imageColor: string;
 	selected: boolean;
+	type: "wallpaperGradient";
 }
 
 export interface CustomTheme {

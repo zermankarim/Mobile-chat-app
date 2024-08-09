@@ -10,8 +10,8 @@ import {
 import { blobToBase64 } from "../shared/functions";
 import { Alert } from "react-native";
 import { logoutUser } from "../core/reducers/user";
-import storage from "../core/storage/storage";
 import { Dispatch } from "redux";
+import { storageMMKV } from "../core/storage/storageMMKV";
 
 export const getDoc = async (
 	collectionName: "users" | "chats",
@@ -146,17 +146,19 @@ export const logoutUserIfTokenHasProblems = async (
 		| ScreenNavigationProp<"ChangeWallpaper">
 		| ScreenNavigationProp<"ChatSettings">
 ) => {
-	const tokenDataFromStor: string[] = await storage.getAllDataForKey("token");
-	if (!tokenDataFromStor.length) {
+	const tokenDataFromStor: string | undefined = storageMMKV.getString(
+		"token"
+	) as string | undefined;
+	if (!tokenDataFromStor) {
 		Alert.alert("Token didn't found, please log in again.");
 		dispatch(logoutUser());
 		navigation.navigate("Login");
 		return;
 	}
-	const isVerifyToken = await verifyJWTToken(tokenDataFromStor[0]);
+	const isVerifyToken = await verifyJWTToken(tokenDataFromStor);
 	if (!isVerifyToken) {
 		Alert.alert("Token expired, please log in again.");
-		storage.clearMapForKey("token");
+		storageMMKV.delete("token");
 		dispatch(logoutUser());
 		navigation.navigate("Login");
 		return;
