@@ -96,18 +96,20 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 		}, [messages])
 	);
 
-	if (chatLoading) {
-		return (
-			<ActivityIndicator
-				size={"large"}
-				color={theme.colors.main[100]}
-				style={{
-					flex: 1,
-					backgroundColor: theme.colors.main[500],
-				}}
-			></ActivityIndicator>
-		);
-	}
+	// if (chatLoading) {
+	// 	return (
+	// 		<PaperProvider>
+	// 			<ActivityIndicator
+	// 				size={"large"}
+	// 				color={theme.colors.main[100]}
+	// 				style={{
+	// 					flex: 1,
+	// 					backgroundColor: theme.colors.main[500],
+	// 				}}
+	// 			></ActivityIndicator>
+	// 		</PaperProvider>
+	// 	);
+	// }
 
 	return (
 		user._id && (
@@ -118,95 +120,107 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 						backgroundColor: theme.colors.main[500],
 					}}
 				>
-					{wallpaper?.type === "wallpaperGradient" ? (
-						<>
-							<LinearGradient
-								colors={wallpaper.colors}
-								start={{ x: 0.1, y: 0.1 }}
-								end={{ x: 0.9, y: 0.9 }}
-								style={{
-									position: "absolute",
-									width: "100%",
-									height: "100%",
-								}}
-							></LinearGradient>
-							{wallpaper.withImage && (
-								<Image
-									source={require("../assets/chat-background-items.png")}
-									style={{
-										position: "absolute",
-										opacity: 0.7,
-									}}
-									tintColor={wallpaper.imageColor}
-								></Image>
-							)}
-						</>
-					) : (
-						<Image
-							source={
-								wallpaper
-									? { uri: wallpaper.uri }
-									: require("../assets/chat-background-items.png")
-							}
-							style={{
-								position: "absolute",
-								width: Dimensions.get("window").width,
-								height: Dimensions.get("window").height,
-								opacity: 0.7,
-							}}
-						></Image>
-					)}
-					{messages.length ? (
-						<ScrollView // Container for messages
-							ref={scrollViewRef}
-							style={{
-								position: "relative",
-								flexDirection: "column",
-							}}
-							contentContainerStyle={{
-								justifyContent: "flex-end",
-								minHeight: "100%",
-								paddingVertical: theme.spacing(3),
-							}}
-						>
-							{!chatLoading &&
-								messages.map((message) => (
-									<Message
-										key={message._id + "-messageComponent"}
-										navigation={navigation}
-										message={message}
-										handleDeleteMessages={handleDeleteMessages}
-										handleReplyMessage={handleReplyMessage}
-										theme={theme}
-										selected={selectedMessages.includes(message)}
-										selectedMessagesIsEmpty={!selectedMessages.length}
-									></Message>
-								))}
-						</ScrollView>
-					) : (
-						<View
+					{chatLoading ? (
+						<ActivityIndicator
+							size={"large"}
+							color={theme.colors.main[100]}
 							style={{
 								flex: 1,
-								justifyContent: "center",
-								alignItems: "center",
+								backgroundColor: theme.colors.main[500],
 							}}
-						>
-							<TextWithFont
-								styleProps={{
-									color: theme.colors.main[200],
-								}}
-							>
-								Enter Your first message!
-							</TextWithFont>
-						</View>
+						></ActivityIndicator>
+					) : (
+						<>
+							{wallpaper?.type === "wallpaperGradient" ? (
+								<>
+									<LinearGradient
+										colors={wallpaper.colors}
+										start={{ x: 0.1, y: 0.1 }}
+										end={{ x: 0.9, y: 0.9 }}
+										style={{
+											position: "absolute",
+											width: "100%",
+											height: "100%",
+										}}
+									></LinearGradient>
+									{wallpaper.withImage && (
+										<Image
+											source={require("../assets/chat-background-items.png")}
+											style={{
+												position: "absolute",
+												opacity: 0.7,
+											}}
+											tintColor={wallpaper.imageColor}
+										></Image>
+									)}
+								</>
+							) : (
+								<Image
+									source={
+										wallpaper
+											? { uri: wallpaper.uri }
+											: require("../assets/chat-background-items.png")
+									}
+									style={{
+										position: "absolute",
+										width: Dimensions.get("window").width,
+										height: Dimensions.get("window").height,
+										opacity: 0.7,
+									}}
+								></Image>
+							)}
+							{messages.length ? (
+								<ScrollView // Container for messages
+									ref={scrollViewRef}
+									style={{
+										position: "relative",
+										flexDirection: "column",
+									}}
+									contentContainerStyle={{
+										justifyContent: "flex-end",
+										minHeight: "100%",
+										paddingVertical: theme.spacing(3),
+									}}
+								>
+									{messages.map((message) => (
+										<Message
+											key={message._id + "-messageComponent"}
+											navigation={navigation}
+											message={message}
+											handleDeleteMessages={handleDeleteMessages}
+											handleReplyMessage={handleReplyMessage}
+											theme={theme}
+											selected={selectedMessages.includes(message)}
+											selectedMessagesIsEmpty={!selectedMessages.length}
+										></Message>
+									))}
+								</ScrollView>
+							) : (
+								<View
+									style={{
+										flex: 1,
+										justifyContent: "center",
+										alignItems: "center",
+									}}
+								>
+									<TextWithFont
+										styleProps={{
+											color: theme.colors.main[200],
+										}}
+									>
+										Enter Your first message!
+									</TextWithFont>
+								</View>
+							)}
+							{replyMessage && (
+								<ReplyMessage
+									replyMessage={replyMessage}
+									setReplyMessage={setReplyMessage}
+								></ReplyMessage>
+							)}
+							{forwardMessages && <ForwardMessages></ForwardMessages>}
+						</>
 					)}
-					{replyMessage && (
-						<ReplyMessage
-							replyMessage={replyMessage}
-							setReplyMessage={setReplyMessage}
-						></ReplyMessage>
-					)}
-					{forwardMessages && <ForwardMessages></ForwardMessages>}
 					<InputMessage
 						replyMessage={replyMessage}
 						setReplyMessage={setReplyMessage}

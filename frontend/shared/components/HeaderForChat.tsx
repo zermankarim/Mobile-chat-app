@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import TextWithFont from "./TextWithFont";
 import {
 	Entypo,
@@ -30,12 +30,11 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 	const {
 		appTheme,
 		setForwardMessages,
-		setChatLoading,
 		connectionState,
 		selectedMessages,
 		setSelectedMessages,
-		replyMessage,
 		setReplyMessage,
+		chatLoading,
 	} = useGlobalContext();
 
 	// Redux states and dispatch
@@ -101,8 +100,7 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 
 	useFocusEffect(
 		useCallback(() => {
-			setChatLoading(true);
-			if(currentChat) {
+			if (currentChat) {
 				if (currentChat._id && currentChat.participants.length === 2) {
 					const oneRecipientData: IUserState =
 						currentChat.participants[0]._id !== user._id
@@ -114,7 +112,6 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 				} else {
 					setOneRecipient(null);
 				}
-				setChatLoading(false);
 			}
 		}, [currentChat!])
 	);
@@ -227,6 +224,15 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						</TouchableOpacity>
 					</View>
 				</Animated.View>
+			) : chatLoading ? (
+				<ActivityIndicator
+					size={32}
+					color={theme.colors.main[100]}
+					style={{
+						flex: 1,
+						backgroundColor: theme.colors.main[400],
+					}}
+				></ActivityIndicator>
 			) : oneRecipient ? (
 				<Animated.View
 					style={{ flexDirection: "row", opacity: userInfoOpacity }}
@@ -238,24 +244,6 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						onPress={() => {
 							setForwardMessages(null);
 							setReplyMessage(null);
-							// dispatch(
-							// 	setCurrentChat({
-							// 		_id: "",
-							// 		createdAt: "",
-							// 		createdBy: {
-							// 			_id: "",
-							// 			firstName: "",
-							// 			lastName: "",
-							// 			email: "",
-							// 			dateOfBirth: "",
-							// 			backgroundColors: [],
-							// 			avatars: [],
-							// 			friends: [],
-							// 		},
-							// 		messages: [],
-							// 		participants: [],
-							// 	})
-							// );
 							navigation.navigate("Chats");
 						}}
 					>
