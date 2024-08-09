@@ -1,43 +1,55 @@
 package mobile.chat.app
 
 import android.app.Application
+import android.content.res.Configuration
+
+import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactNativeHost
-import com.facebook.react.ReactInstanceManager
 import com.facebook.react.ReactPackage
+import com.facebook.react.ReactHost
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
+import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
-import expo.modules.adapters.react.ReactNativeHostWrapper
-import expo.modules.core.interfaces.ReactNativeHostInterface
-import com.reactnativemmkv.MMKV
-import com.reactnativemmkv.MMKVPackage
+
+import expo.modules.ApplicationLifecycleDispatcher
+import expo.modules.ReactNativeHostWrapper
 
 class MainApplication : Application(), ReactApplication {
 
-    private val mReactNativeHost = object : ReactNativeHost(this) {
-        override fun getPackages(): List<ReactPackage> {
-            return listOf(
-                // Add your packages here
-                MMKVPackage()
-            )
-        }
+  override val reactNativeHost: ReactNativeHost = ReactNativeHostWrapper(
+        this,
+        object : DefaultReactNativeHost(this) {
+          override fun getPackages(): List<ReactPackage> {
+            // Packages that cannot be autolinked yet can be added manually here, for example:
+            // packages.add(new MyReactNativePackage());
+            return PackageList(this).packages
+          }
 
-        override fun getUseDeveloperSupport(): Boolean {
-            return BuildConfig.DEBUG
-        }
+          override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
 
-        override fun getReactNativeHost(): ReactNativeHost {
-            return this
-        }
+          override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
+
+          override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+          override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
+      }
+  )
+
+  override val reactHost: ReactHost
+    get() = ReactNativeHostWrapper.createReactHost(applicationContext, reactNativeHost)
+
+  override fun onCreate() {
+    super.onCreate()
+    SoLoader.init(this, false)
+    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+      // If you opted-in for the New Architecture, we load the native entry point for this app.
+      load()
     }
+    ApplicationLifecycleDispatcher.onApplicationCreate(this)
+  }
 
-    override fun getReactNativeHost(): ReactNativeHost {
-        return mReactNativeHost
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        SoLoader.init(this, /* native exopackage */ false)
-        // Initialize MMKV if needed
-        MMKV.initialize(this)
-    }
+  override fun onConfigurationChanged(newConfig: Configuration) {
+    super.onConfigurationChanged(newConfig)
+    ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
+  }
 }
