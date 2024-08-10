@@ -68,7 +68,7 @@ yarn install -g expo-cli
 
 ## Known Issues
 ***Note:** If you know how to resolve some issues, please send me it to e-mail [zermankarim@gmail.com](zermankarim@gmail.com)*
-**Issues wasn't found**
+- **Issues wasn't found**
 
 ## Screenshots
 ![Profile](https://private-user-images.githubusercontent.com/100965013/356807080-8eb60305-19c8-40bc-95b5-5af5ebc84d8f.jpg?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjMyODc5NjEsIm5iZiI6MTcyMzI4NzY2MSwicGF0aCI6Ii8xMDA5NjUwMTMvMzU2ODA3MDgwLThlYjYwMzA1LTE5YzgtNDBiYy05NWI1LTVhZjVlYmM4NGQ4Zi5qcGc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQwODEwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDgxMFQxMTAxMDFaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT0yMGJhMjViMTU5NDk2ZDA5M2FlYzEwZjEzMmUzZGMxMDU4NDdhYWE5NmEwZGNjZTcyNjdlNmM2NTlmNThkMDRjJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZhY3Rvcl9pZD0wJmtleV9pZD0wJnJlcG9faWQ9MCJ9.Zo_1H9j69TCwyNEwCd6jHv8CLyPUSabZi25K64dHGiw)
