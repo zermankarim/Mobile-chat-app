@@ -81,6 +81,12 @@ export interface IUploadImageData {
 	relativePath?: string;
 }
 
+export interface IBase64WallpaperWithoutImg {
+	id: string;
+	selected: boolean;
+	type: "base64Wallpaper";
+}
+
 export interface IBase64Wallpaper {
 	id: string;
 	uri: string;

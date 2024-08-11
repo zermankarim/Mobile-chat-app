@@ -6,7 +6,7 @@ import {
 	View,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { blobToBase64 } from "../shared/functions";
+import { blobToBase64, uploadWallpaperImageToDir } from "../shared/functions";
 import { FC, useCallback, useState } from "react";
 import { createTheme } from "../shared/theme";
 import { useGlobalContext } from "../core/context/Context";
@@ -16,6 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import {
 	ChangeWallpaperRouteProps,
 	IBase64Wallpaper,
+	IBase64WallpaperWithoutImg,
 	IWallpaperGradient,
 } from "../shared/types";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -27,7 +28,7 @@ import { storageMMKV } from "../core/storage/storageMMKV";
 import { useMMKVString } from "react-native-mmkv";
 import { ActivityIndicator } from "react-native-paper";
 import WallpaperPreview from "../shared/components/WallpaperPreview";
-// import { Image } from "expo-image";
+import { DocumentDirectoryPath, readFile } from "react-native-fs";
 
 const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 	// Global context states
@@ -47,8 +48,7 @@ const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 		(IBase64Wallpaper | IWallpaperGradient)[]
 	>([]);
 	const [loading, setLoading] = useState<boolean>(true);
-	const blurhash =
-		"|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+	const [files, setFiles] = useState<string[]>([]);
 
 	// Functions
 	const handleClickImagePicker = async () => {
@@ -86,28 +86,41 @@ const ChangeWallpaper: FC<ChangeWallpaperRouteProps> = ({ navigation }) => {
 
 	const uploadAndChangeWallpaper = async (base64Image: string) => {
 		try {
-			const wallpaperForUpload: IBase64Wallpaper = {
+			const wallpaperForUpload: IBase64WallpaperWithoutImg = {
 				id: uuid.v4().toString(),
-				uri: base64Image,
 				selected: true,
 				type: "base64Wallpaper",
+			};
+
+			const pathForSaving = `${DocumentDirectoryPath}/wallpapers/${wallpaperForUpload.id}.jpg`;
+			const imagePath = `file://${pathForSaving}`;
+
+			await uploadWallpaperImageToDir(base64Image, pathForSaving);
+
+			const wallpaperWithImage: IBase64Wallpaper = {
+				...wallpaperForUpload,
+				uri: imagePath,
 			};
 			if (!wallpapersStor) {
 				storageMMKV.set(
 					"wallpapersStor",
-					JSON.stringify([wallpaperForUpload] as IBase64Wallpaper[])
+					JSON.stringify([wallpaperWithImage] as IBase64WallpaperWithoutImg[])
 				);
 			} else {
-				const wallpapersStorParse: (IBase64Wallpaper | IWallpaperGradient)[] =
-					JSON.parse(wallpapersStor);
-				const updatedWallpapers: (IBase64Wallpaper | IWallpaperGradient)[] =
-					wallpapersStorParse.map((wallpaper) => ({
-						...wallpaper,
-						selected: false,
-					}));
+				const wallpapersStorParse: (
+					| IBase64WallpaperWithoutImg
+					| IWallpaperGradient
+				)[] = JSON.parse(wallpapersStor);
+				const updatedWallpapers: (
+					| IBase64WallpaperWithoutImg
+					| IWallpaperGradient
+				)[] = wallpapersStorParse.map((wallpaper) => ({
+					...wallpaper,
+					selected: false,
+				}));
 				setWallpapersStor(
-					JSON.stringify([wallpaperForUpload, ...updatedWallpapers] as (
-						| IBase64Wallpaper
+					JSON.stringify([wallpaperWithImage, ...updatedWallpapers] as (
+						| IBase64WallpaperWithoutImg
 						| IWallpaperGradient
 					)[])
 				);

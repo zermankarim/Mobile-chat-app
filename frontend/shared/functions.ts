@@ -8,7 +8,14 @@ import {
 	IWallpaperGradient,
 } from "./types";
 import { RefObject } from "react";
-import { ScrollView } from "react-native";
+import { Platform, ScrollView } from "react-native";
+import {
+	DocumentDirectoryPath,
+	exists,
+	mkdir,
+	readDir,
+	writeFile,
+} from "react-native-fs";
 
 export const connectToSocket = (userId: string) => {
 	const URL = `${SERVER_URL_SOCKET}:${SERVER_PORT_SOCKET}/?userId=${userId}`;
@@ -64,4 +71,25 @@ export const getRandomColor = () => {
 		color += letters[Math.floor(Math.random() * 16)];
 	}
 	return color;
+};
+
+export const createWallpaperDirIfNeed = async () => {
+	try {
+		const wallpapersDirPath = DocumentDirectoryPath + "/wallpapers";
+		const wallpaperDirIsExist = await exists(wallpapersDirPath);
+
+		if (!wallpaperDirIsExist) {
+			await mkdir(wallpapersDirPath);
+		}
+	} catch (e: any) {
+		console.error(`Error in func: ${e.message}`);
+	}
+};
+
+export const uploadWallpaperImageToDir = async (
+	base64Image: string,
+	pathForSaving: string
+) => {
+	const base64ImageWithoutPref = base64Image.replace(/^data:image\/jpeg;base64,/, '');
+	await writeFile(pathForSaving, base64ImageWithoutPref, "base64");
 };

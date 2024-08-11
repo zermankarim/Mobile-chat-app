@@ -19,6 +19,7 @@ import {
 	ThemeType,
 } from "./shared/types";
 import { StatusBar } from "react-native";
+import { createWallpaperDirIfNeed } from "./shared/functions";
 
 const App: FC = () => {
 	// States
@@ -66,6 +67,7 @@ const App: FC = () => {
 		}
 
 		prepare();
+		createWallpaperDirIfNeed();
 	}, []);
 
 	const onLayoutRootView = useCallback(async () => {
