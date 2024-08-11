@@ -393,6 +393,7 @@ const Message: FC<MessageProps> = ({
 				/>
 				<Menu.Item
 					onPress={() => {
+						closeMenu()
 						handleDeleteMessages(message);
 					}}
 					title="Delete"
