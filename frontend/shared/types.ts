@@ -25,9 +25,11 @@ export interface IMessage {
 	text?: string;
 	image?: string;
 	sender: string;
-	replyMessage?: IMessage;
+	replyMessage?: string | IMessage;
 	type: "default" | "forward";
 	forwarder?: string;
+	status: "sent" | "sending" | "error";
+	read: boolean;
 }
 
 export interface IMessagePopulated {
@@ -39,14 +41,31 @@ export interface IMessagePopulated {
 	replyMessage?: IMessagePopulated;
 	type: "default" | "forward";
 	forwarder?: IUserState;
+	status: "sent" | "sending" | "error";
+	read: boolean;
+}
+
+export interface IChatFromDBPopulated {
+	_id: string;
+	createdAt: string;
+	createdBy: IUserState;
+	// messages: IMessagePopulated[];
+	messages: IMessage[];
+	participants: IUserState[];
 }
 
 export interface IChatPopulated {
 	_id: string;
 	createdAt: string;
 	createdBy: IUserState;
-	messages: IMessagePopulated[];
-	participants: IUserState[];
+	// messages: IMessagePopulated[];
+	messages: IMessage[];
+	participants: {
+		[id: string]: IUserState;
+	};
+	allParticipantsData: {
+		[id: string]: IUserState;
+	};
 }
 
 export interface IButtonDrawer {
@@ -141,7 +160,8 @@ export interface ISocketEmitEvent {
 	openChatWithUser: (userId: string, userForChatId: string) => void;
 	deleteMessages: (
 		chatId: string,
-		messagesForDeleting: IMessagePopulated[],
+		// messagesForDeleting: IMessagePopulated[],
+		messagesForDeletingIds: string[],
 		participantsIds: string[]
 	) => void;
 	getUserById: (userId: string) => void;
@@ -152,12 +172,13 @@ export interface ISocketOnEvent {
 	getChatsByUserId: (data: {
 		success: boolean;
 		message?: string;
-		chatsData?: IChatPopulated[];
+		chatsData?: IChatFromDBPopulated[];
 	}) => void;
 	getChatById: (data: {
 		success: boolean;
 		message?: string;
 		chatData?: IChatPopulated;
+		newAllParticipants?: IUserState[];
 	}) => void;
 	sendMessage: (data: {
 		success: boolean;
@@ -177,7 +198,7 @@ export interface ISocketOnEvent {
 	openChatWithUser: (data: {
 		success: boolean;
 		message?: string;
-		chat?: IChatPopulated;
+		chat?: IChatFromDBPopulated;
 	}) => void;
 	getUserById: (data: {
 		success: boolean;

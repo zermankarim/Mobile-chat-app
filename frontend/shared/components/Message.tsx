@@ -1,5 +1,10 @@
-import { FC, useState } from "react";
-import { ScreenNavigationProp, CustomTheme, IMessagePopulated } from "../types";
+import { FC, useCallback, useState } from "react";
+import {
+	ScreenNavigationProp,
+	CustomTheme,
+	IMessage,
+	IMessagePopulated,
+} from "../types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
 import { Dimensions, Image, TouchableOpacity, View } from "react-native";
@@ -11,16 +16,18 @@ import { formatMessageDate } from "../functions";
 import { Menu } from "react-native-paper";
 import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useGlobalContext } from "../../core/context/Context";
-import Animated, {  } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
+import { useFocusEffect } from "@react-navigation/native";
 
 type MessageProps = {
 	navigation: ScreenNavigationProp<"Chat">;
-	message: IMessagePopulated;
-	handleDeleteMessages: (selectedMessageFromMenu?: IMessagePopulated) => void;
-	handleReplyMessage: (selectedFromMenu?: IMessagePopulated) => void;
+	message: IMessage;
+	handleDeleteMessages: (selectedMessageFromMenu?: string) => void;
+	handleReplyMessage: (selectedFromMenu?: string) => void;
 	theme: CustomTheme;
 	selected: boolean;
 	selectedMessagesIsEmpty: boolean;
+	replyMessage?: IMessage | undefined;
 };
 
 const Message: FC<MessageProps> = ({
@@ -31,17 +38,19 @@ const Message: FC<MessageProps> = ({
 	theme,
 	selected,
 	selectedMessagesIsEmpty,
+	replyMessage,
 }) => {
 	// Global context
 	const {
 		setForwardMessages,
 		selectedMessages,
 		setSelectedMessages,
-		setReplyMessage,
+		setReplyMessageId,
 	} = useGlobalContext();
 
 	// Redux states and dispatch
 	const user = useSelector((state: RootState) => state.user);
+	const currentChat = useSelector((state: RootState) => state.currentChat);
 
 	//States
 	const [visible, setVisible] = useState(false);
@@ -51,18 +60,24 @@ const Message: FC<MessageProps> = ({
 
 	const closeMenu = () => setVisible(false);
 
-	const handleSelectMessage = (message: IMessagePopulated) => {
+	const handleSelectMessage = (messageId: string) => {
 		const selectedMessageIdx = selectedMessages.findIndex(
-			(selMsg) => selMsg._id === message._id
+			(selMsgId) => selMsgId === messageId
 		);
 		if (selectedMessageIdx === -1) {
-			setSelectedMessages([...selectedMessages, message]);
+			setSelectedMessages([...selectedMessages, message._id]);
 		} else {
 			const selectedMessagesCopy = selectedMessages.slice();
 			selectedMessagesCopy.splice(selectedMessageIdx, 1);
 			setSelectedMessages(selectedMessagesCopy);
 		}
 	};
+
+	useFocusEffect(
+		useCallback(() => {
+			return closeMenu();
+		}, [])
+	);
 
 	return (
 		<View
@@ -110,12 +125,11 @@ const Message: FC<MessageProps> = ({
 				style={{
 					position: "absolute",
 					right:
-						message.sender._id === user._id || message.type === "forward"
+						message.sender === user._id || message.type === "forward"
 							? "20%"
 							: undefined,
 					left:
-						message.sender._id !== user._id &&
-						message.forwarder?._id !== user._id
+						message.sender !== user._id && message.forwarder !== user._id
 							? "20%"
 							: undefined,
 					marginRight: 0,
@@ -124,20 +138,18 @@ const Message: FC<MessageProps> = ({
 					<TouchableOpacity // Container for message row
 						onPress={() => {
 							if (!selectedMessagesIsEmpty) {
-								handleSelectMessage(message);
+								handleSelectMessage(message._id);
 							}
-							openMenu();
 						}}
 						onLongPress={() => {
-							handleSelectMessage(message);
+							handleSelectMessage(message._id);
 						}}
 						style={{
 							position: "relative",
 							flexDirection: "row",
 							justifyContent:
-								message.sender._id === user._id ||
-								(message.type === "forward" &&
-									message.forwarder?._id === user._id)
+								message.sender === user._id ||
+								(message.type === "forward" && message.forwarder === user._id)
 									? "flex-end"
 									: "flex-start",
 							width: Dimensions.get("window").width,
@@ -151,11 +163,11 @@ const Message: FC<MessageProps> = ({
 					>
 						<TouchableOpacity // Container for message
 							onLongPress={() => {
-								handleSelectMessage(message);
+								handleSelectMessage(message._id);
 							}}
 							onPress={() => {
 								if (!selectedMessagesIsEmpty) {
-									handleSelectMessage(message);
+									handleSelectMessage(message._id);
 								}
 								openMenu();
 							}}
@@ -164,9 +176,8 @@ const Message: FC<MessageProps> = ({
 								flexDirection: "column",
 								gap: theme.spacing(1),
 								backgroundColor:
-									message.sender._id === user._id ||
-									(message.type === "forward" &&
-										message.forwarder?._id === user._id)
+									message.sender === user._id ||
+									(message.type === "forward" && message.forwarder === user._id)
 										? selected
 											? theme.colors.contrast[500]
 											: theme.colors.contrast[200]
@@ -178,15 +189,13 @@ const Message: FC<MessageProps> = ({
 								borderTopLeftRadius: theme.borderRadius(2),
 								borderTopRightRadius: theme.borderRadius(2),
 								borderBottomLeftRadius:
-									message.sender._id === user._id ||
-									(message.type === "forward" &&
-										message.forwarder?._id === user._id)
+									message.sender === user._id ||
+									(message.type === "forward" && message.forwarder === user._id)
 										? theme.borderRadius(2)
 										: 0,
 								borderBottomRightRadius:
-									message.sender._id === user._id ||
-									(message.type === "forward" &&
-										message.forwarder?._id === user._id)
+									message.sender === user._id ||
+									(message.type === "forward" && message.forwarder === user._id)
 										? 0
 										: theme.borderRadius(2),
 								minWidth: 72,
@@ -207,12 +216,13 @@ const Message: FC<MessageProps> = ({
 										}}
 									>
 										{/*If forward message sender has avatars - render last, else - render linear gradient*/}
-										{message.sender.avatars.length ? (
+										{currentChat.participants[message.sender].avatars.length ? (
 											<Image
 												source={{
 													uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
-														message.sender.avatars[
-															message.sender.avatars.length - 1
+														currentChat.participants[message.sender].avatars[
+															currentChat.participants[message.sender].avatars
+																.length - 1
 														]
 													}`,
 												}}
@@ -224,7 +234,10 @@ const Message: FC<MessageProps> = ({
 											></Image>
 										) : (
 											<LinearGradient
-												colors={message.sender.backgroundColors}
+												colors={
+													currentChat.participants[message.sender]
+														.backgroundColors
+												}
 												style={{
 													justifyContent: "center",
 													alignItems: "center",
@@ -238,8 +251,10 @@ const Message: FC<MessageProps> = ({
 														fontSize: theme.fontSize(2),
 													}}
 												>
-													{message.sender.firstName![0] +
-														message.sender.lastName![0]}
+													{currentChat.participants[message.sender]
+														.firstName![0] +
+														currentChat.participants[message.sender]
+															.lastName![0]}
 												</TextWithFont>
 											</LinearGradient>
 										)}
@@ -248,19 +263,19 @@ const Message: FC<MessageProps> = ({
 												fontWeight: 700,
 											}}
 										>
-											{message.sender.firstName}
+											{currentChat.participants[message.sender].firstName}
 										</TextWithFont>
 									</View>
 								</View>
 							)}
-							{message.replyMessage && (
+							{replyMessage && (
 								<View
 									style={{
 										flexDirection: "row",
 										width: "100%",
 										borderRadius: theme.spacing(2),
 										backgroundColor:
-											message.sender._id === user._id
+											message.sender === user._id
 												? theme.colors.contrast[300]
 												: theme.colors.main[300],
 										padding: theme.spacing(1),
@@ -269,10 +284,10 @@ const Message: FC<MessageProps> = ({
 										borderLeftWidth: 2,
 									}}
 								>
-									{message.replyMessage.image && (
+									{replyMessage.image && (
 										<Image
 											source={{
-												uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${message.replyMessage.image}`,
+												uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${replyMessage.image}`,
 											}}
 											style={{
 												width: 40,
@@ -291,28 +306,27 @@ const Message: FC<MessageProps> = ({
 												color: theme.colors.main[100],
 											}}
 										>
-											{message.replyMessage.sender.firstName}
+											{currentChat.participants[replyMessage.sender].firstName}
 										</TextWithFont>
 
-										{message.replyMessage.text && (
+										{replyMessage.text && (
 											<TextWithFont
 												styleProps={{
 													color: theme.colors.main[100],
 												}}
 											>
-												{message.replyMessage.text}
+												{replyMessage.text}
 											</TextWithFont>
 										)}
-										{message.replyMessage.image &&
-											!message.replyMessage.text && (
-												<TextWithFont
-													styleProps={{
-														color: theme.colors.main[100],
-													}}
-												>
-													Photo
-												</TextWithFont>
-											)}
+										{replyMessage.image && !replyMessage.text && (
+											<TextWithFont
+												styleProps={{
+													color: theme.colors.main[100],
+												}}
+											>
+												Photo
+											</TextWithFont>
+										)}
 									</View>
 								</View>
 							)}
@@ -347,20 +361,22 @@ const Message: FC<MessageProps> = ({
 									width: "100%",
 									fontSize: theme.fontSize(3),
 									color:
-										message.sender._id === user._id ||
-										message.type === "forward"
+										message.sender === user._id || message.type === "forward"
 											? theme.colors.main[100]
 											: theme.colors.main[200],
 								}}
 							>
-								{formatMessageDate(message.createdAt)}
+								{formatMessageDate(message?.createdAt)}
 							</TextWithFont>
 						</TouchableOpacity>
 					</TouchableOpacity>
 				}
 			>
 				<Menu.Item
-					onPress={() => handleReplyMessage(message)}
+					onPress={() => {
+						closeMenu();
+						handleReplyMessage(message._id);
+					}}
 					title="Reply"
 					titleStyle={{
 						color: theme.colors.main[100],
@@ -376,7 +392,7 @@ const Message: FC<MessageProps> = ({
 				<Menu.Item
 					onPress={() => {
 						setForwardMessages([message]);
-						setReplyMessage(null);
+						setReplyMessageId(null);
 						navigation.navigate("Chats");
 					}}
 					title="Forward"
@@ -393,8 +409,8 @@ const Message: FC<MessageProps> = ({
 				/>
 				<Menu.Item
 					onPress={() => {
-						closeMenu()
-						handleDeleteMessages(message);
+						closeMenu();
+						handleDeleteMessages(message._id);
 					}}
 					title="Delete"
 					titleStyle={{

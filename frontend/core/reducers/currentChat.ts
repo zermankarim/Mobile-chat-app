@@ -5,7 +5,7 @@ const initialState: IChatPopulated = {
   _id: "",
   createdAt: "",
   messages: [],
-  participants: [],
+  participants: {},
   createdBy: {
     _id: "",
     firstName: "",

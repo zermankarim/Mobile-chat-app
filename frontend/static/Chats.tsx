@@ -30,7 +30,6 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
 	// States
 	const [searchLoading, setSearchLoading] = useState<boolean>(false);
 	const [selectedChats, setSelectedChats] = useState<IChatPopulated[]>([]);
-
 	// Effects
 	useEffect(() => {
 		if (connectionState) {
@@ -90,21 +89,17 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
 							}}
 						></ActivityIndicator>
 					) : (
-						chats.map((chat) => (
-							<ChatCard
-								key={chat._id + "-chatCard"}
-								chat={chat}
-								isSelectedChat={selectedChats.includes(chat)}
-								selectedChats={selectedChats}
-								setSelectedChats={setSelectedChats}
-								oneRecipient={
-									chat.participants.length === 2 &&
-									chat.participants.find(
-										(participant: IUserState) => participant._id !== user._id
-									)
-								}
-							></ChatCard>
-						))
+						chats.map((chat) => {
+							return (
+								<ChatCard
+									key={chat._id + "-chatCard"}
+									chat={chat}
+									isSelectedChat={selectedChats.includes(chat)}
+									selectedChats={selectedChats}
+									setSelectedChats={setSelectedChats}
+								></ChatCard>
+							);
+						})
 					)}
 				</ScrollView>
 			) : (

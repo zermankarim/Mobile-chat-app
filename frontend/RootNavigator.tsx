@@ -17,6 +17,8 @@ import {
 	IUserState,
 	RootStackParamList,
 	ThemeType,
+	IMessage,
+	IChatFromDBPopulated,
 } from "./shared/types";
 import Chat from "./static/Chat";
 import { Dimensions, SafeAreaView, StatusBar, View } from "react-native";
@@ -63,6 +65,7 @@ const RootNavigator: FC = () => {
 	// Redux states and dispatch
 	const dispatch = useDispatch();
 	const user = useSelector((state: RootState) => state.user);
+	const messages = useSelector((state: RootState) => state.messages);
 	const chats = useSelector((state: RootState) => state.chats);
 	const currentChat = useSelector((state: RootState) => state.currentChat);
 
@@ -75,7 +78,7 @@ const RootNavigator: FC = () => {
 			function onGetChatsByUserId(data: {
 				success: boolean;
 				message?: string;
-				chatsData?: IChatPopulated[];
+				chatsData?: IChatFromDBPopulated[];
 			}) {
 				const { success } = data;
 				if (!success) {
@@ -86,8 +89,25 @@ const RootNavigator: FC = () => {
 				}
 				const { chatsData } = data;
 
+				const chatsDataForClient: IChatPopulated[] = chatsData!.map((chat) => {
+					const chatParticipantsForClient: { [id: string]: IUserState } = {};
+					chat.participants.forEach((participant) => {
+						const id = participant._id!;
+						return (chatParticipantsForClient[id] = participant);
+					});
+
+					const chatForClient: IChatPopulated = {
+						_id: chat!._id,
+						createdAt: chat!.createdAt,
+						createdBy: chat!.createdBy,
+						messages: chat!.messages,
+						participants: chatParticipantsForClient!,
+						allParticipantsData: {},
+					};
+					return chatForClient;
+				});
 				// Sorting chats by last message date
-				const sortedChatsData = chatsData!.sort((a, b) => {
+				const sortedChatsData = chatsDataForClient!.sort((a, b) => {
 					const aHasMessages = a.messages.length > 0;
 					const bHasMessages = b.messages.length > 0;
 
@@ -121,6 +141,15 @@ const RootNavigator: FC = () => {
 				if (!success) {
 					const { message } = data;
 					console.error("Error during receiving chat by ID: ", message);
+
+					if (messages.length) {
+						const updatedMessages: IMessage[] = messages.map((msg) => ({
+							...msg,
+							status: msg.status === "sending" ? "error" : "sent",
+						}));
+						dispatch(setMessages(updatedMessages));
+					}
+
 					setChatLoading(false);
 					return;
 				}
@@ -150,20 +179,39 @@ const RootNavigator: FC = () => {
 			function onOpenChatWithUser(data: {
 				success: boolean;
 				message?: string;
-				chat?: IChatPopulated;
+				chat?: IChatFromDBPopulated;
 			}) {
 				if (data) {
 					const { success } = data;
 					if (!success) {
 						const { message } = data;
 						console.error(message);
+						setCreateChatLoading(false);
 						setChatsLoading(false);
+						setChatLoading(false);
+
 						return;
 					}
 					const { chat } = data;
 
+					const chatParticipantsForClient: { [id: string]: IUserState } = {};
+					chat!.participants.forEach((participant) => {
+						const id = participant._id!;
+						return (chatParticipantsForClient[id] = participant);
+					});
+
+					const chatForClient: IChatPopulated = {
+						_id: chat!._id,
+						createdAt: chat!.createdAt,
+						createdBy: chat!.createdBy,
+						messages: chat!.messages,
+						participants: chatParticipantsForClient!,
+						allParticipantsData: {},
+					};
+
 					dispatch(setMessages(chat?.messages!));
-					dispatch(setCurrentChat(chat!));
+
+					dispatch(setCurrentChat(chatForClient));
 					setCreateChatLoading(false);
 					setChatsLoading(false);
 					setChatLoading(false);

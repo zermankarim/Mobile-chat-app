@@ -1,16 +1,16 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IMessagePopulated } from "../../shared/types";
+import { IMessage } from "../../shared/types";
 
-const initialState: IMessagePopulated[] = [];
+const initialState: IMessage[] = [];
 
 const messagesSlice = createSlice({
   name: "messages",
   initialState,
   reducers: {
-    setMessages: (state, action: PayloadAction<IMessagePopulated[]>) => {
+    setMessages: (state, action: PayloadAction<IMessage[]>) => {
       return action.payload;
     },
-    addMessage: (state, action: PayloadAction<IMessagePopulated>) => {
+    addMessage: (state, action: PayloadAction<IMessage>) => {
       state.push(action.payload);
     },
   },

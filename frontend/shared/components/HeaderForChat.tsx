@@ -10,7 +10,7 @@ import {
 import { createTheme } from "../theme";
 import { useGlobalContext } from "../../core/context/Context";
 import Animated, { useSharedValue, withTiming } from "react-native-reanimated";
-import { IMessagePopulated, IUserState } from "../types";
+import { IMessage, IMessagePopulated, IUserState } from "../types";
 import { Avatar, Button } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,13 +33,14 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 		connectionState,
 		selectedMessages,
 		setSelectedMessages,
-		setReplyMessage,
+		setReplyMessageId,
 		chatLoading,
 	} = useGlobalContext();
 
 	// Redux states and dispatch
 	const currentChat = useSelector((state: RootState) => state.currentChat);
 	const user = useSelector((state: RootState) => state.user);
+	const messages = useSelector((state: RootState) => state.messages);
 	const dispatch = useDispatch();
 
 	// States
@@ -53,20 +54,34 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 	const headerButtonOpacity = useSharedValue(0);
 
 	// Functions
-	const handleReplyMessage = (selectedFromMenu?: IMessagePopulated) => {
+	const handleReplyMessage = (
+		selectedFromMenu?: IMessage | IMessagePopulated
+	) => {
 		if (!selectedFromMenu) {
-			setReplyMessage(selectedMessages[0]);
+			setReplyMessageId(selectedMessages[0]);
 		} else {
-			setReplyMessage(selectedFromMenu);
+			setReplyMessageId(selectedFromMenu._id);
 		}
 		setForwardMessages(null);
 		setSelectedMessages([]);
 	};
 
+	const handleForwardMessages = () => {
+		const forwardMessages = messages.filter((msg) => {
+			if (selectedMessages.some((selMsgId) => selMsgId === msg._id)) {
+				return msg;
+			}
+		});
+ 
+		setForwardMessages(forwardMessages);
+		setReplyMessageId(null);
+		navigation.navigate("Chats");
+	};
+
 	const handleDeleteMessages = (selectedFromMenu?: IMessagePopulated) => {
-		const participantsIds: string[] = currentChat.participants.map(
-			(participant: IUserState) => participant._id!
-		);
+		const participantsIds: string[] = Object.values(
+			currentChat.participants
+		).map((participant) => participant._id!);
 		if (selectedMessages) {
 			connectionState?.emit(
 				"deleteMessages",
@@ -79,7 +94,7 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 			connectionState?.emit(
 				"deleteMessages",
 				currentChat._id,
-				[selectedFromMenu],
+				[selectedFromMenu._id],
 				participantsIds
 			);
 		}
@@ -101,11 +116,13 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 	useFocusEffect(
 		useCallback(() => {
 			if (currentChat) {
-				if (currentChat._id && currentChat.participants.length === 2) {
-					const oneRecipientData: IUserState =
-						currentChat.participants[0]._id !== user._id
-							? currentChat.participants[0]
-							: currentChat.participants[1];
+				if (
+					currentChat._id &&
+					Object.keys(currentChat.participants).length === 2
+				) {
+					const oneRecipientData: IUserState = Object.values(
+						currentChat.participants
+					).find((participant) => participant._id !== user._id)!;
 					if (oneRecipientData) {
 						setOneRecipient(oneRecipientData);
 					}
@@ -192,9 +209,7 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						)}
 						<TouchableOpacity
 							onPress={() => {
-								setForwardMessages(selectedMessages);
-								setReplyMessage(null);
-								navigation.navigate("Chats");
+								handleForwardMessages();
 							}}
 							style={{
 								justifyContent: "center",
@@ -243,7 +258,7 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						}}
 						onPress={() => {
 							setForwardMessages(null);
-							setReplyMessage(null);
+							setReplyMessageId(null);
 							navigation.navigate("Chats");
 						}}
 					>
@@ -315,7 +330,7 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						color={theme.colors.main[200]}
 					/>
 					<TextWithFont>
-						{currentChat.participants
+						{Object.values(currentChat.participants)
 							.filter(
 								(participant, index) =>
 									participant._id !== user._id && index < 3

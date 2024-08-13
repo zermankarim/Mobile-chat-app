@@ -40,9 +40,11 @@ export interface IMessage {
 	text?: string;
 	image?: string;
 	sender: Types.ObjectId;
-	replyMessage?: IMessage;
+	replyMessage?:  string | Types.ObjectId;
 	type: "default" | "forward";
-	forwarder?: string;
+	forwardedFrom?: string;
+	status: "sent" | "sending";
+	read: boolean;
 }
 
 export interface IChat {
@@ -61,13 +63,15 @@ export interface IMessagePopulated {
 	replyMessage?: IMessagePopulated;
 	type: "default" | "forward";
 	forwarder?: IUser;
+	status: "sent" | "sending";
+	read: boolean;
 }
 
 export interface IChatPopulatedAll {
 	_id: Types.ObjectId;
 	createdAt: string;
 	createdBy: IUser;
-	messages: IMessagePopulated[];
+	messages: IMessage[];
 	participants: IUser[];
 }
 
@@ -93,6 +97,7 @@ export interface ISocketEmitEvent {
 		success: boolean;
 		message?: string;
 		chatData?: IChat;
+		newAllParticipants?: IUser[];
 	}) => void;
 	getUsersForCreateChat: (data: {
 		success: boolean;
@@ -124,7 +129,7 @@ export interface ISocketOnEvent {
 	openChatWithUser: (userId: string, userForChatId: string) => void;
 	deleteMessages: (
 		chatId: string,
-		messagesForDeleting: IMessage[],
+		messagesForDeleting: string[],
 		participantsIds: string[]
 	) => void;
 	getUserById: (userId: string) => void;

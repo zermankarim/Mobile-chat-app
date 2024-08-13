@@ -2,6 +2,7 @@ import { createContext, Dispatch, SetStateAction, useContext } from "react";
 import { Socket } from "socket.io-client";
 import {
 	IBase64Wallpaper,
+	IMessage,
 	IMessagePopulated,
 	ISocketEmitEvent,
 	ISocketOnEvent,
@@ -19,12 +20,12 @@ export type GlobalStates = {
 	createChatLoading: boolean;
 	setCreateChatLoading: (newState: boolean) => void;
 
-	forwardMessages: IMessagePopulated[] | null;
-	setForwardMessages: (newState: IMessagePopulated[] | null) => void;
-	selectedMessages: IMessagePopulated[];
-	setSelectedMessages: (newState: IMessagePopulated[]) => void;
-	replyMessage: IMessagePopulated | null;
-	setReplyMessage: (newState: IMessagePopulated | null) => void;
+	forwardMessages: IMessage[] | null;
+	setForwardMessages: (newState: IMessage[] | null) => void;
+	selectedMessages: string[];
+	setSelectedMessages: (newState: string[]) => void;
+	replyMessageId: string | null;
+	setReplyMessageId: (newState: string | null) => void;
 
 	connectionState: Socket<ISocketOnEvent, ISocketEmitEvent> | null;
 	setConnectionState: Dispatch<
@@ -36,7 +37,9 @@ export type GlobalStates = {
 	appTheme: ThemeType;
 	setAppTheme: (newState: ThemeType) => void;
 	wallpaper: IBase64Wallpaper | IWallpaperGradient | null;
-	setWallpaper: (newState: IBase64Wallpaper | IWallpaperGradient | null) => void;
+	setWallpaper: (
+		newState: IBase64Wallpaper | IWallpaperGradient | null
+	) => void;
 };
 export const GlobalContext = createContext<GlobalStates>({
 	loading: false,
@@ -57,8 +60,8 @@ export const GlobalContext = createContext<GlobalStates>({
 	setForwardMessages: () => {},
 	selectedMessages: [],
 	setSelectedMessages: () => {},
-	replyMessage: null,
-	setReplyMessage: () => {},
+	replyMessageId: null,
+	setReplyMessageId: () => {},
 
 	appTheme: "default",
 	setAppTheme: () => {},

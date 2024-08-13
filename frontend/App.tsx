@@ -12,6 +12,7 @@ import { Socket } from "socket.io-client";
 import {
 	IBase64Wallpaper,
 	IMessagePopulated,
+	IMessage,
 	ISocketEmitEvent,
 	ISocketOnEvent,
 	IUserState,
@@ -30,15 +31,9 @@ const App: FC = () => {
 	const [chatsLoading, setChatsLoading] = useState<boolean>(false);
 	const [createChatLoading, setCreateChatLoading] = useState<boolean>(false);
 
-	const [forwardMessages, setForwardMessages] = useState<
-		IMessagePopulated[] | null
-	>(null);
-	const [selectedMessages, setSelectedMessages] = useState<IMessagePopulated[]>(
-		[]
-	);
-	const [replyMessage, setReplyMessage] = useState<IMessagePopulated | null>(
-		null
-	);
+	const [forwardMessages, setForwardMessages] = useState<IMessage[] | null>(null);
+	const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+	const [replyMessageId, setReplyMessageId] = useState<string | null>(null);
 
 	const [appTheme, setAppTheme] = useState<ThemeType>("default");
 	const [wallpaper, setWallpaper] = useState<
@@ -103,8 +98,8 @@ const App: FC = () => {
 					setWallpaper,
 					selectedMessages,
 					setSelectedMessages,
-					replyMessage,
-					setReplyMessage,
+					replyMessageId,
+					setReplyMessageId,
 				}}
 			>
 				<NavigationContainer>

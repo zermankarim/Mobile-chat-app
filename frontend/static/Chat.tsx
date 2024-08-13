@@ -4,7 +4,12 @@ import { ActivityIndicator, PaperProvider } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import TextWithFont from "../shared/components/TextWithFont";
-import { ChatRouteProps, IMessagePopulated, IUserState } from "../shared/types";
+import {
+	ChatRouteProps,
+	IMessage,
+	IMessagePopulated,
+	IUserState,
+} from "../shared/types";
 import { scrollToBottom } from "../shared/functions";
 import { useGlobalContext } from "../core/context/Context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -29,8 +34,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 		wallpaper,
 		selectedMessages,
 		setSelectedMessages,
-		replyMessage,
-		setReplyMessage,
+		replyMessageId,
+		setReplyMessageId,
 		setChatLoading,
 	} = useGlobalContext();
 	const theme = createTheme(appTheme);
@@ -45,34 +50,32 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 	const scrollViewRef: RefObject<ScrollView> = useRef<ScrollView>(null);
 
 	// Functions
-	const handleDeleteMessages = (selectedFromMenu?: IMessagePopulated) => {
-		const participantsIds: string[] = currentChat.participants.map(
-			(participant: IUserState) => participant._id!
-		);
-		if (selectedMessages) {
+	const handleDeleteMessages = (selectedFromMenuId?: string) => {
+		const participantsIds: string[] = Object.keys(currentChat.participants);
+		if (selectedMessages.length) {
+			const selectedMessagesIds = selectedMessages.map((selMsgId) => selMsgId);
 			connectionState?.emit(
 				"deleteMessages",
 				currentChat._id,
-				selectedMessages,
+				selectedMessagesIds,
 				participantsIds
 			);
 		}
-		if (selectedFromMenu) {
+		if (selectedFromMenuId) {
 			connectionState?.emit(
 				"deleteMessages",
 				currentChat._id,
-				[selectedFromMenu],
+				[selectedFromMenuId],
 				participantsIds
 			);
 		}
 		setSelectedMessages([]);
 	};
-
-	const handleReplyMessage = (selectedFromMenu?: IMessagePopulated) => {
-		if (!selectedFromMenu) {
-			setReplyMessage(selectedMessages[0]);
+	const handleReplyMessage = (selectedFromMenuId?: string) => {
+		if (!selectedFromMenuId) {
+			setReplyMessageId(selectedMessages[0]);
 		} else {
-			setReplyMessage(selectedFromMenu);
+			setReplyMessageId(selectedFromMenuId);
 		}
 		setForwardMessages(null);
 		setSelectedMessages([]);
@@ -83,10 +86,12 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 			const { params } = route;
 			setChatLoading(true);
 			setSelectedMessages([]);
-			dispatch(setMessages(params?.chat.messages!));
-			dispatch(setCurrentChat(params?.chat!));
 			logoutUserIfTokenHasProblems(dispatch, navigation);
 			setChatLoading(false);
+			if (params?.chat) {
+				dispatch(setMessages(params?.chat.messages!));
+				dispatch(setCurrentChat(params?.chat!));
+			}
 		}, [route.params?.chat])
 	);
 
@@ -95,7 +100,6 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 			scrollToBottom(scrollViewRef);
 		}, [messages])
 	);
-
 	// if (chatLoading) {
 	// 	return (
 	// 		<PaperProvider>
@@ -179,7 +183,15 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 									handleDeleteMessages={handleDeleteMessages}
 									handleReplyMessage={handleReplyMessage}
 									theme={theme}
-									selected={selectedMessages.includes(message)}
+									replyMessage={messages.find(
+										(msg) =>
+											msg._id?.toString() === message.replyMessage?.toString()
+									)}
+									selected={
+										!!selectedMessages.find(
+											(selMsgId) => selMsgId === message._id
+										)
+									}
 									selectedMessagesIsEmpty={!selectedMessages.length}
 								></Message>
 							))}
@@ -201,16 +213,16 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 							</TextWithFont>
 						</View>
 					)}
-					{replyMessage && (
+					{replyMessageId && (
 						<ReplyMessage
-							replyMessage={replyMessage}
-							setReplyMessage={setReplyMessage}
+							replyMessageId={replyMessageId}
+							setReplyMessageId={setReplyMessageId}
 						></ReplyMessage>
 					)}
 					{forwardMessages && <ForwardMessages></ForwardMessages>}
 					<InputMessage
-						replyMessage={replyMessage}
-						setReplyMessage={setReplyMessage}
+						replyMessageId={replyMessageId}
+						setReplyMessageId={setReplyMessageId}
 					></InputMessage>
 				</View>
 			</PaperProvider>
