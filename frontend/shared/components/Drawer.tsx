@@ -195,7 +195,7 @@ function DrawerContent({ ...props }) {
 							>
 								<TextWithFont
 									styleProps={{
-										fontSize: theme.fontSize(5),
+										fontSize: theme?.fontSize(5),
 									}}
 								>
 									{user?.firstName![0] + user?.lastName![0]}
