@@ -1,8 +1,8 @@
-import { ScrollView, View } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { FC, useCallback, useEffect, useState } from "react";
 import TextWithFont from "../shared/components/TextWithFont";
 import { ActivityIndicator } from "react-native-paper";
-import { ChatsRouteProps, IChatPopulated, IUserState } from "../shared/types";
+import { ChatsRouteProps, IChatPopulated } from "../shared/types";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import ChatCard from "../shared/components/ChatCard";
@@ -124,8 +124,8 @@ const Chats: FC<ChatsRouteProps> = ({ navigation }) => {
 				onPress={() => navigation.navigate("CreateChat")}
 				containerStyle={{
 					position: "absolute",
-					bottom: 12,
-					right: 12,
+					bottom: Dimensions.get("window").height / 15,
+					right: Dimensions.get("window").width / 15,
 				}}
 				style={{
 					backgroundColor: theme.colors.contrast[500],
