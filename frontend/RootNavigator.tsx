@@ -56,6 +56,8 @@ const RootNavigator: FC = () => {
 		forwardMessages,
 		appTheme,
 		setAppTheme,
+		forwardMsgOwnersList,
+		setForwardMsgOwnersList,
 	} = useGlobalContext();
 	const theme = createTheme(appTheme);
 
@@ -102,7 +104,7 @@ const RootNavigator: FC = () => {
 						createdBy: chat!.createdBy,
 						messages: chat!.messages,
 						participants: chatParticipantsForClient!,
-						allParticipantsData: {},
+						allParticipantsData: chatParticipantsForClient,
 					};
 					return chatForClient;
 				});
@@ -135,7 +137,7 @@ const RootNavigator: FC = () => {
 			function onGetChatById(data: {
 				success: boolean;
 				message?: string;
-				chatData?: IChatPopulated;
+				chatData?: IChatFromDBPopulated;
 			}) {
 				const { success } = data;
 				if (!success) {
@@ -154,6 +156,7 @@ const RootNavigator: FC = () => {
 					return;
 				}
 				const { chatData } = data;
+
 				dispatch(setMessages(chatData!.messages));
 				setChatLoading(false);
 			}
@@ -205,17 +208,16 @@ const RootNavigator: FC = () => {
 						createdAt: chat!.createdAt,
 						createdBy: chat!.createdBy,
 						messages: chat!.messages,
-						participants: chatParticipantsForClient!,
-						allParticipantsData: {},
+						participants: chatParticipantsForClient,
+						allParticipantsData: chatParticipantsForClient,
 					};
 
-					dispatch(setMessages(chat?.messages!));
-
+					dispatch(setMessages(chatForClient?.messages!));
 					dispatch(setCurrentChat(chatForClient));
 					setCreateChatLoading(false);
 					setChatsLoading(false);
 					setChatLoading(false);
-					navigation.navigate("Chat");
+					navigation.navigate("Chat", { chat: chatForClient });
 				}
 				setChatsLoading(false);
 			}

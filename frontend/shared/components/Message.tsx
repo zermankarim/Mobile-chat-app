@@ -3,7 +3,6 @@ import {
 	ScreenNavigationProp,
 	CustomTheme,
 	IMessage,
-	IMessagePopulated,
 } from "../types";
 import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
@@ -46,6 +45,7 @@ const Message: FC<MessageProps> = ({
 		selectedMessages,
 		setSelectedMessages,
 		setReplyMessageId,
+		setForwardMsgOwnersList,
 	} = useGlobalContext();
 
 	// Redux states and dispatch
@@ -70,6 +70,23 @@ const Message: FC<MessageProps> = ({
 			const selectedMessagesCopy = selectedMessages.slice();
 			selectedMessagesCopy.splice(selectedMessageIdx, 1);
 			setSelectedMessages(selectedMessagesCopy);
+		}
+	};
+
+	const handleForwardMessage = () => {
+		const messageOwner = Object.values(currentChat.allParticipantsData).find(
+			(participantData) => participantData._id === message.sender
+		);
+
+		if (messageOwner) {
+			setForwardMsgOwnersList([messageOwner]);
+			setForwardMessages([message]);
+			setReplyMessageId(null);
+			navigation.navigate("Chats");
+		} else {
+			console.error(
+				"Error at message component at handleForwardMessage: messageOwner is undefined"
+			);
 		}
 	};
 
@@ -169,7 +186,9 @@ const Message: FC<MessageProps> = ({
 								if (!selectedMessagesIsEmpty) {
 									handleSelectMessage(message._id);
 								}
-								openMenu();
+								if (selectedMessagesIsEmpty) {
+									openMenu();
+								}
 							}}
 							// If message forwarded, it will be rendered with sender styles
 							style={{
@@ -216,13 +235,15 @@ const Message: FC<MessageProps> = ({
 										}}
 									>
 										{/*If forward message sender has avatars - render last, else - render linear gradient*/}
-										{currentChat.participants[message.sender].avatars.length ? (
+										{currentChat.allParticipantsData[message.sender]?.avatars
+											.length ? (
 											<Image
 												source={{
 													uri: `${SERVER_URL_MAIN}:${SERVER_PORT_MAIN}/${
-														currentChat.participants[message.sender].avatars[
-															currentChat.participants[message.sender].avatars
-																.length - 1
+														currentChat.allParticipantsData[message.sender]
+															.avatars[
+															currentChat.allParticipantsData[message.sender]
+																.avatars.length - 1
 														]
 													}`,
 												}}
@@ -235,8 +256,8 @@ const Message: FC<MessageProps> = ({
 										) : (
 											<LinearGradient
 												colors={
-													currentChat.participants[message.sender]
-														.backgroundColors
+													currentChat.allParticipantsData[message.sender]
+														?.backgroundColors || []
 												}
 												style={{
 													justifyContent: "center",
@@ -251,10 +272,10 @@ const Message: FC<MessageProps> = ({
 														fontSize: theme.fontSize(2),
 													}}
 												>
-													{currentChat.participants[message.sender]
-														.firstName![0] +
-														currentChat.participants[message.sender]
-															.lastName![0]}
+													{currentChat.allParticipantsData[message.sender]
+														?.firstName![0] +
+														currentChat.allParticipantsData[message.sender]
+															?.lastName![0]}
 												</TextWithFont>
 											</LinearGradient>
 										)}
@@ -263,7 +284,10 @@ const Message: FC<MessageProps> = ({
 												fontWeight: 700,
 											}}
 										>
-											{currentChat.participants[message.sender].firstName}
+											{
+												currentChat.allParticipantsData[message.sender]
+													?.firstName
+											}
 										</TextWithFont>
 									</View>
 								</View>
@@ -306,7 +330,10 @@ const Message: FC<MessageProps> = ({
 												color: theme.colors.main[100],
 											}}
 										>
-											{currentChat.participants[replyMessage.sender].firstName}
+											{
+												currentChat.allParticipantsData[replyMessage.sender]
+													?.firstName
+											}
 										</TextWithFont>
 
 										{replyMessage.text && (
@@ -391,9 +418,7 @@ const Message: FC<MessageProps> = ({
 				/>
 				<Menu.Item
 					onPress={() => {
-						setForwardMessages([message]);
-						setReplyMessageId(null);
-						navigation.navigate("Chats");
+						handleForwardMessage();
 					}}
 					title="Forward"
 					titleStyle={{

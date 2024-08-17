@@ -31,7 +31,12 @@ const App: FC = () => {
 	const [chatsLoading, setChatsLoading] = useState<boolean>(false);
 	const [createChatLoading, setCreateChatLoading] = useState<boolean>(false);
 
-	const [forwardMessages, setForwardMessages] = useState<IMessage[] | null>(null);
+	const [forwardMessages, setForwardMessages] = useState<IMessage[] | null>(
+		null
+	);
+	const [forwardMsgOwnersList, setForwardMsgOwnersList] = useState<
+		IUserState[] | null
+	>([]);
 	const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
 	const [replyMessageId, setReplyMessageId] = useState<string | null>(null);
 
@@ -100,6 +105,8 @@ const App: FC = () => {
 					setSelectedMessages,
 					replyMessageId,
 					setReplyMessageId,
+					forwardMsgOwnersList,
+					setForwardMsgOwnersList,
 				}}
 			>
 				<NavigationContainer>

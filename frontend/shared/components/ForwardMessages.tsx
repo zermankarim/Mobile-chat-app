@@ -1,36 +1,25 @@
 import { Entypo } from "@expo/vector-icons";
-import { Image, TouchableOpacity, View } from "react-native";
-import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
+import { TouchableOpacity, View } from "react-native";
 import TextWithFont from "./TextWithFont";
-import { IMessagePopulated, IUserState } from "../types";
-import { FC, useCallback, useState } from "react";
+import { FC } from "react";
 import { useGlobalContext } from "../../core/context/Context";
 import { createTheme } from "../theme";
 import { useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
-import { useFocusEffect } from "@react-navigation/native";
 
 const ForwardMessages: FC = () => {
 	// Global context states
-	const { forwardMessages, setForwardMessages, appTheme } = useGlobalContext();
+	const {
+		forwardMessages,
+		setForwardMessages,
+		appTheme,
+		forwardMsgOwnersList,
+		setForwardMsgOwnersList,
+	} = useGlobalContext();
 	const theme = createTheme(appTheme);
 
 	// Redux states and dispatch
 	const currentChat = useSelector((state: RootState) => state.currentChat);
-
-	const [forwardMsgOwnersList, setForwardMsgOwnersList] =
-		useState<IUserState | null>();
-
-	useFocusEffect(
-		useCallback(() => {
-			const ownersFromParticipants = Object.values(
-				currentChat.participants
-			).filter((participant) =>
-				forwardMessages?.some((msg) => msg.sender === participant._id)
-			);
-			console.log(ownersFromParticipants);
-		}, [])
-	);
 
 	return (
 		<View // Container for replied message
@@ -82,13 +71,22 @@ const ForwardMessages: FC = () => {
 						{/* {forwardMessages
               ?.map((fwdMsg) => fwdMsg.sender.firstName)
               .join(",")} */}
-						{[...new Set(forwardMessages?.map((fwdMsg) => fwdMsg.sender))].join(
-							", "
-						)}
+						{[
+							...new Set(
+								forwardMsgOwnersList?.map(
+									(forwardMsgOwner) => forwardMsgOwner.firstName
+								)
+							),
+						].join(", ")}
 					</TextWithFont>
 				</View>
 			</View>
-			<TouchableOpacity onPress={() => setForwardMessages(null)}>
+			<TouchableOpacity
+				onPress={() => {
+					setForwardMessages(null);
+					setForwardMsgOwnersList(null);
+				}}
+			>
 				<Entypo
 					name="cross"
 					size={theme.fontSize(5)}

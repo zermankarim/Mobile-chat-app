@@ -40,7 +40,7 @@ export interface IMessage {
 	text?: string;
 	image?: string;
 	sender: Types.ObjectId;
-	replyMessage?:  string | Types.ObjectId;
+	replyMessage?: string | Types.ObjectId;
 	type: "default" | "forward";
 	forwardedFrom?: string;
 	status: "sent" | "sending";
@@ -96,8 +96,7 @@ export interface ISocketEmitEvent {
 	getChatById: (data: {
 		success: boolean;
 		message?: string;
-		chatData?: IChat;
-		newAllParticipants?: IUser[];
+		chatData?: IChat | IChatPopulatedAll;
 	}) => void;
 	getUsersForCreateChat: (data: {
 		success: boolean;
@@ -113,6 +112,11 @@ export interface ISocketEmitEvent {
 		success: boolean;
 		message?: string;
 		userData?: IUser;
+	}) => void;
+	getAllParticipantsDataByIds: (data: {
+		success: boolean;
+		message?: string;
+		allParticipantsData?: IUser[];
 	}) => void;
 }
 
@@ -133,6 +137,7 @@ export interface ISocketOnEvent {
 		participantsIds: string[]
 	) => void;
 	getUserById: (userId: string) => void;
+	getAllParticipantsDataByIds: (usersIds: string[]) => void;
 }
 
 export interface IConnectedUser {

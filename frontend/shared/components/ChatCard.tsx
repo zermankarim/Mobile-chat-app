@@ -1,9 +1,9 @@
 import { Image, TouchableOpacity, View } from "react-native";
-import { FC, useCallback, useState } from "react";
+import { FC } from "react";
 import TextWithFont from "../components/TextWithFont";
 
-import { ScreenNavigationProp, IChatPopulated, IUserState } from "../types";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { ScreenNavigationProp, IChatPopulated } from "../types";
+import { useNavigation } from "@react-navigation/native";
 import { RootState } from "../../core/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { Avatar, Badge } from "react-native-paper";

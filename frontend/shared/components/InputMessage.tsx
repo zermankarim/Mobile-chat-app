@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import {
 	Alert,
 	Image,
@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 import { Button, Modal, TextInput } from "react-native-paper";
-import { IMessage, IMessagePopulated, IUserState } from "../types";
+import { IMessage } from "../types";
 import uuid from "react-native-uuid";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,7 +20,6 @@ import * as ImagePicker from "expo-image-picker";
 import { uploadNewImage } from "../../fetches/http";
 import { useFocusEffect } from "@react-navigation/native";
 import { createTheme } from "../theme";
-import { setMessages } from "../../core/reducers/messages";
 
 type InputMessageProps = {
 	replyMessageId: string | null;
@@ -32,8 +31,13 @@ const InputMessage: FC<InputMessageProps> = ({
 	setReplyMessageId,
 }) => {
 	// Global context states
-	const { connectionState, forwardMessages, setForwardMessages, appTheme } =
-		useGlobalContext();
+	const {
+		connectionState,
+		forwardMessages,
+		setForwardMessages,
+		appTheme,
+		forwardMsgOwnersList,
+	} = useGlobalContext();
 	const theme = createTheme(appTheme);
 
 	// Redux states and dispatch
@@ -155,7 +159,14 @@ const InputMessage: FC<InputMessageProps> = ({
 		}
 
 		if (forwardMessages) {
-			newMessagesArr.push(...forwardMessages);
+			const updForwardMessages: IMessage[] = forwardMessages.map((frwdMsg) => ({
+				...frwdMsg,
+				_id: uuid.v4().toString(),
+				createdAt: new Date().toISOString(),
+				forwarder: user._id!,
+				type: "forward",
+			}));
+			newMessagesArr.push(...updForwardMessages);
 		}
 
 		const participantsIds: string[] = Object.values(

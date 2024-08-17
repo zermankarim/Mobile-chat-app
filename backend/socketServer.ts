@@ -53,26 +53,25 @@ io.on("connection", (socket) => {
 			participants: userId,
 		})
 			.populate<Pick<IChatPopulatedAll, "participants">>("participants")
-			.populate<Pick<IChatPopulatedAll, "createdBy">>("createdBy")
-			// .populate<{ child: IUser }>("messages.forwarder");
+			.populate<Pick<IChatPopulatedAll, "createdBy">>("createdBy");
 
 		if (!searchReq) {
 			socket.emit("getChatsByUserId", { success: true, chatsData });
 		}
-		// else {
-		// 	const filteredChatsData = chatsData.filter((chat) =>
-		// 		chat.participants.some(
-		// 			(participant) =>
-		// 				participant.firstName.toLocaleLowerCase().includes(searchReq) ||
-		// 				participant.lastName.toLocaleLowerCase().includes(searchReq) ||
-		// 				participant.email.toLocaleLowerCase().includes(searchReq)
-		// 		)
-		// 	);
-		// 	socket.emit("getChatsByUserId", {
-		// 		success: true,
-		// 		chatsData: filteredChatsData,
-		// 	});
-		// }
+		else {
+			const filteredChatsData = chatsData.filter((chat) =>
+				chat.participants.some(
+					(participant) =>
+						participant.firstName.toLocaleLowerCase().includes(searchReq) ||
+						participant.lastName.toLocaleLowerCase().includes(searchReq) ||
+						participant.email.toLocaleLowerCase().includes(searchReq)
+				)
+			);
+			socket.emit("getChatsByUserId", {
+				success: true,
+				chatsData: filteredChatsData,
+			});
+		}
 	});
 
 	// Request receiving chat by ID
@@ -83,14 +82,13 @@ io.on("connection", (socket) => {
 				message: "getChatById: This chat ID is not valid.",
 			});
 		}
-		const chatData: IChat = await Chat.findOne({
+		const chatData: IChatPopulatedAll = await Chat.findOne({
 			_id: chatId,
 		})
-			.populate<{ child: IUser }>("participants")
-			.populate<{ child: IUser }>("createdBy")
-			.populate<{ child: IUser }>("messages.forwarder");
+			.populate<{ participants: IUser[] }>("participants")
+			.populate<{ createdBy: IUser }>("createdBy");
 
-		socket.emit("getChatById", { success: true, chatData });
+		return socket.emit("getChatById", { success: true, chatData });
 	});
 
 	// New message
@@ -111,7 +109,7 @@ io.on("connection", (socket) => {
 				}
 			)
 				.populate<{ child: IUser }>("participants")
-				.populate<{ child: IUser }>("createdBy")
+				.populate<{ child: IUser }>("createdBy");
 
 			if (!foundAndUpdatedChat) {
 				socket.emit("getChatById", {
@@ -291,6 +289,22 @@ io.on("connection", (socket) => {
 			socket.emit("getUserById", {
 				success: false,
 				message: `getUserById: Error during finding user in getUserById: ${e.message}`,
+			});
+		}
+	});
+
+	socket.on("getAllParticipantsDataByIds", async (usersIds) => {
+		try {
+			const allParticipantsData = await User.find({ _id: { $in: usersIds } });
+			socket.emit("getAllParticipantsDataByIds", {
+				success: true,
+				allParticipantsData,
+			});
+		} catch (e: any) {
+			console.error(`Error at getAllParticipantsDataByIds: ${e.message}`);
+			socket.emit("getAllParticipantsDataByIds", {
+				success: false,
+				message: `Error during getting users data: ${e.message}`,
 			});
 		}
 	});

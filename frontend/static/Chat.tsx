@@ -1,13 +1,18 @@
 import { FC, RefObject, useCallback, useRef } from "react";
-import { Dimensions, Image, ScrollView, View } from "react-native";
-import { ActivityIndicator, PaperProvider } from "react-native-paper";
+import {
+	Alert,
+	Dimensions,
+	FlatList,
+	Image,
+	ScrollView,
+	View,
+} from "react-native";
+import { PaperProvider } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../core/store/store";
 import TextWithFont from "../shared/components/TextWithFont";
 import {
 	ChatRouteProps,
-	IMessage,
-	IMessagePopulated,
 	IUserState,
 } from "../shared/types";
 import { scrollToBottom } from "../shared/functions";
@@ -37,6 +42,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 		replyMessageId,
 		setReplyMessageId,
 		setChatLoading,
+		forwardMsgOwnersList,
+		setForwardMsgOwnersList,
 	} = useGlobalContext();
 	const theme = createTheme(appTheme);
 
@@ -87,33 +94,83 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 			setChatLoading(true);
 			setSelectedMessages([]);
 			logoutUserIfTokenHasProblems(dispatch, navigation);
-			setChatLoading(false);
 			if (params?.chat) {
-				dispatch(setMessages(params?.chat.messages!));
-				dispatch(setCurrentChat(params?.chat!));
+				dispatch(setMessages(params.chat.messages!));
 			}
+
+			setChatLoading(false);
 		}, [route.params?.chat])
 	);
 
 	useFocusEffect(
 		useCallback(() => {
-			scrollToBottom(scrollViewRef);
-		}, [messages])
+			setChatLoading(true);
+			const { params } = route;
+			if (params && params.chat) {
+				const allParticipantsIds = params.chat.messages.map(
+					(msg) => msg.sender
+				);
+				const allParticipantsIdsUnique = allParticipantsIds.filter(
+					(value, index) => allParticipantsIds.indexOf(value) === index
+				);
+
+				connectionState?.emit(
+					"getAllParticipantsDataByIds",
+					allParticipantsIdsUnique
+				);
+				connectionState?.on(
+					"getAllParticipantsDataByIds",
+					(data: {
+						success: boolean;
+						message?: string;
+						allParticipantsData?: IUserState[];
+					}) => {
+						if (data) {
+							const { success } = data;
+							if (!success) {
+								const { message } = data;
+								console.error(message);
+								Alert.alert(message!);
+								setChatLoading(false);
+								return;
+							}
+							const { allParticipantsData } = data;
+							const newCurrChat = {
+								...params.chat,
+							};
+							const newAllParticipantsData: { [id: string]: IUserState } = {};
+							allParticipantsData?.forEach((participantData) => {
+								const participantId: string = participantData._id!;
+								newAllParticipantsData[participantId] = participantData;
+							});
+							newCurrChat.allParticipantsData = newAllParticipantsData;
+							if (forwardMsgOwnersList?.length) {
+								forwardMsgOwnersList.forEach((frwdMsgOwner) => {
+									if (!newCurrChat.allParticipantsData[frwdMsgOwner._id!]) {
+										newCurrChat.allParticipantsData[frwdMsgOwner._id!] =
+											frwdMsgOwner;
+									}
+								});
+							}
+							dispatch(setCurrentChat(newCurrChat));
+							setChatLoading(false);
+							scrollToBottom(scrollViewRef);
+						} else {
+							console.error(
+								"Error at getAllParticipantsDataByIds event: data is falsy"
+							);
+							setChatLoading(false);
+						}
+					}
+				);
+			} else {
+				setChatLoading(false);
+			}
+			return () => {
+				connectionState?.off("getAllParticipantsDataByIds");
+			};
+		}, [messages, route.params?.chat])
 	);
-	// if (chatLoading) {
-	// 	return (
-	// 		<PaperProvider>
-	// 			<ActivityIndicator
-	// 				size={"large"}
-	// 				color={theme.colors.main[100]}
-	// 				style={{
-	// 					flex: 1,
-	// 					backgroundColor: theme.colors.main[500],
-	// 				}}
-	// 			></ActivityIndicator>
-	// 		</PaperProvider>
-	// 	);
-	// }
 
 	return (
 		user._id && (
@@ -163,8 +220,8 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 						></Image>
 					)}
 					{messages.length ? (
-						<ScrollView // Container for messages
-							ref={scrollViewRef}
+						<FlatList // Container for messages
+							// ref={scrollViewRef}
 							style={{
 								position: "relative",
 								flexDirection: "column",
@@ -174,28 +231,28 @@ const Chat: FC<ChatRouteProps> = ({ navigation, route }) => {
 								minHeight: "100%",
 								paddingVertical: theme.spacing(3),
 							}}
-						>
-							{messages.map((message) => (
+							data={messages}
+							keyExtractor={(item) => item._id.toString()}
+							initialNumToRender={2}
+							maxToRenderPerBatch={2}
+							renderItem={({ item }) => (
 								<Message
-									key={message._id + "-messageComponent"}
 									navigation={navigation}
-									message={message}
+									message={item}
 									handleDeleteMessages={handleDeleteMessages}
 									handleReplyMessage={handleReplyMessage}
 									theme={theme}
 									replyMessage={messages.find(
 										(msg) =>
-											msg._id?.toString() === message.replyMessage?.toString()
+											msg._id?.toString() === item.replyMessage?.toString()
 									)}
 									selected={
-										!!selectedMessages.find(
-											(selMsgId) => selMsgId === message._id
-										)
+										!!selectedMessages.find((selMsgId) => selMsgId === item._id)
 									}
 									selectedMessagesIsEmpty={!selectedMessages.length}
 								></Message>
-							))}
-						</ScrollView>
+							)}
+						></FlatList>
 					) : (
 						<View
 							style={{

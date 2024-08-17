@@ -19,6 +19,12 @@ export interface IUserState {
 	backgroundColors: string[];
 }
 
+export interface IUserDataForForwardMsg {
+	_id: string | null;
+	firstName: string | null;
+	avatars: string[];
+}
+
 export interface IMessage {
 	_id: string;
 	createdAt: string;
@@ -165,6 +171,7 @@ export interface ISocketEmitEvent {
 		participantsIds: string[]
 	) => void;
 	getUserById: (userId: string) => void;
+	getAllParticipantsDataByIds: (userIds: string[]) => void;
 }
 
 // Socket.IO server to client Interface
@@ -177,8 +184,7 @@ export interface ISocketOnEvent {
 	getChatById: (data: {
 		success: boolean;
 		message?: string;
-		chatData?: IChatPopulated;
-		newAllParticipants?: IUserState[];
+		chatData?: IChatFromDBPopulated;
 	}) => void;
 	sendMessage: (data: {
 		success: boolean;
@@ -204,6 +210,11 @@ export interface ISocketOnEvent {
 		success: boolean;
 		message?: string;
 		usersData?: IUserState;
+	}) => void;
+	getAllParticipantsDataByIds: (data: {
+		success: boolean;
+		message?: string;
+		allParticipantsData?: IUserState[];
 	}) => void;
 }
 

@@ -3,7 +3,6 @@ import { Socket } from "socket.io-client";
 import {
 	IBase64Wallpaper,
 	IMessage,
-	IMessagePopulated,
 	ISocketEmitEvent,
 	ISocketOnEvent,
 	IUserState,
@@ -22,6 +21,8 @@ export type GlobalStates = {
 
 	forwardMessages: IMessage[] | null;
 	setForwardMessages: (newState: IMessage[] | null) => void;
+	forwardMsgOwnersList: IUserState[] | null;
+	setForwardMsgOwnersList: (newState: IUserState[] | null) => void;
 	selectedMessages: string[];
 	setSelectedMessages: (newState: string[]) => void;
 	replyMessageId: string | null;
@@ -58,6 +59,8 @@ export const GlobalContext = createContext<GlobalStates>({
 
 	forwardMessages: null,
 	setForwardMessages: () => {},
+	forwardMsgOwnersList: [],
+	setForwardMsgOwnersList: (newState: IUserState[] | null) => {},
 	selectedMessages: [],
 	setSelectedMessages: () => {},
 	replyMessageId: null,

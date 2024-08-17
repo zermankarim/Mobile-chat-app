@@ -15,9 +15,7 @@ import { Avatar, Button } from "react-native-paper";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../core/store/store";
-import { setCurrentChat } from "../../core/reducers/currentChat";
 import { ParamListBase, useFocusEffect } from "@react-navigation/native";
-import { scrollToBottom } from "../functions";
 import { SERVER_PORT_MAIN, SERVER_URL_MAIN } from "../../config";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 
@@ -35,6 +33,7 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 		setSelectedMessages,
 		setReplyMessageId,
 		chatLoading,
+		setForwardMsgOwnersList,
 	} = useGlobalContext();
 
 	// Redux states and dispatch
@@ -48,7 +47,7 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 
 	// Theme
 	const theme = createTheme(appTheme);
-
+	
 	// Animated
 	const userInfoOpacity = useSharedValue(40);
 	const headerButtonOpacity = useSharedValue(0);
@@ -72,7 +71,14 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 				return msg;
 			}
 		});
- 
+
+		const ownersFromParticipants: IUserState[] = Object.values(
+			currentChat.allParticipantsData
+		).filter((participant) =>
+			forwardMessages?.some((msg) => msg.sender === participant._id)
+		);
+
+		setForwardMsgOwnersList(ownersFromParticipants);
 		setForwardMessages(forwardMessages);
 		setReplyMessageId(null);
 		navigation.navigate("Chats");
@@ -157,7 +163,12 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 					}}
 				>
 					<TouchableOpacity
-						onPress={() => setSelectedMessages([])}
+						onPress={() => {
+							setSelectedMessages([]);
+							setForwardMessages(null);
+							setReplyMessageId(null);
+							setForwardMsgOwnersList(null);
+						}}
 						style={{
 							flexDirection: "row",
 							justifyContent: "center",
@@ -324,6 +335,22 @@ const HeaderForChat: FC<HeaderForChatProps> = ({ navigation }) => {
 						gap: theme.spacing(2),
 					}}
 				>
+					<Button
+						style={{
+							minWidth: 0,
+						}}
+						onPress={() => {
+							setForwardMessages(null);
+							setReplyMessageId(null);
+							navigation.navigate("Chats");
+						}}
+					>
+						<Ionicons
+							name="arrow-back-outline"
+							size={24}
+							color={theme.colors.main[200]}
+						/>
+					</Button>
 					<MaterialIcons
 						name="groups"
 						size={48}
